@@ -1,6 +1,10 @@
 "use client";
 
-import { CheckmarkSquare04Icon, File02Icon } from "hugeicons-react";
+import {
+  CheckmarkSquare04Icon,
+  File02Icon,
+  TimeQuarterIcon,
+} from "hugeicons-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { cn } from "@/app/_utils/global-utils";
 import { AppMode } from "@/app/_types";
@@ -36,6 +40,11 @@ export const SidebarNavigation = ({
       label: t("notes.title"),
       icon: File02Icon,
     },
+    {
+      id: Modes.TIME_TRACKING,
+      label: "Tracking",
+      icon: TimeQuarterIcon,
+    },
   ];
 
   const orderNote = user?.landingPage === Modes.NOTES ? -1 : 1;
@@ -62,7 +71,7 @@ export const SidebarNavigation = ({
 
               mode === modeOption.id
                 ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-accent-foreground"
+                : "text-muted-foreground hover:text-accent-foreground",
             )}
           >
             <Icon className="h-5 w-5 lg:h-4 lg:w-4" />

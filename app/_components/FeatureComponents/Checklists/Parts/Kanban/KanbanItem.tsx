@@ -5,18 +5,12 @@ import { CSS } from "@dnd-kit/utilities";
 import { Item, Checklist, KanbanStatus } from "@/app/_types";
 import { cn } from "@/app/_utils/global-utils";
 import { Dropdown } from "@/app/_components/GlobalComponents/Dropdowns/Dropdown";
-import { useState, useEffect, memo, useMemo, useCallback } from "react";
+import { useState, memo, useMemo, useCallback } from "react";
 import { TaskStatus, TaskStatusLabels } from "@/app/_types/enums";
 import { SubtaskModal } from "./SubtaskModal";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { useKanbanItem } from "@/app/_hooks/useKanbanItem";
-import {
-  formatTimerTime,
-  getStatusColor,
-  getStatusIcon,
-} from "@/app/_utils/kanban-utils";
-import { TimeEntriesAccordion } from "./TimeEntriesAccordion";
-import { KanbanItemTimer } from "./KanbanItemTimer";
+import { getStatusColor, getStatusIcon } from "@/app/_utils/kanban-utils";
 import { KanbanItemContent } from "./KanbanItemContent";
 import { getRecurrenceDescription } from "@/app/_utils/recurrence-utils";
 import { usePermissions } from "@/app/_providers/PermissionsProvider";
@@ -55,11 +49,11 @@ const KanbanItemComponent = ({
 
       return (
         usersPublicData.find(
-          (user) => user.username?.toLowerCase() === username?.toLowerCase()
+          (user) => user.username?.toLowerCase() === username?.toLowerCase(),
         )?.avatarUrl || ""
       );
     },
-    [usersPublicData]
+    [usersPublicData],
   );
 
   const [showSubtaskModal, setShowSubtaskModal] = useState(false);
@@ -88,12 +82,6 @@ const KanbanItemComponent = ({
     transform: CSS.Transform.toString(transform),
     transition,
   };
-
-  useEffect(() => {
-    if (isSortableDragging) {
-      kanbanItemHook.stopTimerOnDrag();
-    }
-  }, [isSortableDragging]);
 
   const statusOptions = useMemo(() => {
     const options = statuses?.map((status) => ({
@@ -132,7 +120,7 @@ const KanbanItemComponent = ({
             "group bg-background border rounded-jotty p-3 transition-all duration-200 hover:shadow-md cursor-grab active:cursor-grabbing",
             getStatusColor(item.status),
             (isDragging || isSortableDragging) &&
-            "opacity-50 scale-95 rotate-[4deg] shadow-lg z-50 transition-all duration-200"
+              "opacity-50 scale-95 rotate-[4deg] shadow-lg z-50 transition-all duration-200",
           )}
         >
           <div className="space-y-2">
@@ -155,30 +143,6 @@ const KanbanItemComponent = ({
               formatDateString={formatDateString}
               formatDateTimeString={formatDateTimeString}
             />
-
-            <KanbanItemTimer
-              totalTime={kanbanItemHook.totalTime}
-              currentTime={kanbanItemHook.currentTime}
-              isRunning={kanbanItemHook.isRunning}
-              formatTimerTime={formatTimerTime}
-              onTimerToggle={kanbanItemHook.handleTimerToggle}
-              onAddManualTime={kanbanItemHook.handleAddManualTime}
-            />
-
-            {item.timeEntries && item.timeEntries.length > 0 && (
-              <div onPointerDown={(e) => e.stopPropagation()}>
-                <TimeEntriesAccordion
-                  timeEntries={item.timeEntries}
-                  totalTime={
-                    kanbanItemHook.totalTime + kanbanItemHook.currentTime
-                  }
-                  formatTimerTime={formatTimerTime}
-                  usersPublicData={usersPublicData}
-                  formatDateString={formatDateString}
-                  formatTimeString={formatTimeString}
-                />
-              </div>
-            )}
 
             {item.recurrence && (
               <div className="text-md lg:text-xs flex items-center gap-1 capitalize !mt-2 border bg-muted-foreground/5 border-muted-foreground/20 rounded-jotty p-2">

@@ -2,6 +2,7 @@ export enum Modes {
   CHECKLISTS = "checklists",
   NOTES = "notes",
   DEPRECATED_DOCS = "docs",
+  TIME_TRACKING = "time-tracking",
 }
 
 export enum ItemTypes {

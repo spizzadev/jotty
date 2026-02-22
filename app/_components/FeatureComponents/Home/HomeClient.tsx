@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { ChecklistHome } from "@/app/_components/FeatureComponents/Home/Parts/ChecklistHome";
 import { NotesHome } from "@/app/_components/FeatureComponents/Home/Parts/NotesHome";
+import { TimeTrackingView } from "@/app/_components/FeatureComponents/TimeTracking/TimeTrackingView";
 import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
 import { Checklist, Category, Note, SanitisedUser } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
@@ -22,6 +23,7 @@ interface HomeClientProps {
   initialCategories: Category[];
   initialDocs: Note[];
   initialDocsCategories: Category[];
+  initialTasks: Checklist[];
   user: SanitisedUser | null;
 }
 
@@ -30,6 +32,7 @@ export const HomeClient = ({
   initialCategories,
   initialDocs,
   initialDocsCategories,
+  initialTasks,
   user,
 }: HomeClientProps) => {
   const router = useRouter();
@@ -52,7 +55,11 @@ export const HomeClient = ({
   return (
     <Layout
       categories={
-        mode === Modes.NOTES ? initialDocsCategories : initialCategories
+        mode === Modes.NOTES
+          ? initialDocsCategories
+          : mode === Modes.CHECKLISTS
+            ? initialCategories
+            : []
       }
       onOpenSettings={openSettings}
       onOpenCreateModal={handleOpenCreateModal}
@@ -61,7 +68,11 @@ export const HomeClient = ({
       onCategoryDeleted={() => router.refresh()}
       onCategoryRenamed={() => router.refresh()}
     >
-      <MobileHeader user={user} onOpenSettings={openSettings} currentLocale={user?.preferredLocale || "en"} />
+      <MobileHeader
+        user={user}
+        onOpenSettings={openSettings}
+        currentLocale={user?.preferredLocale || "en"}
+      />
 
       {mode === Modes.CHECKLISTS && (
         <ChecklistHome
@@ -71,7 +82,7 @@ export const HomeClient = ({
           onSelectChecklist={(list) => {
             const categoryPath = buildCategoryPath(
               list.category || "Uncategorized",
-              list.id
+              list.id,
             );
             router.push(`/checklist/${categoryPath}`);
           }}
@@ -87,11 +98,15 @@ export const HomeClient = ({
           onSelectNote={(note) => {
             const categoryPath = buildCategoryPath(
               note.category || "Uncategorized",
-              note.id
+              note.id,
             );
             router.push(`/note/${categoryPath}`);
           }}
         />
+      )}
+
+      {mode === Modes.TIME_TRACKING && (
+        <TimeTrackingView initialTasks={initialTasks} user={user} />
       )}
     </Layout>
   );

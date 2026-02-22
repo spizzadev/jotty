@@ -89,7 +89,9 @@ export const writeJsonFile = async (
   filePath: string,
 ): Promise<void> => {
   try {
-    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.mkdir(path.join(process.cwd(), path.dirname(filePath)), {
+      recursive: true,
+    });
     await fs.writeFile(
       path.join(process.cwd(), filePath),
       JSON.stringify(data, null, 2),

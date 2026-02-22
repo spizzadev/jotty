@@ -16,13 +16,19 @@ export const dynamic = "force-dynamic";
 export default async function HomePage() {
   await CheckForNeedsMigration();
 
-  const [listsResult, notesResult, categoriesResult, notesCategoriesResult] =
-    await Promise.all([
-      getUserChecklists({ limit: HOMEPAGE_ITEMS_LIMIT }),
-      getUserNotes({ limit: HOMEPAGE_ITEMS_LIMIT }),
-      getCategories(Modes.CHECKLISTS),
-      getCategories(Modes.NOTES),
-    ]);
+  const [
+    listsResult,
+    notesResult,
+    categoriesResult,
+    notesCategoriesResult,
+    tasksResult,
+  ] = await Promise.all([
+    getUserChecklists({ limit: HOMEPAGE_ITEMS_LIMIT }),
+    getUserNotes({ limit: HOMEPAGE_ITEMS_LIMIT }),
+    getCategories(Modes.CHECKLISTS),
+    getCategories(Modes.NOTES),
+    getUserChecklists(),
+  ]);
 
   const lists = listsResult.success && listsResult.data ? listsResult.data : [];
   const notes = notesResult.success && notesResult.data ? notesResult.data : [];
@@ -37,6 +43,10 @@ export default async function HomePage() {
       ? notesCategoriesResult.data
       : [];
 
+  const tasks = (
+    tasksResult.success && tasksResult.data ? tasksResult.data : []
+  ).filter((l) => l.type === "task");
+
   const user = sanitizeUserForClient(await getCurrentUser());
 
   return (
@@ -45,6 +55,7 @@ export default async function HomePage() {
       initialCategories={categories}
       initialDocs={notes as Note[]}
       initialDocsCategories={notesCategories}
+      initialTasks={tasks as Checklist[]}
       user={user}
     />
   );

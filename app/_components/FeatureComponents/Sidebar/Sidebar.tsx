@@ -47,15 +47,21 @@ export const Sidebar = (props: SidebarProps) => {
   const searchMode = searchParams?.get("mode") as typeof mode;
   const isLastVisited = user?.landingPage === "last-visited";
 
-  const persistedMode = isLastVisited && typeof window !== "undefined"
-    ? localStorage.getItem("app-mode") as typeof mode
-    : null;
+  const persistedMode =
+    isLastVisited && typeof window !== "undefined"
+      ? (localStorage.getItem("app-mode") as typeof mode)
+      : null;
 
   const defaultMode = !isLastVisited
     ? user?.landingPage || Modes.CHECKLISTS
     : Modes.CHECKLISTS;
 
-  let sidebarMode = searchMode || storedMode || persistedMode || defaultMode || Modes.CHECKLISTS;
+  let sidebarMode =
+    searchMode ||
+    storedMode ||
+    persistedMode ||
+    defaultMode ||
+    Modes.CHECKLISTS;
 
   if (isSomePage) {
     sidebarMode = isNotesPage
@@ -77,7 +83,13 @@ export const Sidebar = (props: SidebarProps) => {
     }
   }, [sidebarMode]);
 
-  const currentItems = sidebarMode === Modes.CHECKLISTS ? checklists : notes || [];
+  const isTimeTracking = sidebarMode === Modes.TIME_TRACKING;
+  const currentItems =
+    sidebarMode === Modes.CHECKLISTS
+      ? checklists
+      : sidebarMode === Modes.NOTES
+        ? notes || []
+        : [];
 
   if (!sidebar.isInitialized) return null;
 
@@ -88,7 +100,11 @@ export const Sidebar = (props: SidebarProps) => {
         onClose={onClose}
         title={
           <button
-            onClick={() => sidebar.setCategoriesSectionCollapsed(!sidebar.categoriesSectionCollapsed)}
+            onClick={() =>
+              sidebar.setCategoriesSectionCollapsed(
+                !sidebar.categoriesSectionCollapsed,
+              )
+            }
             className="jotty-sidebar-categories-title flex items-center gap-1 text-sm lg:text-xs font-bold uppercase text-muted-foreground tracking-wider hover:text-foreground transition-colors"
           >
             {sidebar.categoriesSectionCollapsed ? (
@@ -106,22 +122,31 @@ export const Sidebar = (props: SidebarProps) => {
           />
         }
         headerActions={
-          <button
-            onClick={sidebar.handleToggleAllCategories}
-            className="jotty-sidebar-categories-toggle-all text-sm lg:text-xs font-medium text-primary hover:underline focus:outline-none"
-          >
-            {sidebar.areAnyCollapsed ? t("common.expandAll") : t("common.collapseAll")}
-          </button>
+          !isTimeTracking ? (
+            <button
+              onClick={sidebar.handleToggleAllCategories}
+              className="jotty-sidebar-categories-toggle-all text-sm lg:text-xs font-medium text-primary hover:underline focus:outline-none"
+            >
+              {sidebar.areAnyCollapsed
+                ? t("common.expandAll")
+                : t("common.collapseAll")}
+            </button>
+          ) : null
         }
         footer={
-          <SidebarActions
-            mode={sidebar.mode}
-            onOpenCreateModal={onOpenCreateModal}
-            onOpenCategoryModal={onOpenCategoryModal}
-          />
+          !isTimeTracking ? (
+            <SidebarActions
+              mode={sidebar.mode}
+              onOpenCreateModal={onOpenCreateModal}
+              onOpenCategoryModal={onOpenCategoryModal}
+            />
+          ) : null
         }
         tagsSection={
-          sidebar.mode === Modes.NOTES && tagsEnabled && totalTags > 0 ? (
+          !isTimeTracking &&
+          sidebar.mode === Modes.NOTES &&
+          tagsEnabled &&
+          totalTags > 0 ? (
             <TagsList
               collapsed={sidebar.tagsCollapsed}
               onToggleCollapsed={() =>
@@ -136,39 +161,41 @@ export const Sidebar = (props: SidebarProps) => {
           ) : null
         }
       >
-        <div className="space-y-4">
-          <SharedItemsList
-            collapsed={sidebar.sharedItemsCollapsed}
-            onToggleCollapsed={() =>
-              sidebar.setSharedItemsCollapsed(!sidebar.sharedItemsCollapsed)
-            }
-            onClose={onClose}
-            isItemSelected={sidebar.isItemSelected}
-            mode={sidebar.mode}
-          />
-          {!sidebar.categoriesSectionCollapsed && (
-            <CategoryList
-              categories={categories}
-              items={currentItems as unknown as (Checklist | Note)[]}
-              collapsedCategories={sidebar.collapsedCategoriesForMode}
-              onToggleCategory={sidebar.toggleCategory}
-              onCategorySelect={sidebar.handleCategorySelect}
-              onDeleteCategory={(path: string) =>
-                sidebar.openModal("deleteCategory", path)
+        {!isTimeTracking && (
+          <div className="space-y-4">
+            <SharedItemsList
+              collapsed={sidebar.sharedItemsCollapsed}
+              onToggleCollapsed={() =>
+                sidebar.setSharedItemsCollapsed(!sidebar.sharedItemsCollapsed)
               }
-              onRenameCategory={(path: string) =>
-                sidebar.openModal("renameCategory", path)
-              }
-              onQuickCreate={onOpenCreateModal}
-              onCreateSubcategory={onOpenCategoryModal}
               onClose={onClose}
-              onEditItem={(item) => sidebar.openModal("editItem", item)}
               isItemSelected={sidebar.isItemSelected}
               mode={sidebar.mode}
-              user={user || undefined}
             />
-          )}
-        </div>
+            {!sidebar.categoriesSectionCollapsed && (
+              <CategoryList
+                categories={categories}
+                items={currentItems as unknown as (Checklist | Note)[]}
+                collapsedCategories={sidebar.collapsedCategoriesForMode}
+                onToggleCategory={sidebar.toggleCategory}
+                onCategorySelect={sidebar.handleCategorySelect}
+                onDeleteCategory={(path: string) =>
+                  sidebar.openModal("deleteCategory", path)
+                }
+                onRenameCategory={(path: string) =>
+                  sidebar.openModal("renameCategory", path)
+                }
+                onQuickCreate={onOpenCreateModal}
+                onCreateSubcategory={onOpenCategoryModal}
+                onClose={onClose}
+                onEditItem={(item) => sidebar.openModal("editItem", item)}
+                isItemSelected={sidebar.isItemSelected}
+                mode={sidebar.mode}
+                user={user || undefined}
+              />
+            )}
+          </div>
+        )}
       </SidebarWrapper>
 
       {sidebar.modalState.type === "deleteCategory" && (
@@ -208,7 +235,7 @@ export const Sidebar = (props: SidebarProps) => {
             note={sidebar.modalState.data as Note}
             categories={categories}
             onClose={sidebar.closeModal}
-            onUpdated={(customFunction: () => void = () => { }) => {
+            onUpdated={(customFunction: () => void = () => {}) => {
               sidebar.closeModal();
               sidebar.router.refresh();
               customFunction?.();

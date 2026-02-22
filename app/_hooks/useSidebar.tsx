@@ -25,7 +25,15 @@ export const useSidebar = (props: SidebarProps) => {
 
   const router = useRouter();
   const pathname = usePathname();
-  const { mode, setMode, isInitialized, checklists, notes, selectedFilter, setSelectedFilter } = useAppMode();
+  const {
+    mode,
+    setMode,
+    isInitialized,
+    checklists,
+    notes,
+    selectedFilter,
+    setSelectedFilter,
+  } = useAppMode();
   const { checkNavigation } = useNavigationGuard();
 
   const {
@@ -76,7 +84,7 @@ export const useSidebar = (props: SidebarProps) => {
 
   const handleConfirmRenameCategory = async (
     oldPath: string,
-    newName: string
+    newName: string,
   ) => {
     const formData = new FormData();
     formData.append("oldPath", oldPath);
@@ -93,41 +101,45 @@ export const useSidebar = (props: SidebarProps) => {
     const items = mode === Modes.CHECKLISTS ? checklists : notes;
 
     const pathsOfParentsToCategories = new Set(
-      categories.map((c) => c.parent).filter(Boolean) as string[]
+      categories.map((c) => c.parent).filter(Boolean) as string[],
     );
     const pathsOfParentsToItems = new Set(
-      items.map((item) => item.category).filter(Boolean) as string[]
+      items.map((item) => item.category).filter(Boolean) as string[],
     );
 
     const allPaths = new Set(
       Array.from(pathsOfParentsToCategories).concat(
-        Array.from(pathsOfParentsToItems)
-      )
+        Array.from(pathsOfParentsToItems),
+      ),
     );
 
     const anyCollapsed = Array.from(allPaths).some((path) =>
-      collapsedCategoriesForMode.has(path)
+      collapsedCategoriesForMode.has(path),
     );
 
     return { allCollapsiblePaths: allPaths, areAnyCollapsed: anyCollapsed };
   }, [categories, checklists, notes, mode, collapsedCategoriesForMode]);
 
   const handleToggleAllCategories = () => {
-    setAllCategoriesCollapsed(mode, Array.from(allCollapsiblePaths), !areAnyCollapsed);
+    setAllCategoriesCollapsed(
+      mode,
+      Array.from(allCollapsiblePaths),
+      !areAnyCollapsed,
+    );
   };
 
   const toggleCategory = useCallback(
     (categoryPath: string) => {
       storeToggleCategory(mode, categoryPath);
     },
-    [mode, storeToggleCategory]
+    [mode, storeToggleCategory],
   );
 
   const toggleTag = useCallback(
     (tagPath: string) => {
       storeToggleTag(tagPath);
     },
-    [storeToggleTag]
+    [storeToggleTag],
   );
 
   const handleModeSwitch = (newMode: AppMode) =>
@@ -143,10 +155,13 @@ export const useSidebar = (props: SidebarProps) => {
       toggleCategory(categoryPath);
       return;
     }
-    if (selectedFilter?.type === 'category' && selectedFilter.value === categoryPath) {
+    if (
+      selectedFilter?.type === "category" &&
+      selectedFilter.value === categoryPath
+    ) {
       setSelectedFilter(null);
     } else {
-      setSelectedFilter({ type: 'category', value: categoryPath });
+      setSelectedFilter({ type: "category", value: categoryPath });
     }
     onClose();
   };
@@ -156,10 +171,10 @@ export const useSidebar = (props: SidebarProps) => {
       toggleTag(tagName);
       return;
     }
-    if (selectedFilter?.type === 'tag' && selectedFilter.value === tagName) {
+    if (selectedFilter?.type === "tag" && selectedFilter.value === tagName) {
       setSelectedFilter(null);
     } else {
-      setSelectedFilter({ type: 'tag', value: tagName });
+      setSelectedFilter({ type: "tag", value: tagName });
     }
     onClose();
   };
@@ -167,7 +182,7 @@ export const useSidebar = (props: SidebarProps) => {
   const isItemSelected = (item: Checklist | Note) => {
     const expectedPath = buildCategoryPath(
       item.category || "Uncategorized",
-      item.id
+      item.id,
     )?.toLowerCase();
 
     return (
@@ -182,7 +197,7 @@ export const useSidebar = (props: SidebarProps) => {
     (categoryPath: string) => {
       storeExpandCategoryPath(mode, categoryPath);
     },
-    [mode, storeExpandCategoryPath]
+    [mode, storeExpandCategoryPath],
   );
 
   useEffect(() => {

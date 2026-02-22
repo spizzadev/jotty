@@ -29,6 +29,10 @@ export const USERS_DIR = path.join("data", "users");
 export const DATA_DIR = path.join("data");
 export const HOWTO_DIR = path.join("howto");
 
+export const TIME_ENTRIES_FOLDER = "time-entries";
+export const TIME_ENTRIES_DIR = (username: string) =>
+  path.join(DATA_DIR, TIME_ENTRIES_FOLDER, username);
+
 export const CHECKLISTS_DIR = (username: string) =>
   path.join(DATA_DIR, CHECKLISTS_FOLDER, username);
 

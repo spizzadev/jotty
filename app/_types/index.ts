@@ -159,7 +159,7 @@ export interface NoteEditorViewModel {
   handleEditorContentChange: (
     content: string,
     isMarkdown: boolean,
-    isDirty: boolean
+    isDirty: boolean,
   ) => void;
   showUnsavedChangesModal: boolean;
   setShowUnsavedChangesModal: (show: boolean) => void;
@@ -173,7 +173,7 @@ export interface NoteEditorViewModel {
   handleEditEncrypted: (
     passphrase: string,
     method: string,
-    decryptedContent: string
+    decryptedContent: string,
   ) => void;
 }
 
@@ -311,7 +311,16 @@ export interface EmojiDictionary {
   [key: string]: EmojiConfig | string;
 }
 
-export type AppMode = "checklists" | "notes";
+export type AppMode = "checklists" | "notes" | "time-tracking";
+
+export interface ProjectTimeEntry {
+  id: string;
+  taskId: string;
+  description: string;
+  start: string;
+  end?: string;
+  durationMin?: number;
+}
 
 export interface MostActiveSharer {
   username: string;
@@ -407,8 +416,10 @@ export interface AppModeContextType {
   setMode: (mode: AppMode) => void;
   selectedNote: string | null;
   setSelectedNote: (id: string | null) => void;
-  selectedFilter: { type: 'category' | 'tag'; value: string } | null;
-  setSelectedFilter: (filter: { type: 'category' | 'tag'; value: string } | null) => void;
+  selectedFilter: { type: "category" | "tag"; value: string } | null;
+  setSelectedFilter: (
+    filter: { type: "category" | "tag"; value: string } | null,
+  ) => void;
   isInitialized: boolean;
   isDemoMode: boolean;
   isRwMarkable: boolean;
@@ -569,7 +580,7 @@ declare global {
 }
 
 export interface ContentFilter {
-  type: 'category' | 'tag';
+  type: "category" | "tag";
   value: string;
 }
 
