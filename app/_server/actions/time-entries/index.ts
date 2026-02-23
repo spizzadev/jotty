@@ -46,6 +46,11 @@ async function requireUser() {
   return user;
 }
 
+async function resolveUser(usernameOverride?: string) {
+  if (usernameOverride) return { username: usernameOverride };
+  return requireUser();
+}
+
 async function readEntries(
   username: string,
   taskId: string,
@@ -86,9 +91,10 @@ async function writeCategoryEntries(
 
 export const getTimeEntries = async (
   taskId: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; data?: TimeEntrySummary; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const billingData =
       (await readJsonFile(getBillingFilePath(user.username))) || {};
     const billing: BillingSettings | undefined = billingData[taskId];
@@ -114,13 +120,15 @@ export const getTimeEntries = async (
   }
 };
 
-export const getAllTimeEntries = async (): Promise<{
+export const getAllTimeEntries = async (
+  usernameOverride?: string,
+): Promise<{
   success: boolean;
   data?: TimeEntrySummary;
   error?: string;
 }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const userDir = path.join(process.cwd(), TIME_ENTRIES_DIR(user.username));
     await ensureDir(userDir);
 
@@ -167,9 +175,10 @@ export const getAllTimeEntries = async (): Promise<{
 export const getEntriesForTasks = async (
   taskIds: string[],
   category?: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; data?: TimeEntrySummary; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const allEntries: ProjectTimeEntry[] = [];
 
     for (const taskId of taskIds) {
@@ -205,9 +214,10 @@ export const getEntriesForTasks = async (
 export const startTimeEntry = async (
   taskId: string,
   description: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const entries = await readEntries(user.username, taskId);
 
     const running = entries.find((e) => !e.end);
@@ -236,9 +246,10 @@ export const startTimeEntry = async (
 export const startCategoryEntry = async (
   category: string,
   description: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const entries = await readCategoryEntries(user.username, category);
 
     const running = entries.find((e) => !e.end);
@@ -267,9 +278,10 @@ export const startCategoryEntry = async (
 export const stopTimeEntry = async (
   taskId: string,
   entryId: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const entries = await readEntries(user.username, taskId);
     const idx = entries.findIndex((e) => e.id === entryId);
 
@@ -300,9 +312,10 @@ export const stopTimeEntry = async (
 export const stopCategoryEntry = async (
   category: string,
   entryId: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const entries = await readCategoryEntries(user.username, category);
     const idx = entries.findIndex((e) => e.id === entryId);
 
@@ -334,9 +347,10 @@ export const updateTimeEntry = async (
   taskId: string,
   entryId: string,
   description: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const entries = await readEntries(user.username, taskId);
     const idx = entries.findIndex((e) => e.id === entryId);
 
@@ -359,9 +373,10 @@ export const updateTimeEntry = async (
 export const deleteTimeEntry = async (
   taskId: string,
   entryId: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const entries = await readEntries(user.username, taskId);
     const newEntries = entries.filter((e) => e.id !== entryId);
     await writeEntries(user.username, taskId, newEntries);
@@ -375,9 +390,10 @@ export const deleteTimeEntry = async (
 export const deleteCategoryEntry = async (
   category: string,
   entryId: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const entries = await readCategoryEntries(user.username, category);
     const newEntries = entries.filter((e) => e.id !== entryId);
     await writeCategoryEntries(user.username, category, newEntries);
@@ -393,9 +409,10 @@ export const addManualEntry = async (
   description: string,
   dateStr: string,
   durationMin: number,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     if (durationMin <= 0)
       return { success: false, error: "Duration must be greater than 0" };
 
@@ -427,9 +444,10 @@ export const addManualCategoryEntry = async (
   description: string,
   dateStr: string,
   durationMin: number,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     if (durationMin <= 0)
       return { success: false, error: "Duration must be greater than 0" };
 
@@ -458,9 +476,10 @@ export const addManualCategoryEntry = async (
 
 export const getBillingSettings = async (
   taskId: string,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; data?: BillingSettings; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const billingData =
       (await readJsonFile(getBillingFilePath(user.username))) || {};
     return { success: true, data: billingData[taskId] };
@@ -472,9 +491,10 @@ export const getBillingSettings = async (
 export const saveBillingSettings = async (
   taskId: string,
   settings: BillingSettings,
+  usernameOverride?: string,
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-    const user = await requireUser();
+    const user = await resolveUser(usernameOverride);
     const userDir = TIME_ENTRIES_DIR(user.username);
     await ensureDir(path.join(process.cwd(), userDir));
 

@@ -12,13 +12,13 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  return withApiAuth(request, async () => {
+  return withApiAuth(request, async (user) => {
     try {
       const { searchParams } = new URL(request.url);
       const taskId = searchParams.get("taskId");
 
       if (taskId) {
-        const result = await getTimeEntries(taskId);
+        const result = await getTimeEntries(taskId, user.username);
         if (!result.success) {
           return NextResponse.json({ error: result.error }, { status: 500 });
         }
@@ -26,14 +26,19 @@ export async function GET(request: NextRequest) {
       }
 
       // No taskId — return all entries globally
-      const result = await getAllTimeEntries();
+      const result = await getAllTimeEntries(user.username);
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 500 });
       }
       return NextResponse.json(result.data);
     } catch (error) {
       return NextResponse.json(
-        { error: error instanceof Error ? error.message : "Failed to fetch time entries" },
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch time entries",
+        },
         { status: 500 },
       );
     }
@@ -41,7 +46,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  return withApiAuth(request, async () => {
+  return withApiAuth(request, async (user) => {
     try {
       const body = await request.json();
       const { taskId, category, description = "", durationMin, dateStr } = body;
@@ -57,36 +62,67 @@ export async function POST(request: NextRequest) {
       if (durationMin !== undefined) {
         const date = dateStr || new Date().toISOString().split("T")[0];
         if (taskId) {
-          const result = await addManualEntry(taskId, description, date, durationMin);
+          const result = await addManualEntry(
+            taskId,
+            description,
+            date,
+            durationMin,
+            user.username,
+          );
           if (!result.success) {
             return NextResponse.json({ error: result.error }, { status: 400 });
           }
-          return NextResponse.json({ success: true, data: result.data }, { status: 201 });
+          return NextResponse.json(
+            { success: true, data: result.data },
+            { status: 201 },
+          );
         }
-        const result = await addManualCategoryEntry(category, description, date, durationMin);
+        const result = await addManualCategoryEntry(
+          category,
+          description,
+          date,
+          durationMin,
+          user.username,
+        );
         if (!result.success) {
           return NextResponse.json({ error: result.error }, { status: 400 });
         }
-        return NextResponse.json({ success: true, data: result.data }, { status: 201 });
+        return NextResponse.json(
+          { success: true, data: result.data },
+          { status: 201 },
+        );
       }
 
       // Start timer
       if (taskId) {
-        const result = await startTimeEntry(taskId, description);
+        const result = await startTimeEntry(taskId, description, user.username);
         if (!result.success) {
           return NextResponse.json({ error: result.error }, { status: 400 });
         }
-        return NextResponse.json({ success: true, data: result.data }, { status: 201 });
+        return NextResponse.json(
+          { success: true, data: result.data },
+          { status: 201 },
+        );
       }
 
-      const result = await startCategoryEntry(category, description);
+      const result = await startCategoryEntry(
+        category,
+        description,
+        user.username,
+      );
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 400 });
       }
-      return NextResponse.json({ success: true, data: result.data }, { status: 201 });
+      return NextResponse.json(
+        { success: true, data: result.data },
+        { status: 201 },
+      );
     } catch (error) {
       return NextResponse.json(
-        { error: error instanceof Error ? error.message : "Internal server error" },
+        {
+          error:
+            error instanceof Error ? error.message : "Internal server error",
+        },
         { status: 500 },
       );
     }
