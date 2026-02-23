@@ -1,9 +1,11 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { Checklist } from "@/app/_types";
 import { cn } from "@/app/_utils/global-utils";
+import { getTimeEntrySummary } from "@/app/_server/actions/time-entries";
 
 export const TimeTrackingSidebar = () => {
   const router = useRouter();
@@ -13,6 +15,17 @@ export const TimeTrackingSidebar = () => {
   const tasks = (checklists as Checklist[]).filter((c) => c.type === "task");
   const activeCategory = searchParams?.get("category") ?? null;
   const activeTask = searchParams?.get("task") ?? null;
+
+  const [summary, setSummary] = useState<{
+    taskIds: string[];
+    categories: string[];
+  } | null>(null);
+
+  useEffect(() => {
+    getTimeEntrySummary().then((result) => {
+      if (result.success && result.data) setSummary(result.data);
+    });
+  }, []);
 
   const navigate = (params: { category?: string; task?: string } = {}) => {
     const url = new URLSearchParams({ mode: "time-tracking" });
@@ -34,6 +47,12 @@ export const TimeTrackingSidebar = () => {
   });
 
   const isGlobal = !activeCategory && !activeTask;
+
+  const hasCategoryEntries = (category: string) =>
+    summary?.categories.includes(category) ?? false;
+
+  const hasTaskEntries = (taskId: string) =>
+    summary?.taskIds.includes(taskId) ?? false;
 
   return (
     <div className="flex flex-col gap-1 px-2 py-1">
@@ -66,7 +85,12 @@ export const TimeTrackingSidebar = () => {
                   : "text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
-              {category}
+              <span className="flex items-center justify-between w-full">
+                <span>{category}</span>
+                {hasCategoryEntries(category) && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                )}
+              </span>
             </button>
 
             {/* Tasks under category */}
@@ -84,7 +108,12 @@ export const TimeTrackingSidebar = () => {
                       : "text-foreground hover:bg-muted",
                   )}
                 >
-                  {task.title}
+                  <span className="flex items-center justify-between w-full">
+                    <span>{task.title}</span>
+                    {hasTaskEntries(taskId) && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+                    )}
+                  </span>
                 </button>
               );
             })}

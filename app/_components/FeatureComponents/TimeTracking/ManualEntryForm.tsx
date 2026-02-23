@@ -7,6 +7,7 @@ import {
   addManualCategoryEntry,
 } from "@/app/_server/actions/time-entries";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
+import { LocalizedDateTimeInput } from "./LocalizedDateTimeInput";
 
 interface ManualEntryFormProps {
   taskId?: string;
@@ -14,46 +15,80 @@ interface ManualEntryFormProps {
   onAdd: (entry: ProjectTimeEntry) => void;
 }
 
-function todayStr(): string {
-  return new Date().toISOString().slice(0, 10);
+function toDateTimeLocal(d: Date): string {
+  const offset = d.getTimezoneOffset();
+  return new Date(d.getTime() - offset * 60000).toISOString().slice(0, 16);
 }
 
-export const ManualEntryForm = ({ taskId, category, onAdd }: ManualEntryFormProps) => {
+function defaultStart(): string {
+  const d = new Date();
+  d.setHours(d.getHours() - 1, 0, 0, 0);
+  return toDateTimeLocal(d);
+}
+
+function defaultEnd(): string {
+  const d = new Date();
+  d.setMinutes(0, 0, 0);
+  return toDateTimeLocal(d);
+}
+
+export const ManualEntryForm = ({
+  taskId,
+  category,
+  onAdd,
+}: ManualEntryFormProps) => {
   const [expanded, setExpanded] = useState(false);
-  const [date, setDate] = useState(todayStr());
+  const [start, setStart] = useState(defaultStart);
+  const [end, setEnd] = useState(defaultEnd);
   const [description, setDescription] = useState("");
-  const [hours, setHours] = useState("");
-  const [minutes, setMinutes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleAdd = async () => {
-    const h = parseInt(hours || "0", 10);
-    const m = parseInt(minutes || "0", 10);
-    const durationMin = h * 60 + m;
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const durationMin = Math.round(
+      (endDate.getTime() - startDate.getTime()) / 60000,
+    );
 
     if (durationMin <= 0) {
-      setError("Please enter a duration greater than 0");
+      setError("End time must be after start time");
       return;
     }
-    if (!date) {
-      setError("Please enter a date");
-      return;
-    }
+
+    const dateStr = start.slice(0, 10);
+
+    const startIso = new Date(start).toISOString();
+    const endIso = new Date(end).toISOString();
 
     setError(null);
     setSaving(true);
     const result = taskId
-      ? await addManualEntry(taskId, description.trim(), date, durationMin)
-      : await addManualCategoryEntry(category ?? "", description.trim(), date, durationMin);
+      ? await addManualEntry(
+          taskId,
+          description.trim(),
+          dateStr,
+          durationMin,
+          undefined,
+          startIso,
+          endIso,
+        )
+      : await addManualCategoryEntry(
+          category ?? "",
+          description.trim(),
+          dateStr,
+          durationMin,
+          undefined,
+          startIso,
+          endIso,
+        );
     setSaving(false);
 
     if (result.success && result.data) {
       onAdd(result.data);
       setDescription("");
-      setHours("");
-      setMinutes("");
-      setDate(todayStr());
+      setStart(defaultStart());
+      setEnd(defaultEnd());
       setExpanded(false);
     } else {
       setError(result.error ?? "Failed to add entry");
@@ -74,43 +109,19 @@ export const ManualEntryForm = ({ taskId, category, onAdd }: ManualEntryFormProp
         <div className="flex flex-col gap-3 px-4 pb-4 border-t border-border pt-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Date</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="rounded-md border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+              <label className="text-xs text-muted-foreground">Start</label>
+              <LocalizedDateTimeInput value={start} onChange={setStart} />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-muted-foreground">Duration</label>
-              <div className="flex items-center gap-1">
-                <input
-                  type="number"
-                  min="0"
-                  max="23"
-                  value={hours}
-                  onChange={(e) => setHours(e.target.value)}
-                  placeholder="0h"
-                  className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <span className="text-xs text-muted-foreground shrink-0">h</span>
-                <input
-                  type="number"
-                  min="0"
-                  max="59"
-                  value={minutes}
-                  onChange={(e) => setMinutes(e.target.value)}
-                  placeholder="0m"
-                  className="w-full rounded-md border border-border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <span className="text-xs text-muted-foreground shrink-0">m</span>
-              </div>
+              <label className="text-xs text-muted-foreground">End</label>
+              <LocalizedDateTimeInput value={end} onChange={setEnd} />
             </div>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-muted-foreground">Description (optional)</label>
+            <label className="text-xs text-muted-foreground">
+              Description (optional)
+            </label>
             <input
               type="text"
               value={description}

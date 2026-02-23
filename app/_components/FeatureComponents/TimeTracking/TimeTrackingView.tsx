@@ -18,7 +18,6 @@ import { ManualEntryForm } from "./ManualEntryForm";
 import { EntryTable } from "./EntryTable";
 import { SummaryRow } from "./SummaryRow";
 import { BillingSettingsPanel } from "./BillingSettingsPanel";
-import slugify from "slugify";
 
 interface TimeTrackingViewProps {
   initialTasks: Checklist[];
@@ -81,11 +80,18 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
       const taskIds = initialTasks
         .filter((t) => t.category === categoryParam)
         .map((t) => t.uuid || t.id);
-      const result = await getEntriesForTasks(taskIds, categoryParam);
+      const billingKey = `_cat_${categoryParam}`;
+      const [result, billingResult] = await Promise.all([
+        getEntriesForTasks(taskIds, categoryParam),
+        getBillingSettings(billingKey),
+      ]);
       if (result.success && result.data) {
         setEntries(result.data.entries);
         setTotalMin(result.data.totalMin);
         setRunningEntry(result.data.runningEntry);
+      }
+      if (billingResult.success) {
+        setBilling(billingResult.data);
       }
     } else {
       // Global view
@@ -151,8 +157,9 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
   };
 
   const handleBillingSave = async (settings: BillingSettings) => {
-    if (!taskParam) return;
-    const result = await saveBillingSettings(taskParam, settings);
+    const key = taskParam ?? (categoryParam ? `_cat_${categoryParam}` : null);
+    if (!key) return;
+    const result = await saveBillingSettings(key, settings);
     if (result.success) {
       setBilling(settings);
     }
@@ -176,10 +183,10 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
 
   return (
     <div className="w-full px-4 py-6 h-full overflow-y-auto jotty-scrollable-content">
-      <div className="flex flex-col gap-6 max-w-3xl mx-auto">
+      <div className="flex flex-col gap-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold">{heading}</h1>
 
-        {taskParam && (
+        {(taskParam || categoryParam) && (
           <BillingSettingsPanel
             initialSettings={billing}
             onSave={handleBillingSave}

@@ -50,11 +50,5 @@ jobs:
       - name: This will totally fail if you only use AI
         run: yarn tsc --noEmit
 
-      - name: As important as boring security tests
-        run: yarn test:run tests/security --reporter=verbose
-
-      - name: Api tests so JotTick keeps working lmfao
-        run: yarn test:run tests/api --reporter=verbose
-
-      - name: Server actions also need to be tested
-        run: yarn test:run tests/server-actions --reporter=verbose
+      - name: Test suite
+        run: yarn test:run tests/ --reporter=verbose

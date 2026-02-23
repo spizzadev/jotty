@@ -7,6 +7,8 @@ import {
   deleteCategoryEntry,
 } from "@/app/_server/actions/time-entries";
 import { exportEntriesToCsv } from "./exportCsv";
+import { usePreferredDateTime } from "@/app/_hooks/usePreferredDateTime";
+import { LocalizedDateTimeInput } from "./LocalizedDateTimeInput";
 
 type FilterRange = "week" | "month" | "all";
 
@@ -78,9 +80,14 @@ export const EntryTable = ({
   onFilteredChange,
   tasks,
 }: EntryTableProps) => {
+  const { formatDateString } = usePreferredDateTime();
   const [filter, setFilter] = useState<FilterRange>("week");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editState, setEditState] = useState<EditState>({ start: "", end: "", description: "" });
+  const [editState, setEditState] = useState<EditState>({
+    start: "",
+    end: "",
+    description: "",
+  });
   const [saving, setSaving] = useState(false);
 
   const completedEntries = entries.filter(
@@ -117,9 +124,13 @@ export const EntryTable = ({
     if (!onUpdate) return;
     setSaving(true);
     const start = new Date(editState.start).toISOString();
-    const end = editState.end ? new Date(editState.end).toISOString() : undefined;
+    const end = editState.end
+      ? new Date(editState.end).toISOString()
+      : undefined;
     const durationMin = end
-      ? Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000)
+      ? Math.round(
+          (new Date(end).getTime() - new Date(start).getTime()) / 60000,
+        )
       : entry.durationMin;
 
     const updated: ProjectTimeEntry = {
@@ -164,7 +175,9 @@ export const EntryTable = ({
                 currency,
               )
             }
-            disabled={entries.filter((e) => e.durationMin !== undefined).length === 0}
+            disabled={
+              entries.filter((e) => e.durationMin !== undefined).length === 0
+            }
             className="px-2 py-0.5 rounded text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
             title="Export CSV"
           >
@@ -181,7 +194,11 @@ export const EntryTable = ({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {r === "week" ? "This Week" : r === "month" ? "This Month" : "All"}
+                {r === "week"
+                  ? "This Week"
+                  : r === "month"
+                    ? "This Month"
+                    : "All"}
               </button>
             ))}
           </div>
@@ -212,39 +229,55 @@ export const EntryTable = ({
             <tbody>
               {completedEntries.map((entry) => {
                 const isEditing = editingId === entry.id;
-                const amount = showAmount ? (entry.durationMin! / 60) * hourlyRate! : null;
+                const amount = showAmount
+                  ? (entry.durationMin! / 60) * hourlyRate!
+                  : null;
 
                 if (isEditing) {
                   return (
-                    <tr key={entry.id} className="border-b border-border bg-muted/10">
+                    <tr
+                      key={entry.id}
+                      className="border-b border-border bg-muted/10"
+                    >
                       <td colSpan={colCount} className="px-3 py-2">
                         <div className="flex flex-col gap-2">
                           <div className="grid grid-cols-2 gap-2">
                             <div className="flex flex-col gap-1">
-                              <label className="text-xs text-muted-foreground">Start</label>
-                              <input
-                                type="datetime-local"
+                              <label className="text-xs text-muted-foreground">
+                                Start
+                              </label>
+                              <LocalizedDateTimeInput
                                 value={editState.start}
-                                onChange={(e) => setEditState((s) => ({ ...s, start: e.target.value }))}
-                                className="rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                                onChange={(v) =>
+                                  setEditState((s) => ({ ...s, start: v }))
+                                }
                               />
                             </div>
                             <div className="flex flex-col gap-1">
-                              <label className="text-xs text-muted-foreground">End</label>
-                              <input
-                                type="datetime-local"
+                              <label className="text-xs text-muted-foreground">
+                                End
+                              </label>
+                              <LocalizedDateTimeInput
                                 value={editState.end}
-                                onChange={(e) => setEditState((s) => ({ ...s, end: e.target.value }))}
-                                className="rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                                onChange={(v) =>
+                                  setEditState((s) => ({ ...s, end: v }))
+                                }
                               />
                             </div>
                           </div>
                           <div className="flex flex-col gap-1">
-                            <label className="text-xs text-muted-foreground">Description</label>
+                            <label className="text-xs text-muted-foreground">
+                              Description
+                            </label>
                             <input
                               type="text"
                               value={editState.description}
-                              onChange={(e) => setEditState((s) => ({ ...s, description: e.target.value }))}
+                              onChange={(e) =>
+                                setEditState((s) => ({
+                                  ...s,
+                                  description: e.target.value,
+                                }))
+                              }
                               className="rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
                             />
                           </div>
@@ -275,7 +308,7 @@ export const EntryTable = ({
                     className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors"
                   >
                     <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">
-                      {formatDate(entry.start)}
+                      {formatDateString(entry.start)}
                     </td>
                     {showProjectCol && (
                       <td className="px-3 py-2 text-muted-foreground whitespace-nowrap text-xs">

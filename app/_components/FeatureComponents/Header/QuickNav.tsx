@@ -5,6 +5,7 @@ import {
   File02Icon,
   Logout01Icon,
   SidebarLeftIcon,
+  TimeQuarterIcon,
 } from "hugeicons-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { useRouter } from "next/navigation";
@@ -77,7 +78,7 @@ export const QuickNav = ({
           mobileClasses,
           desktopClasses,
           isScrolled && !isEditorInEditMode ? "bottom-10" : "-bottom-20",
-          isEditorInEditMode && "lg:relative lg:bottom-auto"
+          isEditorInEditMode && "lg:relative lg:bottom-auto",
         )}
       >
         {showSidebarToggle && onSidebarToggle && (
@@ -117,8 +118,16 @@ export const QuickNav = ({
 
         <div className="contents lg:hidden">
           {(user?.landingPage === Modes.NOTES
-            ? ([Modes.NOTES, Modes.CHECKLISTS] as AppMode[])
-            : ([Modes.CHECKLISTS, Modes.NOTES] as AppMode[])
+            ? ([
+                Modes.NOTES,
+                Modes.CHECKLISTS,
+                Modes.TIME_TRACKING,
+              ] as AppMode[])
+            : ([
+                Modes.CHECKLISTS,
+                Modes.NOTES,
+                Modes.TIME_TRACKING,
+              ] as AppMode[])
           ).map((modeOption) => (
             <NavigationGlobalIcon
               key={modeOption}
@@ -129,7 +138,16 @@ export const QuickNav = ({
                       "h-10 w-10 p-2 rounded-jotty",
                       mode === Modes.CHECKLISTS
                         ? "bg-primary text-primary-foreground"
-                        : ""
+                        : "",
+                    )}
+                  />
+                ) : modeOption === Modes.TIME_TRACKING ? (
+                  <TimeQuarterIcon
+                    className={cn(
+                      "h-10 w-10 p-2 rounded-jotty",
+                      mode === Modes.TIME_TRACKING
+                        ? "bg-primary text-primary-foreground"
+                        : "",
                     )}
                   />
                 ) : (
@@ -138,7 +156,7 @@ export const QuickNav = ({
                       "h-10 w-10 p-2 rounded-jotty",
                       mode === Modes.NOTES
                         ? "bg-primary text-primary-foreground"
-                        : ""
+                        : "",
                     )}
                   />
                 )
