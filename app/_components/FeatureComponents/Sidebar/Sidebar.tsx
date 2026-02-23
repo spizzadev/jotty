@@ -12,6 +12,7 @@ import { CategoryList } from "./Parts/CategoryList";
 import { SharedItemsList } from "./Parts/SharedItemsList";
 import { TagsList } from "./Parts/TagsList";
 import { SidebarActions } from "./Parts/SidebarActions";
+import { TimeTrackingSidebar } from "@/app/_components/FeatureComponents/TimeTracking/TimeTrackingSidebar";
 import { ArrowDown01Icon, ArrowRight01Icon } from "hugeicons-react";
 import { Modes } from "@/app/_types/enums";
 import { SidebarProps, useSidebar } from "@/app/_hooks/useSidebar";
@@ -161,7 +162,9 @@ export const Sidebar = (props: SidebarProps) => {
           ) : null
         }
       >
-        {!isTimeTracking && (
+        {isTimeTracking ? (
+          <TimeTrackingSidebar />
+        ) : (
           <div className="space-y-4">
             <SharedItemsList
               collapsed={sidebar.sharedItemsCollapsed}

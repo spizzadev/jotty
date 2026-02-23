@@ -1,20 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ProjectTimeEntry } from "@/app/_types";
-import { deleteTimeEntry } from "@/app/_server/actions/time-entries";
+import { Checklist, ProjectTimeEntry } from "@/app/_types";
+import {
+  deleteTimeEntry,
+  deleteCategoryEntry,
+} from "@/app/_server/actions/time-entries";
 import { exportEntriesToCsv } from "./exportCsv";
 
 type FilterRange = "week" | "month" | "all";
 
 interface EntryTableProps {
-  taskId: string;
-  taskTitle: string;
   entries: ProjectTimeEntry[];
+  /** Used as the CSV export filename */
+  exportTitle: string;
   hourlyRate?: number;
   currency?: string;
   onDelete: (entryId: string) => void;
   onFilteredChange?: (entries: ProjectTimeEntry[]) => void;
+  /** When provided, shows a Project/Category column resolving taskId → title */
+  tasks?: Checklist[];
 }
 
 function formatDuration(durationMin: number): string {
@@ -52,13 +57,13 @@ function isInRange(iso: string, range: FilterRange): boolean {
 }
 
 export const EntryTable = ({
-  taskId,
-  taskTitle,
   entries,
+  exportTitle,
   hourlyRate,
   currency = "EUR",
   onDelete,
   onFilteredChange,
+  tasks,
 }: EntryTableProps) => {
   const [filter, setFilter] = useState<FilterRange>("week");
 
@@ -70,14 +75,28 @@ export const EntryTable = ({
     onFilteredChange?.(completedEntries);
   }, [completedEntries.length, filter, entries]);
 
-  const handleDelete = async (entryId: string) => {
-    const result = await deleteTimeEntry(taskId, entryId);
+  const handleDelete = async (entry: ProjectTimeEntry) => {
+    const result = entry.taskId
+      ? await deleteTimeEntry(entry.taskId, entry.id)
+      : await deleteCategoryEntry(entry.category ?? "", entry.id);
     if (result.success) {
-      onDelete(entryId);
+      onDelete(entry.id);
     }
   };
 
   const showAmount = hourlyRate !== undefined && hourlyRate > 0;
+  const showProjectCol = !!tasks;
+
+  const resolveLabel = (entry: ProjectTimeEntry): string => {
+    if (entry.category && !entry.taskId) return entry.category;
+    if (entry.taskId && tasks) {
+      const task = tasks.find(
+        (t) => (t.uuid || t.id) === entry.taskId,
+      );
+      return task?.title ?? entry.taskId;
+    }
+    return "";
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -90,7 +109,7 @@ export const EntryTable = ({
             onClick={() =>
               exportEntriesToCsv(
                 entries.filter((e) => e.durationMin !== undefined),
-                taskTitle,
+                exportTitle,
                 hourlyRate,
                 currency,
               )
@@ -135,6 +154,9 @@ export const EntryTable = ({
             <thead>
               <tr className="border-b border-border bg-muted/40 text-xs text-muted-foreground">
                 <th className="px-3 py-2 text-left font-medium">Date</th>
+                {showProjectCol && (
+                  <th className="px-3 py-2 text-left font-medium">Project</th>
+                )}
                 <th className="px-3 py-2 text-left font-medium">Description</th>
                 <th className="px-3 py-2 text-right font-medium">Duration</th>
                 {showAmount && (
@@ -156,6 +178,11 @@ export const EntryTable = ({
                     <td className="px-3 py-2 text-muted-foreground whitespace-nowrap">
                       {formatDate(entry.start)}
                     </td>
+                    {showProjectCol && (
+                      <td className="px-3 py-2 text-muted-foreground whitespace-nowrap text-xs">
+                        {resolveLabel(entry)}
+                      </td>
+                    )}
                     <td className="px-3 py-2">{entry.description}</td>
                     <td className="px-3 py-2 text-right font-mono">
                       {formatDuration(entry.durationMin!)}
@@ -167,7 +194,7 @@ export const EntryTable = ({
                     )}
                     <td className="px-3 py-2 text-right">
                       <button
-                        onClick={() => handleDelete(entry.id)}
+                        onClick={() => handleDelete(entry)}
                         className="text-muted-foreground hover:text-destructive transition-colors text-xs"
                         title="Delete entry"
                       >

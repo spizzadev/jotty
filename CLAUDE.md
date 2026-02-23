@@ -44,8 +44,9 @@ data/
 ├── notes/[username]/[category]/[id].md       # Notes (Markdown + YAML frontmatter)
 ├── checklists/[username]/[category]/[id].md  # Checklists + Tasks (Markdown + YAML)
 ├── time-entries/[username]/
-│   ├── [taskId].json                         # Project-level time entries
-│   └── _billing.json                         # Hourly rates per task
+│   ├── [taskId].json                         # Task-level time entries
+│   ├── _cat_[slug].json                      # Category-level time entries
+│   └── _billing.json                         # Hourly rates keyed by taskId
 ├── users/
 │   ├── users.json                            # User accounts + hashed passwords
 │   ├── sessions.json                         # Session → username mapping
@@ -91,7 +92,10 @@ The sidebar has three modes (`app/_types/enums.ts` → `Modes`):
 - `CHECKLISTS` = "checklists"
 - `TIME_TRACKING` = "time-tracking"
 
-Mode changes navigate to `/?mode=[mode]` (notes/checklists) or `/time-tracking` (time-tracking). The `Sidebar` component handles rendering differences per mode — `TIME_TRACKING` hides categories, tags, and action buttons.
+All modes navigate to `/?mode=[mode]`. In `TIME_TRACKING` mode the sidebar renders `TimeTrackingSidebar` (a flat list of categories + task boards for filtering) instead of the standard category tree. The main view changes based on URL params:
+- `/?mode=time-tracking` — global view, all entries
+- `/?mode=time-tracking&category=X` — entries for all tasks in category X + category-level entries
+- `/?mode=time-tracking&task=[uuid]` — entries for a specific task board
 
 ### Authentication
 
@@ -103,7 +107,68 @@ A `Checklist` has a `type` field:
 - `"simple"` — plain checklist
 - `"task"` — Kanban board (has `statuses: KanbanStatus[]` and per-item `timeEntries: TimeEntry[]` for the built-in per-card timer)
 
-Project-level time tracking (the Time Tracking tab) is separate from the per-card `TimeEntry` — it uses `ProjectTimeEntry` stored in `data/time-entries/`.
+Project-level time tracking (the Tracking tab) is separate from the per-card `TimeEntry` — it uses `ProjectTimeEntry` stored in `data/time-entries/`. Entries can be linked to a task (`taskId`) or a category directly (`category`). Category-level entries are stored in `_cat_[slug].json`.
+
+### Time Tracking API
+
+All endpoints require `x-api-key: <key>` header (same key used by all other API routes).
+
+#### Time Entries — `app/api/time-entries/`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/api/time-entries` | All entries for the authenticated user (global view) |
+| `GET` | `/api/time-entries?taskId=X` | Entries for a specific task |
+| `POST` | `/api/time-entries` | Start a timer or add a manual entry |
+| `PATCH` | `/api/time-entries/[entryId]` | Stop a timer or update description |
+| `DELETE` | `/api/time-entries/[entryId]?taskId=X` | Delete an entry |
+| `GET` | `/api/time-entries/billing?taskId=X` | Get billing settings for a task |
+| `PATCH` | `/api/time-entries/billing` | Save billing settings for a task |
+
+**POST `/api/time-entries` — body fields:**
+```jsonc
+{
+  "taskId": "uuid",          // required unless category is set
+  "category": "Frontend",    // required unless taskId is set; creates category-level entry
+  "description": "",         // optional
+  "durationMin": 60,         // if present → manual entry (completed immediately)
+  "dateStr": "2026-02-23"    // optional with durationMin; defaults to today
+}
+```
+Without `durationMin` → starts a live timer. With `durationMin` → creates a completed manual entry.
+
+**PATCH `/api/time-entries/[entryId]` — body fields:**
+```jsonc
+{
+  "taskId": "uuid",      // or "category": "Frontend"
+  "action": "stop",      // stops the running timer
+  "description": "..."   // alternatively, updates description (taskId only)
+}
+```
+
+**PATCH `/api/time-entries/billing` — body fields:**
+```jsonc
+{
+  "taskId": "uuid",
+  "hourlyRate": 85,
+  "currency": "EUR"      // EUR | CHF | USD | GBP
+}
+```
+
+**Server actions** (used by UI, not API): `getTimeEntries`, `getAllTimeEntries`, `getEntriesForTasks`, `startTimeEntry`, `startCategoryEntry`, `stopTimeEntry`, `stopCategoryEntry`, `addManualEntry`, `addManualCategoryEntry`, `deleteTimeEntry`, `deleteCategoryEntry`, `getBillingSettings`, `saveBillingSettings` — all in `app/_server/actions/time-entries/index.ts`.
+
+**Time Tracking UI components** (`app/_components/FeatureComponents/TimeTracking/`):
+
+| File | Purpose |
+|------|---------|
+| `TimeTrackingView.tsx` | Main view — reads `?task` and `?category` URL params, 3 views (global/category/task) |
+| `TimeTrackingSidebar.tsx` | Sidebar list: "All Entries" + categories + task boards, navigates via URL params |
+| `TimerControl.tsx` | Start/stop timer, supports `taskId` or `category` |
+| `ManualEntryForm.tsx` | Collapsible form to backdate entries, supports `taskId` or `category` |
+| `EntryTable.tsx` | Entry list with week/month/all filter, CSV export, delete; shows Project column in global/category view |
+| `SummaryRow.tsx` | Total hours + billing amount for the current filter |
+| `BillingSettingsPanel.tsx` | Collapsible hourly rate + currency form (task view only) |
+| `exportCsv.ts` | CSV export utility |
 
 ### Key Utility Files
 

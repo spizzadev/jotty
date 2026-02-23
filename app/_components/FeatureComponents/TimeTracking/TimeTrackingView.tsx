@@ -1,19 +1,22 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { Checklist, ProjectTimeEntry, SanitisedUser } from "@/app/_types";
 import {
   getTimeEntries,
+  getAllTimeEntries,
+  getEntriesForTasks,
   getBillingSettings,
   saveBillingSettings,
   BillingSettings,
 } from "@/app/_server/actions/time-entries";
-import { TaskSelector } from "./TaskSelector";
 import { TimerControl } from "./TimerControl";
 import { ManualEntryForm } from "./ManualEntryForm";
 import { EntryTable } from "./EntryTable";
 import { SummaryRow } from "./SummaryRow";
 import { BillingSettingsPanel } from "./BillingSettingsPanel";
+import slugify from "slugify";
 
 interface TimeTrackingViewProps {
   initialTasks: Checklist[];
@@ -21,62 +24,74 @@ interface TimeTrackingViewProps {
 }
 
 export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const selectedTask = initialTasks.find(
-    (t) => (t.uuid || t.id) === selectedTaskId,
-  );
+  const searchParams = useSearchParams();
+  const taskParam = searchParams?.get("task") ?? null;
+  const categoryParam = searchParams?.get("category") ?? null;
+
+  const selectedTask = taskParam
+    ? initialTasks.find((t) => (t.uuid || t.id) === taskParam) ?? null
+    : null;
+
   const [entries, setEntries] = useState<ProjectTimeEntry[]>([]);
   const [totalMin, setTotalMin] = useState(0);
-  const [billing, setBilling] = useState<BillingSettings | undefined>(
-    undefined,
-  );
-  const [runningEntry, setRunningEntry] = useState<
-    ProjectTimeEntry | undefined
-  >(undefined);
+  const [billing, setBilling] = useState<BillingSettings | undefined>(undefined);
+  const [runningEntry, setRunningEntry] = useState<ProjectTimeEntry | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [filteredEntries, setFilteredEntries] = useState<ProjectTimeEntry[]>([]);
 
-  const filteredMin = filteredEntries.reduce(
-    (sum, e) => sum + (e.durationMin ?? 0),
-    0,
-  );
+  const filteredMin = filteredEntries.reduce((sum, e) => sum + (e.durationMin ?? 0), 0);
   const filteredAmount =
     billing?.hourlyRate && filteredMin > 0
       ? (filteredMin / 60) * billing.hourlyRate
       : undefined;
 
-  const loadEntries = useCallback(async (taskId: string) => {
+  const loadEntries = useCallback(async () => {
     setLoading(true);
-    const result = await getTimeEntries(taskId);
-    if (result.success && result.data) {
-      setEntries(result.data.entries);
-      setTotalMin(result.data.totalMin);
-      setRunningEntry(result.data.runningEntry);
-    }
-    setLoading(false);
-  }, []);
-
-  const loadBilling = useCallback(async (taskId: string) => {
-    const result = await getBillingSettings(taskId);
-    if (result.success) {
-      setBilling(result.data);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!selectedTaskId) return;
-    loadEntries(selectedTaskId);
-    loadBilling(selectedTaskId);
-  }, [selectedTaskId, loadEntries, loadBilling]);
-
-  const handleTaskSelect = (taskId: string) => {
-    setSelectedTaskId(taskId);
     setEntries([]);
     setTotalMin(0);
-    setFilteredEntries([]);
     setRunningEntry(undefined);
     setBilling(undefined);
-  };
+    setFilteredEntries([]);
+
+    if (taskParam) {
+      const [entriesResult, billingResult] = await Promise.all([
+        getTimeEntries(taskParam),
+        getBillingSettings(taskParam),
+      ]);
+      if (entriesResult.success && entriesResult.data) {
+        setEntries(entriesResult.data.entries);
+        setTotalMin(entriesResult.data.totalMin);
+        setRunningEntry(entriesResult.data.runningEntry);
+      }
+      if (billingResult.success) {
+        setBilling(billingResult.data);
+      }
+    } else if (categoryParam) {
+      const taskIds = initialTasks
+        .filter((t) => t.category === categoryParam)
+        .map((t) => t.uuid || t.id);
+      const result = await getEntriesForTasks(taskIds, categoryParam);
+      if (result.success && result.data) {
+        setEntries(result.data.entries);
+        setTotalMin(result.data.totalMin);
+        setRunningEntry(result.data.runningEntry);
+      }
+    } else {
+      // Global view
+      const result = await getAllTimeEntries();
+      if (result.success && result.data) {
+        setEntries(result.data.entries);
+        setTotalMin(result.data.totalMin);
+        setRunningEntry(result.data.runningEntry);
+      }
+    }
+
+    setLoading(false);
+  }, [taskParam, categoryParam]);
+
+  useEffect(() => {
+    loadEntries();
+  }, [loadEntries]);
 
   const handleStart = (entry: ProjectTimeEntry) => {
     setRunningEntry(entry);
@@ -92,7 +107,7 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
   };
 
   const handleManualAdd = (entry: ProjectTimeEntry) => {
-    setEntries((prev) => [...prev, entry]);
+    setEntries((prev) => [entry, ...prev]);
     setTotalMin((prev) => prev + (entry.durationMin ?? 0));
   };
 
@@ -105,63 +120,78 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
   };
 
   const handleBillingSave = async (settings: BillingSettings) => {
-    if (!selectedTaskId) return;
-    const result = await saveBillingSettings(selectedTaskId, settings);
+    if (!taskParam) return;
+    const result = await saveBillingSettings(taskParam, settings);
     if (result.success) {
       setBilling(settings);
     }
   };
 
+  // Heading
+  const heading = taskParam
+    ? (selectedTask?.title ?? "Task")
+    : categoryParam
+      ? categoryParam
+      : "All Entries";
+
+  // Is global view (no selection)
+  const isGlobal = !taskParam && !categoryParam;
+
+  // Show timer when a specific task or category is selected
+  const showTimer = !isGlobal;
+
+  // For EntryTable: show project column only in global or category view
+  const showProjectCol = !taskParam;
+
   return (
     <div className="w-full px-4 py-6 h-full overflow-y-auto jotty-scrollable-content">
       <div className="flex flex-col gap-6 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold">Tracking</h1>
+        <h1 className="text-2xl font-bold">{heading}</h1>
 
-        <TaskSelector
-          tasks={initialTasks}
-          selectedTaskId={selectedTaskId}
-          onSelect={handleTaskSelect}
-        />
+        {taskParam && (
+          <BillingSettingsPanel
+            initialSettings={billing}
+            onSave={handleBillingSave}
+          />
+        )}
 
-        {selectedTaskId && (
+        {showTimer && (
           <>
-            <BillingSettingsPanel
-              initialSettings={billing}
-              onSave={handleBillingSave}
-            />
-
             <TimerControl
-              taskId={selectedTaskId}
+              taskId={taskParam ?? undefined}
+              category={categoryParam ?? undefined}
               runningEntry={runningEntry}
               onStart={handleStart}
               onStop={handleStop}
             />
+            <ManualEntryForm
+              taskId={taskParam ?? undefined}
+              category={categoryParam ?? undefined}
+              onAdd={handleManualAdd}
+            />
+          </>
+        )}
 
-            <ManualEntryForm taskId={selectedTaskId} onAdd={handleManualAdd} />
-
-            {loading ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Loading...
-              </p>
-            ) : (
-              <>
-                <EntryTable
-                  taskId={selectedTaskId}
-                  taskTitle={selectedTask?.title ?? "project"}
-                  entries={entries}
-                  hourlyRate={billing?.hourlyRate}
-                  currency={billing?.currency}
-                  onDelete={handleDelete}
-                  onFilteredChange={setFilteredEntries}
-                />
-
-                <SummaryRow
-                  totalMin={filteredMin}
-                  totalAmount={filteredAmount}
-                  currency={billing?.currency}
-                />
-              </>
-            )}
+        {loading ? (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            Loading...
+          </p>
+        ) : (
+          <>
+            <EntryTable
+              entries={entries}
+              exportTitle={heading}
+              hourlyRate={billing?.hourlyRate}
+              currency={billing?.currency}
+              onDelete={handleDelete}
+              onFilteredChange={setFilteredEntries}
+              tasks={showProjectCol ? initialTasks : undefined}
+            />
+            <SummaryRow
+              totalMin={filteredMin}
+              totalAmount={filteredAmount}
+              currency={billing?.currency}
+            />
           </>
         )}
       </div>

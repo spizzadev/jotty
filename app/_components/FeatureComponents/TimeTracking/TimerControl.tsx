@@ -5,11 +5,14 @@ import { ProjectTimeEntry } from "@/app/_types";
 import {
   startTimeEntry,
   stopTimeEntry,
+  startCategoryEntry,
+  stopCategoryEntry,
 } from "@/app/_server/actions/time-entries";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 
 interface TimerControlProps {
-  taskId: string;
+  taskId?: string;
+  category?: string;
   runningEntry: ProjectTimeEntry | undefined;
   onStart: (entry: ProjectTimeEntry) => void;
   onStop: (entry: ProjectTimeEntry) => void;
@@ -29,6 +32,7 @@ function formatElapsed(startIso: string): string {
 
 export const TimerControl = ({
   taskId,
+  category,
   runningEntry,
   onStart,
   onStop,
@@ -60,7 +64,9 @@ export const TimerControl = ({
   const handleStart = async () => {
     setError(null);
     setLoading(true);
-    const result = await startTimeEntry(taskId, description.trim());
+    const result = taskId
+      ? await startTimeEntry(taskId, description.trim())
+      : await startCategoryEntry(category ?? "", description.trim());
     setLoading(false);
     if (result.success && result.data) {
       onStart(result.data);
@@ -73,7 +79,9 @@ export const TimerControl = ({
   const handleStop = async () => {
     if (!runningEntry) return;
     setLoading(true);
-    const result = await stopTimeEntry(taskId, runningEntry.id);
+    const result = taskId
+      ? await stopTimeEntry(taskId, runningEntry.id)
+      : await stopCategoryEntry(category ?? "", runningEntry.id);
     setLoading(false);
     if (result.success && result.data) {
       onStop(result.data);

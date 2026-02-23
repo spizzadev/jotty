@@ -315,7 +315,8 @@ export type AppMode = "checklists" | "notes" | "time-tracking";
 
 export interface ProjectTimeEntry {
   id: string;
-  taskId: string;
+  taskId?: string;
+  category?: string;
   description: string;
   start: string;
   end?: string;

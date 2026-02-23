@@ -55,11 +55,7 @@ export const HomeClient = ({
   return (
     <Layout
       categories={
-        mode === Modes.NOTES
-          ? initialDocsCategories
-          : mode === Modes.CHECKLISTS
-            ? initialCategories
-            : []
+        mode === Modes.NOTES ? initialDocsCategories : initialCategories
       }
       onOpenSettings={openSettings}
       onOpenCreateModal={handleOpenCreateModal}

@@ -2,11 +2,15 @@
 
 import { useState } from "react";
 import { ProjectTimeEntry } from "@/app/_types";
-import { addManualEntry } from "@/app/_server/actions/time-entries";
+import {
+  addManualEntry,
+  addManualCategoryEntry,
+} from "@/app/_server/actions/time-entries";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 
 interface ManualEntryFormProps {
-  taskId: string;
+  taskId?: string;
+  category?: string;
   onAdd: (entry: ProjectTimeEntry) => void;
 }
 
@@ -14,7 +18,7 @@ function todayStr(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export const ManualEntryForm = ({ taskId, onAdd }: ManualEntryFormProps) => {
+export const ManualEntryForm = ({ taskId, category, onAdd }: ManualEntryFormProps) => {
   const [expanded, setExpanded] = useState(false);
   const [date, setDate] = useState(todayStr());
   const [description, setDescription] = useState("");
@@ -39,7 +43,9 @@ export const ManualEntryForm = ({ taskId, onAdd }: ManualEntryFormProps) => {
 
     setError(null);
     setSaving(true);
-    const result = await addManualEntry(taskId, description.trim(), date, durationMin);
+    const result = taskId
+      ? await addManualEntry(taskId, description.trim(), date, durationMin)
+      : await addManualCategoryEntry(category ?? "", description.trim(), date, durationMin);
     setSaving(false);
 
     if (result.success && result.data) {
