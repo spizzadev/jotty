@@ -10,15 +10,20 @@ import { exportEntriesToCsv } from "./exportCsv";
 
 type FilterRange = "week" | "month" | "all";
 
+interface EditState {
+  start: string;
+  end: string;
+  description: string;
+}
+
 interface EntryTableProps {
   entries: ProjectTimeEntry[];
-  /** Used as the CSV export filename */
   exportTitle: string;
   hourlyRate?: number;
   currency?: string;
   onDelete: (entryId: string) => void;
+  onUpdate?: (entry: ProjectTimeEntry) => void;
   onFilteredChange?: (entries: ProjectTimeEntry[]) => void;
-  /** When provided, shows a Project/Category column resolving taskId → title */
   tasks?: Checklist[];
 }
 
@@ -35,6 +40,13 @@ function formatDate(iso: string): string {
     month: "2-digit",
     day: "2-digit",
   });
+}
+
+function toDateTimeLocal(iso: string): string {
+  const d = new Date(iso);
+  const offset = d.getTimezoneOffset();
+  const local = new Date(d.getTime() - offset * 60000);
+  return local.toISOString().slice(0, 16);
 }
 
 function isInRange(iso: string, range: FilterRange): boolean {
@@ -62,10 +74,14 @@ export const EntryTable = ({
   hourlyRate,
   currency = "EUR",
   onDelete,
+  onUpdate,
   onFilteredChange,
   tasks,
 }: EntryTableProps) => {
   const [filter, setFilter] = useState<FilterRange>("week");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editState, setEditState] = useState<EditState>({ start: "", end: "", description: "" });
+  const [saving, setSaving] = useState(false);
 
   const completedEntries = entries.filter(
     (e) => e.durationMin !== undefined && isInRange(e.start, filter),
@@ -84,15 +100,49 @@ export const EntryTable = ({
     }
   };
 
+  const startEdit = (entry: ProjectTimeEntry) => {
+    setEditingId(entry.id);
+    setEditState({
+      start: toDateTimeLocal(entry.start),
+      end: entry.end ? toDateTimeLocal(entry.end) : "",
+      description: entry.description,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+  };
+
+  const saveEdit = async (entry: ProjectTimeEntry) => {
+    if (!onUpdate) return;
+    setSaving(true);
+    const start = new Date(editState.start).toISOString();
+    const end = editState.end ? new Date(editState.end).toISOString() : undefined;
+    const durationMin = end
+      ? Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000)
+      : entry.durationMin;
+
+    const updated: ProjectTimeEntry = {
+      ...entry,
+      start,
+      ...(end ? { end } : {}),
+      ...(durationMin !== undefined ? { durationMin } : {}),
+      description: editState.description,
+    };
+
+    await onUpdate(updated);
+    setSaving(false);
+    setEditingId(null);
+  };
+
   const showAmount = hourlyRate !== undefined && hourlyRate > 0;
   const showProjectCol = !!tasks;
+  const colCount = 3 + (showProjectCol ? 1 : 0) + (showAmount ? 1 : 0) + 1;
 
   const resolveLabel = (entry: ProjectTimeEntry): string => {
     if (entry.category && !entry.taskId) return entry.category;
     if (entry.taskId && tasks) {
-      const task = tasks.find(
-        (t) => (t.uuid || t.id) === entry.taskId,
-      );
+      const task = tasks.find((t) => (t.uuid || t.id) === entry.taskId);
       return task?.title ?? entry.taskId;
     }
     return "";
@@ -114,9 +164,7 @@ export const EntryTable = ({
                 currency,
               )
             }
-            disabled={
-              entries.filter((e) => e.durationMin !== undefined).length === 0
-            }
+            disabled={entries.filter((e) => e.durationMin !== undefined).length === 0}
             className="px-2 py-0.5 rounded text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
             title="Export CSV"
           >
@@ -133,11 +181,7 @@ export const EntryTable = ({
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {r === "week"
-                  ? "This Week"
-                  : r === "month"
-                    ? "This Month"
-                    : "All"}
+                {r === "week" ? "This Week" : r === "month" ? "This Month" : "All"}
               </button>
             ))}
           </div>
@@ -162,14 +206,69 @@ export const EntryTable = ({
                 {showAmount && (
                   <th className="px-3 py-2 text-right font-medium">Amount</th>
                 )}
-                <th className="px-3 py-2 w-8" />
+                <th className="px-3 py-2 w-16" />
               </tr>
             </thead>
             <tbody>
               {completedEntries.map((entry) => {
-                const amount = showAmount
-                  ? (entry.durationMin! / 60) * hourlyRate!
-                  : null;
+                const isEditing = editingId === entry.id;
+                const amount = showAmount ? (entry.durationMin! / 60) * hourlyRate! : null;
+
+                if (isEditing) {
+                  return (
+                    <tr key={entry.id} className="border-b border-border bg-muted/10">
+                      <td colSpan={colCount} className="px-3 py-2">
+                        <div className="flex flex-col gap-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs text-muted-foreground">Start</label>
+                              <input
+                                type="datetime-local"
+                                value={editState.start}
+                                onChange={(e) => setEditState((s) => ({ ...s, start: e.target.value }))}
+                                className="rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                              />
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <label className="text-xs text-muted-foreground">End</label>
+                              <input
+                                type="datetime-local"
+                                value={editState.end}
+                                onChange={(e) => setEditState((s) => ({ ...s, end: e.target.value }))}
+                                className="rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <label className="text-xs text-muted-foreground">Description</label>
+                            <input
+                              type="text"
+                              value={editState.description}
+                              onChange={(e) => setEditState((s) => ({ ...s, description: e.target.value }))}
+                              className="rounded border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                            />
+                          </div>
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={cancelEdit}
+                              className="px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => saveEdit(entry)}
+                              disabled={saving}
+                              className="px-2 py-1 text-xs rounded bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+                            >
+                              {saving ? "Saving…" : "Save"}
+                            </button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                }
+
                 return (
                   <tr
                     key={entry.id}
@@ -193,13 +292,24 @@ export const EntryTable = ({
                       </td>
                     )}
                     <td className="px-3 py-2 text-right">
-                      <button
-                        onClick={() => handleDelete(entry)}
-                        className="text-muted-foreground hover:text-destructive transition-colors text-xs"
-                        title="Delete entry"
-                      >
-                        ✕
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        {onUpdate && (
+                          <button
+                            onClick={() => startEdit(entry)}
+                            className="text-muted-foreground hover:text-foreground transition-colors text-xs"
+                            title="Edit entry"
+                          >
+                            ✎
+                          </button>
+                        )}
+                        <button
+                          onClick={() => handleDelete(entry)}
+                          className="text-muted-foreground hover:text-destructive transition-colors text-xs"
+                          title="Delete entry"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

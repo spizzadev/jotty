@@ -9,6 +9,8 @@ import {
   getEntriesForTasks,
   getBillingSettings,
   saveBillingSettings,
+  updateTimeEntry,
+  updateCategoryEntry,
   BillingSettings,
 } from "@/app/_server/actions/time-entries";
 import { TimerControl } from "./TimerControl";
@@ -29,17 +31,26 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
   const categoryParam = searchParams?.get("category") ?? null;
 
   const selectedTask = taskParam
-    ? initialTasks.find((t) => (t.uuid || t.id) === taskParam) ?? null
+    ? (initialTasks.find((t) => (t.uuid || t.id) === taskParam) ?? null)
     : null;
 
   const [entries, setEntries] = useState<ProjectTimeEntry[]>([]);
   const [totalMin, setTotalMin] = useState(0);
-  const [billing, setBilling] = useState<BillingSettings | undefined>(undefined);
-  const [runningEntry, setRunningEntry] = useState<ProjectTimeEntry | undefined>(undefined);
+  const [billing, setBilling] = useState<BillingSettings | undefined>(
+    undefined,
+  );
+  const [runningEntry, setRunningEntry] = useState<
+    ProjectTimeEntry | undefined
+  >(undefined);
   const [loading, setLoading] = useState(false);
-  const [filteredEntries, setFilteredEntries] = useState<ProjectTimeEntry[]>([]);
+  const [filteredEntries, setFilteredEntries] = useState<ProjectTimeEntry[]>(
+    [],
+  );
 
-  const filteredMin = filteredEntries.reduce((sum, e) => sum + (e.durationMin ?? 0), 0);
+  const filteredMin = filteredEntries.reduce(
+    (sum, e) => sum + (e.durationMin ?? 0),
+    0,
+  );
   const filteredAmount =
     billing?.hourlyRate && filteredMin > 0
       ? (filteredMin / 60) * billing.hourlyRate
@@ -119,6 +130,26 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
     }
   };
 
+  const handleUpdate = async (updated: ProjectTimeEntry) => {
+    const updates = {
+      description: updated.description,
+      start: updated.start,
+      end: updated.end,
+    };
+    const result = updated.taskId
+      ? await updateTimeEntry(updated.taskId, updated.id, updates)
+      : await updateCategoryEntry(updated.category ?? "", updated.id, updates);
+    if (result.success && result.data) {
+      const prev = entries.find((e) => e.id === updated.id);
+      setEntries((es) =>
+        es.map((e) => (e.id === updated.id ? result.data! : e)),
+      );
+      setTotalMin(
+        (t) => t - (prev?.durationMin ?? 0) + (result.data!.durationMin ?? 0),
+      );
+    }
+  };
+
   const handleBillingSave = async (settings: BillingSettings) => {
     if (!taskParam) return;
     const result = await saveBillingSettings(taskParam, settings);
@@ -184,6 +215,7 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
               hourlyRate={billing?.hourlyRate}
               currency={billing?.currency}
               onDelete={handleDelete}
+              onUpdate={handleUpdate}
               onFilteredChange={setFilteredEntries}
               tasks={showProjectCol ? initialTasks : undefined}
             />

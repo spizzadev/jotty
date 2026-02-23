@@ -15,15 +15,10 @@ import {
 
 const BILLING_FILE = "_billing.json";
 const CAT_PREFIX = "_cat_";
+const CAT_REGISTRY_FILE = "_cat-registry.json";
 
 const getEntriesFilePath = (username: string, taskId: string) =>
   path.join(TIME_ENTRIES_DIR(username), `${taskId}.json`);
-
-const getCategoryFilePath = (username: string, category: string) =>
-  path.join(
-    TIME_ENTRIES_DIR(username),
-    `${CAT_PREFIX}${slugify(category, { lower: true, strict: true })}.json`,
-  );
 
 const getBillingFilePath = (username: string) =>
   path.join(TIME_ENTRIES_DIR(username), BILLING_FILE);
@@ -51,43 +46,76 @@ async function resolveUser(usernameOverride?: string) {
   return requireUser();
 }
 
-async function readEntries(
-  username: string,
-  taskId: string,
-): Promise<ProjectTimeEntry[]> {
+// --- Category ID registry ---
+
+async function getCategoryRegistry(username: string): Promise<Record<string, string>> {
+  const registryPath = path.join(TIME_ENTRIES_DIR(username), CAT_REGISTRY_FILE);
+  const data = await readJsonFile(registryPath);
+  return data && typeof data === "object" && !Array.isArray(data)
+    ? (data as Record<string, string>)
+    : {};
+}
+
+async function saveCategoryRegistry(username: string, registry: Record<string, string>): Promise<void> {
+  const userDir = TIME_ENTRIES_DIR(username);
+  await ensureDir(path.join(process.cwd(), userDir));
+  await writeJsonFile(registry, path.join(userDir, CAT_REGISTRY_FILE));
+}
+
+async function getOrCreateCategoryId(username: string, categoryName: string): Promise<string> {
+  const registry = await getCategoryRegistry(username);
+
+  const existing = Object.entries(registry).find(([, name]) => name === categoryName);
+  if (existing) return existing[0];
+
+  const newId = uuidv4();
+
+  // Auto-migrate old slug-based file if it exists
+  const oldSlug = slugify(categoryName, { lower: true, strict: true });
+  const oldFilePath = path.join(process.cwd(), TIME_ENTRIES_DIR(username), `${CAT_PREFIX}${oldSlug}.json`);
+  const newFilePath = path.join(process.cwd(), TIME_ENTRIES_DIR(username), `${CAT_PREFIX}${newId}.json`);
+  try {
+    await fs.rename(oldFilePath, newFilePath);
+  } catch {
+    // No old file to migrate
+  }
+
+  await saveCategoryRegistry(username, { ...registry, [newId]: categoryName });
+  return newId;
+}
+
+async function getCategoryFilePath(username: string, categoryName: string): Promise<string> {
+  const catId = await getOrCreateCategoryId(username, categoryName);
+  return path.join(TIME_ENTRIES_DIR(username), `${CAT_PREFIX}${catId}.json`);
+}
+
+// --- File helpers ---
+
+async function readEntries(username: string, taskId: string): Promise<ProjectTimeEntry[]> {
   const filePath = getEntriesFilePath(username, taskId);
   const data = await readJsonFile(filePath);
   return Array.isArray(data) ? data : [];
 }
 
-async function readCategoryEntries(
-  username: string,
-  category: string,
-): Promise<ProjectTimeEntry[]> {
-  const filePath = getCategoryFilePath(username, category);
+async function readCategoryEntries(username: string, category: string): Promise<ProjectTimeEntry[]> {
+  const filePath = await getCategoryFilePath(username, category);
   const data = await readJsonFile(filePath);
   return Array.isArray(data) ? data : [];
 }
 
-async function writeEntries(
-  username: string,
-  taskId: string,
-  entries: ProjectTimeEntry[],
-): Promise<void> {
+async function writeEntries(username: string, taskId: string, entries: ProjectTimeEntry[]): Promise<void> {
   const userDir = TIME_ENTRIES_DIR(username);
   await ensureDir(path.join(process.cwd(), userDir));
   await writeJsonFile(entries, getEntriesFilePath(username, taskId));
 }
 
-async function writeCategoryEntries(
-  username: string,
-  category: string,
-  entries: ProjectTimeEntry[],
-): Promise<void> {
+async function writeCategoryEntries(username: string, category: string, entries: ProjectTimeEntry[]): Promise<void> {
   const userDir = TIME_ENTRIES_DIR(username);
   await ensureDir(path.join(process.cwd(), userDir));
-  await writeJsonFile(entries, getCategoryFilePath(username, category));
+  await writeJsonFile(entries, await getCategoryFilePath(username, category));
 }
+
+// --- Exported server actions ---
 
 export const getTimeEntries = async (
   taskId: string,
@@ -95,25 +123,16 @@ export const getTimeEntries = async (
 ): Promise<{ success: boolean; data?: TimeEntrySummary; error?: string }> => {
   try {
     const user = await resolveUser(usernameOverride);
-    const billingData =
-      (await readJsonFile(getBillingFilePath(user.username))) || {};
+    const billingData = (await readJsonFile(getBillingFilePath(user.username))) || {};
     const billing: BillingSettings | undefined = billingData[taskId];
 
     const entries = await readEntries(user.username, taskId);
     const runningEntry = entries.find((e) => !e.end);
     const completedEntries = entries.filter((e) => e.durationMin !== undefined);
-    const totalMin = completedEntries.reduce(
-      (sum, e) => sum + (e.durationMin ?? 0),
-      0,
-    );
-    const totalAmount = billing
-      ? (totalMin / 60) * billing.hourlyRate
-      : undefined;
+    const totalMin = completedEntries.reduce((sum, e) => sum + (e.durationMin ?? 0), 0);
+    const totalAmount = billing ? (totalMin / 60) * billing.hourlyRate : undefined;
 
-    return {
-      success: true,
-      data: { entries, totalMin, totalAmount, runningEntry },
-    };
+    return { success: true, data: { entries, totalMin, totalAmount, runningEntry } };
   } catch (error) {
     console.error("Error fetching time entries:", error);
     return { success: false, error: "Failed to fetch time entries" };
@@ -122,11 +141,7 @@ export const getTimeEntries = async (
 
 export const getAllTimeEntries = async (
   usernameOverride?: string,
-): Promise<{
-  success: boolean;
-  data?: TimeEntrySummary;
-  error?: string;
-}> => {
+): Promise<{ success: boolean; data?: TimeEntrySummary; error?: string }> => {
   try {
     const user = await resolveUser(usernameOverride);
     const userDir = path.join(process.cwd(), TIME_ENTRIES_DIR(user.username));
@@ -140,7 +155,7 @@ export const getAllTimeEntries = async (
     }
 
     const entryFiles = files.filter(
-      (f) => f.endsWith(".json") && f !== BILLING_FILE,
+      (f) => f.endsWith(".json") && f !== BILLING_FILE && f !== CAT_REGISTRY_FILE,
     );
 
     const allEntries: ProjectTimeEntry[] = [];
@@ -152,18 +167,11 @@ export const getAllTimeEntries = async (
       }
     }
 
-    allEntries.sort(
-      (a, b) => new Date(b.start).getTime() - new Date(a.start).getTime(),
-    );
+    allEntries.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
 
     const runningEntry = allEntries.find((e) => !e.end);
-    const completedEntries = allEntries.filter(
-      (e) => e.durationMin !== undefined,
-    );
-    const totalMin = completedEntries.reduce(
-      (sum, e) => sum + (e.durationMin ?? 0),
-      0,
-    );
+    const completedEntries = allEntries.filter((e) => e.durationMin !== undefined);
+    const totalMin = completedEntries.reduce((sum, e) => sum + (e.durationMin ?? 0), 0);
 
     return { success: true, data: { entries: allEntries, totalMin, runningEntry } };
   } catch (error) {
@@ -191,18 +199,11 @@ export const getEntriesForTasks = async (
       allEntries.push(...catEntries);
     }
 
-    allEntries.sort(
-      (a, b) => new Date(b.start).getTime() - new Date(a.start).getTime(),
-    );
+    allEntries.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
 
     const runningEntry = allEntries.find((e) => !e.end);
-    const completedEntries = allEntries.filter(
-      (e) => e.durationMin !== undefined,
-    );
-    const totalMin = completedEntries.reduce(
-      (sum, e) => sum + (e.durationMin ?? 0),
-      0,
-    );
+    const completedEntries = allEntries.filter((e) => e.durationMin !== undefined);
+    const totalMin = completedEntries.reduce((sum, e) => sum + (e.durationMin ?? 0), 0);
 
     return { success: true, data: { entries: allEntries, totalMin, runningEntry } };
   } catch (error) {
@@ -220,12 +221,8 @@ export const startTimeEntry = async (
     const user = await resolveUser(usernameOverride);
     const entries = await readEntries(user.username, taskId);
 
-    const running = entries.find((e) => !e.end);
-    if (running) {
-      return {
-        success: false,
-        error: "A timer is already running for this task",
-      };
+    if (entries.find((e) => !e.end)) {
+      return { success: false, error: "A timer is already running for this task" };
     }
 
     const newEntry: ProjectTimeEntry = {
@@ -252,12 +249,8 @@ export const startCategoryEntry = async (
     const user = await resolveUser(usernameOverride);
     const entries = await readCategoryEntries(user.username, category);
 
-    const running = entries.find((e) => !e.end);
-    if (running) {
-      return {
-        success: false,
-        error: "A timer is already running for this category",
-      };
+    if (entries.find((e) => !e.end)) {
+      return { success: false, error: "A timer is already running for this category" };
     }
 
     const newEntry: ProjectTimeEntry = {
@@ -286,7 +279,6 @@ export const stopTimeEntry = async (
     const idx = entries.findIndex((e) => e.id === entryId);
 
     if (idx === -1) return { success: false, error: "Entry not found" };
-
     const entry = entries[idx];
     if (entry.end) return { success: false, error: "Timer already stopped" };
 
@@ -294,13 +286,8 @@ export const stopTimeEntry = async (
     const durationMin = Math.round(
       (new Date(endTime).getTime() - new Date(entry.start).getTime()) / 60000,
     );
-
     const updated: ProjectTimeEntry = { ...entry, end: endTime, durationMin };
-    const newEntries = [
-      ...entries.slice(0, idx),
-      updated,
-      ...entries.slice(idx + 1),
-    ];
+    const newEntries = [...entries.slice(0, idx), updated, ...entries.slice(idx + 1)];
     await writeEntries(user.username, taskId, newEntries);
     return { success: true, data: updated };
   } catch (error) {
@@ -320,7 +307,6 @@ export const stopCategoryEntry = async (
     const idx = entries.findIndex((e) => e.id === entryId);
 
     if (idx === -1) return { success: false, error: "Entry not found" };
-
     const entry = entries[idx];
     if (entry.end) return { success: false, error: "Timer already stopped" };
 
@@ -328,13 +314,8 @@ export const stopCategoryEntry = async (
     const durationMin = Math.round(
       (new Date(endTime).getTime() - new Date(entry.start).getTime()) / 60000,
     );
-
     const updated: ProjectTimeEntry = { ...entry, end: endTime, durationMin };
-    const newEntries = [
-      ...entries.slice(0, idx),
-      updated,
-      ...entries.slice(idx + 1),
-    ];
+    const newEntries = [...entries.slice(0, idx), updated, ...entries.slice(idx + 1)];
     await writeCategoryEntries(user.username, category, newEntries);
     return { success: true, data: updated };
   } catch (error) {
@@ -346,26 +327,71 @@ export const stopCategoryEntry = async (
 export const updateTimeEntry = async (
   taskId: string,
   entryId: string,
-  description: string,
+  updates: { description?: string; start?: string; end?: string },
   usernameOverride?: string,
-): Promise<{ success: boolean; error?: string }> => {
+): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
   try {
     const user = await resolveUser(usernameOverride);
     const entries = await readEntries(user.username, taskId);
     const idx = entries.findIndex((e) => e.id === entryId);
-
     if (idx === -1) return { success: false, error: "Entry not found" };
 
-    const updated: ProjectTimeEntry = { ...entries[idx], description };
-    const newEntries = [
-      ...entries.slice(0, idx),
-      updated,
-      ...entries.slice(idx + 1),
-    ];
+    const existing = entries[idx];
+    const start = updates.start ?? existing.start;
+    const end = updates.end ?? existing.end;
+    const durationMin =
+      end && (updates.start !== undefined || updates.end !== undefined)
+        ? Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000)
+        : existing.durationMin;
+
+    const updated: ProjectTimeEntry = {
+      ...existing,
+      start,
+      ...(end !== undefined ? { end } : {}),
+      ...(durationMin !== undefined ? { durationMin } : {}),
+      ...(updates.description !== undefined ? { description: updates.description } : {}),
+    };
+    const newEntries = [...entries.slice(0, idx), updated, ...entries.slice(idx + 1)];
     await writeEntries(user.username, taskId, newEntries);
-    return { success: true };
+    return { success: true, data: updated };
   } catch (error) {
     console.error("Error updating time entry:", error);
+    return { success: false, error: "Failed to update entry" };
+  }
+};
+
+export const updateCategoryEntry = async (
+  category: string,
+  entryId: string,
+  updates: { description?: string; start?: string; end?: string },
+  usernameOverride?: string,
+): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
+  try {
+    const user = await resolveUser(usernameOverride);
+    const entries = await readCategoryEntries(user.username, category);
+    const idx = entries.findIndex((e) => e.id === entryId);
+    if (idx === -1) return { success: false, error: "Entry not found" };
+
+    const existing = entries[idx];
+    const start = updates.start ?? existing.start;
+    const end = updates.end ?? existing.end;
+    const durationMin =
+      end && (updates.start !== undefined || updates.end !== undefined)
+        ? Math.round((new Date(end).getTime() - new Date(start).getTime()) / 60000)
+        : existing.durationMin;
+
+    const updated: ProjectTimeEntry = {
+      ...existing,
+      start,
+      ...(end !== undefined ? { end } : {}),
+      ...(durationMin !== undefined ? { durationMin } : {}),
+      ...(updates.description !== undefined ? { description: updates.description } : {}),
+    };
+    const newEntries = [...entries.slice(0, idx), updated, ...entries.slice(idx + 1)];
+    await writeCategoryEntries(user.username, category, newEntries);
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error("Error updating category time entry:", error);
     return { success: false, error: "Failed to update entry" };
   }
 };
@@ -378,8 +404,7 @@ export const deleteTimeEntry = async (
   try {
     const user = await resolveUser(usernameOverride);
     const entries = await readEntries(user.username, taskId);
-    const newEntries = entries.filter((e) => e.id !== entryId);
-    await writeEntries(user.username, taskId, newEntries);
+    await writeEntries(user.username, taskId, entries.filter((e) => e.id !== entryId));
     return { success: true };
   } catch (error) {
     console.error("Error deleting time entry:", error);
@@ -395,8 +420,7 @@ export const deleteCategoryEntry = async (
   try {
     const user = await resolveUser(usernameOverride);
     const entries = await readCategoryEntries(user.username, category);
-    const newEntries = entries.filter((e) => e.id !== entryId);
-    await writeCategoryEntries(user.username, category, newEntries);
+    await writeCategoryEntries(user.username, category, entries.filter((e) => e.id !== entryId));
     return { success: true };
   } catch (error) {
     console.error("Error deleting category time entry:", error);
@@ -413,22 +437,11 @@ export const addManualEntry = async (
 ): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
   try {
     const user = await resolveUser(usernameOverride);
-    if (durationMin <= 0)
-      return { success: false, error: "Duration must be greater than 0" };
+    if (durationMin <= 0) return { success: false, error: "Duration must be greater than 0" };
 
     const start = new Date(`${dateStr}T12:00:00Z`).toISOString();
-    const end = new Date(
-      new Date(start).getTime() + durationMin * 60000,
-    ).toISOString();
-
-    const newEntry: ProjectTimeEntry = {
-      id: uuidv4(),
-      taskId,
-      description,
-      start,
-      end,
-      durationMin,
-    };
+    const end = new Date(new Date(start).getTime() + durationMin * 60000).toISOString();
+    const newEntry: ProjectTimeEntry = { id: uuidv4(), taskId, description, start, end, durationMin };
 
     const entries = await readEntries(user.username, taskId);
     await writeEntries(user.username, taskId, [...entries, newEntry]);
@@ -448,22 +461,11 @@ export const addManualCategoryEntry = async (
 ): Promise<{ success: boolean; data?: ProjectTimeEntry; error?: string }> => {
   try {
     const user = await resolveUser(usernameOverride);
-    if (durationMin <= 0)
-      return { success: false, error: "Duration must be greater than 0" };
+    if (durationMin <= 0) return { success: false, error: "Duration must be greater than 0" };
 
     const start = new Date(`${dateStr}T12:00:00Z`).toISOString();
-    const end = new Date(
-      new Date(start).getTime() + durationMin * 60000,
-    ).toISOString();
-
-    const newEntry: ProjectTimeEntry = {
-      id: uuidv4(),
-      category,
-      description,
-      start,
-      end,
-      durationMin,
-    };
+    const end = new Date(new Date(start).getTime() + durationMin * 60000).toISOString();
+    const newEntry: ProjectTimeEntry = { id: uuidv4(), category, description, start, end, durationMin };
 
     const entries = await readCategoryEntries(user.username, category);
     await writeCategoryEntries(user.username, category, [...entries, newEntry]);
@@ -480,8 +482,7 @@ export const getBillingSettings = async (
 ): Promise<{ success: boolean; data?: BillingSettings; error?: string }> => {
   try {
     const user = await resolveUser(usernameOverride);
-    const billingData =
-      (await readJsonFile(getBillingFilePath(user.username))) || {};
+    const billingData = (await readJsonFile(getBillingFilePath(user.username))) || {};
     return { success: true, data: billingData[taskId] };
   } catch (error) {
     return { success: false, error: "Failed to get billing settings" };
@@ -498,8 +499,7 @@ export const saveBillingSettings = async (
     const userDir = TIME_ENTRIES_DIR(user.username);
     await ensureDir(path.join(process.cwd(), userDir));
 
-    const billingData =
-      (await readJsonFile(getBillingFilePath(user.username))) || {};
+    const billingData = (await readJsonFile(getBillingFilePath(user.username))) || {};
     billingData[taskId] = settings;
     await writeJsonFile(billingData, getBillingFilePath(user.username));
     return { success: true };

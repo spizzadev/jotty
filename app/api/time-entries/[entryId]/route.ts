@@ -4,6 +4,7 @@ import {
   stopTimeEntry,
   stopCategoryEntry,
   updateTimeEntry,
+  updateCategoryEntry,
   deleteTimeEntry,
   deleteCategoryEntry,
 } from "@/app/_server/actions/time-entries";
@@ -18,7 +19,7 @@ export async function PATCH(
     try {
       const { entryId } = await params;
       const body = await request.json();
-      const { taskId, category, action, description } = body;
+      const { taskId, category, action, description, start, end } = body;
 
       if (!taskId && !category) {
         return NextResponse.json(
@@ -37,17 +38,24 @@ export async function PATCH(
         return NextResponse.json({ success: true, data: result.data });
       }
 
-      if (description !== undefined && taskId) {
-        const result = await updateTimeEntry(
-          taskId,
-          entryId,
-          description,
-          user.username,
-        );
+      if (
+        description !== undefined ||
+        start !== undefined ||
+        end !== undefined
+      ) {
+        const updates = { description, start, end };
+        const result = taskId
+          ? await updateTimeEntry(taskId, entryId, updates, user.username)
+          : await updateCategoryEntry(
+              category,
+              entryId,
+              updates,
+              user.username,
+            );
         if (!result.success) {
           return NextResponse.json({ error: result.error }, { status: 400 });
         }
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, data: result.data });
       }
 
       return NextResponse.json(
