@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { KanbanStatus, Item } from "@/app/_types";
 import { useSettings } from "@/app/_utils/settings-store";
+import { useVimMode } from "@/app/_providers/VimModeProvider";
 
 const isInputTarget = (target: EventTarget | null): boolean => {
   if (!target) return false;
@@ -34,6 +35,8 @@ export const useKanbanVim = ({
   handleItemStatusUpdate,
 }: UseKanbanVimOptions): KanbanVimState => {
   const { vimMode } = useSettings();
+  const { focusedArea } = useVimMode();
+
   const [focusedColIndex, setFocusedColIndex] = useState(-1);
   const [focusedItemIndex, setFocusedItemIndex] = useState(-1);
 
@@ -41,6 +44,8 @@ export const useKanbanVim = ({
   const focusedItemRef = useRef(-1);
 
   const sortedStatuses = [...statuses].sort((a, b) => a.order - b.order);
+
+  const isActive = vimMode && focusedArea === "main";
 
   useEffect(() => {
     focusedColRef.current = focusedColIndex;
@@ -57,11 +62,33 @@ export const useKanbanVim = ({
     focusedItemRef.current = -1;
   }, []);
 
+  // Activate when area switches to main, deactivate when switching away
   useEffect(() => {
     if (!vimMode) {
       clearFocus();
       return;
     }
+    if (focusedArea === "main") {
+      // Start focus on first column, first item
+      setFocusedColIndex(0);
+      setFocusedItemIndex(0);
+      focusedColRef.current = 0;
+      focusedItemRef.current = 0;
+    } else {
+      clearFocus();
+    }
+  }, [vimMode, focusedArea, clearFocus]);
+
+  // Listen for vim:focus-sidebar to clear kanban focus
+  useEffect(() => {
+    const handleFocusSidebar = () => clearFocus();
+    window.addEventListener("vim:focus-sidebar", handleFocusSidebar);
+    return () =>
+      window.removeEventListener("vim:focus-sidebar", handleFocusSidebar);
+  }, [clearFocus]);
+
+  useEffect(() => {
+    if (!isActive) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (isInputTarget(event.target)) return;
@@ -71,16 +98,17 @@ export const useKanbanVim = ({
       const itemIdx = focusedItemRef.current;
       const key = event.key;
 
-      // Only handle kanban keys when a column is focused
-      if (colIdx < 0) return;
-
-      const currentStatus = sortedStatuses[colIdx];
+      const currentStatus = sortedStatuses[colIdx >= 0 ? colIdx : 0];
       if (!currentStatus) return;
       const items = getItemsByStatus(currentStatus.id);
 
       switch (key) {
         case "j": {
           event.preventDefault();
+          if (colIdx < 0) {
+            setFocusedColIndex(0);
+            focusedColRef.current = 0;
+          }
           const newItemIdx =
             itemIdx < 0 ? 0 : Math.min(itemIdx + 1, items.length - 1);
           setFocusedItemIndex(newItemIdx);
@@ -90,6 +118,10 @@ export const useKanbanVim = ({
 
         case "k": {
           event.preventDefault();
+          if (colIdx < 0) {
+            setFocusedColIndex(0);
+            focusedColRef.current = 0;
+          }
           const newItemIdx =
             itemIdx < 0 ? items.length - 1 : Math.max(itemIdx - 1, 0);
           setFocusedItemIndex(newItemIdx);
@@ -99,7 +131,10 @@ export const useKanbanVim = ({
 
         case "l": {
           event.preventDefault();
-          const nextCol = Math.min(colIdx + 1, sortedStatuses.length - 1);
+          const nextCol = Math.min(
+            colIdx < 0 ? 1 : colIdx + 1,
+            sortedStatuses.length - 1
+          );
           setFocusedColIndex(nextCol);
           setFocusedItemIndex(0);
           focusedColRef.current = nextCol;
@@ -109,7 +144,7 @@ export const useKanbanVim = ({
 
         case "h": {
           event.preventDefault();
-          const prevCol = Math.max(colIdx - 1, 0);
+          const prevCol = Math.max(colIdx <= 0 ? 0 : colIdx - 1, 0);
           setFocusedColIndex(prevCol);
           setFocusedItemIndex(0);
           focusedColRef.current = prevCol;
@@ -120,7 +155,7 @@ export const useKanbanVim = ({
         case "L": {
           // Shift+L: move card to next column
           event.preventDefault();
-          if (itemIdx < 0 || itemIdx >= items.length) break;
+          if (colIdx < 0 || itemIdx < 0 || itemIdx >= items.length) break;
           const nextStatus =
             sortedStatuses[Math.min(colIdx + 1, sortedStatuses.length - 1)];
           if (nextStatus && nextStatus.id !== currentStatus.id) {
@@ -132,7 +167,7 @@ export const useKanbanVim = ({
         case "H": {
           // Shift+H: move card to previous column
           event.preventDefault();
-          if (itemIdx < 0 || itemIdx >= items.length) break;
+          if (colIdx < 0 || itemIdx < 0 || itemIdx >= items.length) break;
           const prevStatus = sortedStatuses[Math.max(colIdx - 1, 0)];
           if (prevStatus && prevStatus.id !== currentStatus.id) {
             handleItemStatusUpdate(items[itemIdx].id, prevStatus.id);
@@ -150,37 +185,7 @@ export const useKanbanVim = ({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [
-    vimMode,
-    sortedStatuses,
-    getItemsByStatus,
-    handleItemStatusUpdate,
-    clearFocus,
-  ]);
-
-  // Activate kanban vim when first entering the board
-  useEffect(() => {
-    if (!vimMode) return;
-
-    const activateOnClick = () => {
-      if (focusedColRef.current < 0) {
-        setFocusedColIndex(0);
-        setFocusedItemIndex(0);
-        focusedColRef.current = 0;
-        focusedItemRef.current = 0;
-      }
-    };
-
-    // Start with first column focused when vim mode is active
-    setFocusedColIndex(0);
-    setFocusedItemIndex(0);
-    focusedColRef.current = 0;
-    focusedItemRef.current = 0;
-
-    return () => {
-      void activateOnClick; // suppress unused warning
-    };
-  }, [vimMode]);
+  }, [isActive, sortedStatuses, getItemsByStatus, handleItemStatusUpdate, clearFocus]);
 
   const focusedItemId =
     focusedColIndex >= 0 && focusedItemIndex >= 0

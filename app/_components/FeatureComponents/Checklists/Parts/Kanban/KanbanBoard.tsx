@@ -29,6 +29,7 @@ import { updateChecklistStatuses } from "@/app/_server/actions/checklist";
 import { unarchiveItem } from "@/app/_server/actions/checklist-item";
 import { useTranslations } from "next-intl";
 import { useKanbanVim } from "./useKanbanVim";
+import { useSettings } from "@/app/_utils/settings-store";
 
 interface KanbanBoardProps {
   checklist: Checklist;
@@ -64,6 +65,7 @@ const defaultStatuses: KanbanStatus[] = [
 
 export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
   const t = useTranslations();
+  const { vimMode } = useSettings();
   const [isClient, setIsClient] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showArchivedModal, setShowArchivedModal] = useState(false);
@@ -206,7 +208,7 @@ export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
           onToggleCompletedItem={handleToggleItem}
           onBulkSubmit={() => setShowBulkPasteModal(true)}
           isLoading={isLoading}
-          autoFocus={true}
+          autoFocus={!vimMode}
           focusKey={focusKey}
           placeholder={t("checklists.addNewTask")}
           submitButtonText={t("tasks.addTask")}

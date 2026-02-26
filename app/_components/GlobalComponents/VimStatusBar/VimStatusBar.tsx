@@ -6,7 +6,7 @@ import { Modes } from "@/app/_types/enums";
 import { cn } from "@/app/_utils/global-utils";
 
 export const VimStatusBar = () => {
-  const { isVimActive, pendingKey, editorMode } = useVimMode();
+  const { isVimActive, pendingKey, editorMode, focusedArea } = useVimMode();
   const { mode } = useAppMode();
 
   if (!isVimActive) return null;
@@ -34,7 +34,7 @@ export const VimStatusBar = () => {
             ? "bg-green-600 text-white"
             : editorMode === "visual"
               ? "bg-purple-600 text-white"
-              : "bg-primary text-primary-foreground"
+              : "bg-primary text-primary-foreground",
         )}
       >
         {modeLabel}
@@ -46,6 +46,10 @@ export const VimStatusBar = () => {
           <span className="animate-pulse">…</span>
         </span>
       )}
+
+      <span className="text-muted-foreground/60 uppercase tracking-widest text-[10px]">
+        {focusedArea}
+      </span>
 
       <span className="ml-auto text-muted-foreground">{modeBreadcrumb}</span>
     </div>

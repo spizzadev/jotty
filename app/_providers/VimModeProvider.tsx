@@ -16,12 +16,14 @@ import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { Modes } from "@/app/_types/enums";
 
 export type VimEditorMode = "normal" | "insert" | "visual";
+export type VimFocusArea = "sidebar" | "main";
 
 interface VimModeContextType {
   focusedIndex: number;
   pendingKey: string | null;
   isVimActive: boolean;
   editorMode: VimEditorMode;
+  focusedArea: VimFocusArea;
   setEditorMode: (mode: VimEditorMode) => void;
 }
 
@@ -49,10 +51,13 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [editorMode, setEditorMode] = useState<VimEditorMode>("normal");
+  const [focusedArea, setFocusedArea] = useState<VimFocusArea>("sidebar");
 
   const pendingKeyRef = useRef<string | null>(null);
   const focusedIndexRef = useRef(-1);
+  const focusedAreaRef = useRef<VimFocusArea>("sidebar");
   const pendingKeyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastInteractionTimeRef = useRef(0);
 
   useEffect(() => {
     pendingKeyRef.current = pendingKey;
@@ -61,6 +66,10 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     focusedIndexRef.current = focusedIndex;
   }, [focusedIndex]);
+
+  useEffect(() => {
+    focusedAreaRef.current = focusedArea;
+  }, [focusedArea]);
 
   const getItems = useCallback((): Element[] => {
     return Array.from(document.querySelectorAll("[data-vim-item]"));
@@ -93,8 +102,25 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
       setFocusedIndex(clampedIndex);
       focusedIndexRef.current = clampedIndex;
     },
-    [getItems]
+    [getItems],
   );
+
+  const switchToMain = useCallback(() => {
+    clearFocus();
+    setFocusedArea("main");
+    focusedAreaRef.current = "main";
+    window.dispatchEvent(new CustomEvent("vim:focus-main"));
+  }, [clearFocus]);
+
+  const switchToSidebar = useCallback(() => {
+    setFocusedArea("sidebar");
+    focusedAreaRef.current = "sidebar";
+    window.dispatchEvent(new CustomEvent("vim:focus-sidebar"));
+    // Blur any focused input so sidebar can receive keys
+    if (document.activeElement && isInputTarget(document.activeElement)) {
+      (document.activeElement as HTMLElement).blur();
+    }
+  }, []);
 
   const navigateToFocused = useCallback(() => {
     const items = getItems();
@@ -113,7 +139,7 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
       const item = items[idx] as HTMLElement;
       item.dispatchEvent(new CustomEvent(eventName, { bubbles: true }));
     },
-    [getItems]
+    [getItems],
   );
 
   const triggerCategoryAction = useCallback(() => {
@@ -124,11 +150,56 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     const category = item.getAttribute("data-vim-category");
     if (category) {
       document.dispatchEvent(
-        new CustomEvent("vim:toggle-category", { detail: { category } })
+        new CustomEvent("vim:toggle-category", { detail: { category } }),
       );
     }
   }, [getItems]);
 
+  // Prevent auto-focus on inputs when in vim mode
+  useEffect(() => {
+    if (!vimMode) return;
+
+    const handleUserInteraction = () => {
+      lastInteractionTimeRef.current = Date.now();
+    };
+
+    const handleFocusIn = (event: FocusEvent) => {
+      const target = event.target as HTMLElement;
+      if (!isInputTarget(target)) return;
+
+      const timeSinceInteraction = Date.now() - lastInteractionTimeRef.current;
+      if (timeSinceInteraction > 400) {
+        // Auto-focus without recent user interaction — blur it
+        target.blur();
+      }
+    };
+
+    // Update on mouse, touch, AND keydown so that modal auto-focus after
+    // pressing `n` (create note) etc. is still allowed
+    window.addEventListener("mousedown", handleUserInteraction, true);
+    window.addEventListener("touchstart", handleUserInteraction, true);
+    window.addEventListener("keydown", handleUserInteraction, true);
+    window.addEventListener("focusin", handleFocusIn, true);
+
+    return () => {
+      window.removeEventListener("mousedown", handleUserInteraction, true);
+      window.removeEventListener("touchstart", handleUserInteraction, true);
+      window.removeEventListener("keydown", handleUserInteraction, true);
+      window.removeEventListener("focusin", handleFocusIn, true);
+    };
+  }, [vimMode]);
+
+  // Listen for editor escape (Esc pressed in normal mode inside editor)
+  useEffect(() => {
+    const handleEscapeEditor = () => {
+      switchToSidebar();
+    };
+    window.addEventListener("vim:escape-editor", handleEscapeEditor);
+    return () =>
+      window.removeEventListener("vim:escape-editor", handleEscapeEditor);
+  }, [switchToSidebar]);
+
+  // Main keydown handler
   useEffect(() => {
     if (!vimMode) {
       clearFocus();
@@ -139,37 +210,89 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Always allow Tab for area switching (even in inputs)
+      if (
+        event.key === "Tab" &&
+        !event.ctrlKey &&
+        !event.metaKey &&
+        !event.altKey
+      ) {
+        event.preventDefault();
+        if (focusedAreaRef.current === "sidebar") {
+          switchToMain();
+        } else {
+          switchToSidebar();
+        }
+        return;
+      }
+
+      // Skip when typing in inputs (unless we're in sidebar area but editor has focus —
+      // that's handled by vim:escape-editor)
       if (isInputTarget(event.target)) return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
 
       const key = event.key;
+
+      // Keys that work in both areas
+      if (key === "1") {
+        event.preventDefault();
+        router.push("/?mode=notes");
+        return;
+      }
+      if (key === "2") {
+        event.preventDefault();
+        router.push("/?mode=checklists");
+        return;
+      }
+      if (key === "3") {
+        event.preventDefault();
+        router.push("/?mode=time-tracking");
+        return;
+      }
+      if (key === "/") {
+        event.preventDefault();
+        openSearch();
+        return;
+      }
+      if (key === "n") {
+        event.preventDefault();
+        if (mode === Modes.NOTES) openCreateNoteModal();
+        else openCreateChecklistModal();
+        return;
+      }
+
+      // Sidebar-only navigation
+      if (focusedAreaRef.current !== "sidebar") return;
+
       const items = getItems();
       const currentIndex = focusedIndexRef.current;
       const currentPendingKey = pendingKeyRef.current;
 
-      // Two-key sequence: dd
+      // Two-key: dd
       if (currentPendingKey === "d" && key === "d") {
         event.preventDefault();
-        if (pendingKeyTimerRef.current) clearTimeout(pendingKeyTimerRef.current);
+        if (pendingKeyTimerRef.current)
+          clearTimeout(pendingKeyTimerRef.current);
         setPendingKey(null);
         pendingKeyRef.current = null;
         dispatchVimEvent("vim:delete-item");
         return;
       }
 
-      // Two-key sequence: gg
+      // Two-key: gg
       if (currentPendingKey === "g" && key === "g") {
         event.preventDefault();
-        if (pendingKeyTimerRef.current) clearTimeout(pendingKeyTimerRef.current);
+        if (pendingKeyTimerRef.current)
+          clearTimeout(pendingKeyTimerRef.current);
         setPendingKey(null);
         pendingKeyRef.current = null;
         setFocus(0);
         return;
       }
 
-      // Clear pending key on unrelated key
       if (currentPendingKey && key !== currentPendingKey) {
-        if (pendingKeyTimerRef.current) clearTimeout(pendingKeyTimerRef.current);
+        if (pendingKeyTimerRef.current)
+          clearTimeout(pendingKeyTimerRef.current);
         setPendingKey(null);
         pendingKeyRef.current = null;
       }
@@ -194,7 +317,8 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
           event.preventDefault();
           setPendingKey("g");
           pendingKeyRef.current = "g";
-          if (pendingKeyTimerRef.current) clearTimeout(pendingKeyTimerRef.current);
+          if (pendingKeyTimerRef.current)
+            clearTimeout(pendingKeyTimerRef.current);
           pendingKeyTimerRef.current = setTimeout(() => {
             setPendingKey(null);
             pendingKeyRef.current = null;
@@ -204,7 +328,11 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
         case "Enter":
         case "l":
           event.preventDefault();
-          if (currentIndex >= 0) navigateToFocused();
+          if (currentIndex >= 0) {
+            navigateToFocused();
+            // After navigating to a note/checklist, switch to main area
+            switchToMain();
+          }
           break;
 
         case "h":
@@ -222,52 +350,28 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
           dispatchVimEvent("vim:pin-item");
           break;
 
+        case "t":
+          event.preventDefault();
+          dispatchVimEvent("vim:time-item");
+          break;
+
         case "d":
           event.preventDefault();
           setPendingKey("d");
           pendingKeyRef.current = "d";
-          if (pendingKeyTimerRef.current) clearTimeout(pendingKeyTimerRef.current);
+          if (pendingKeyTimerRef.current)
+            clearTimeout(pendingKeyTimerRef.current);
           pendingKeyTimerRef.current = setTimeout(() => {
             setPendingKey(null);
             pendingKeyRef.current = null;
           }, 1000);
           break;
 
-        case "n":
-          event.preventDefault();
-          if (mode === Modes.NOTES) openCreateNoteModal();
-          else openCreateChecklistModal();
-          break;
-
-        case "/":
-          event.preventDefault();
-          openSearch();
-          break;
-
-        case "t":
-          event.preventDefault();
-          dispatchVimEvent("vim:time-item");
-          break;
-
-        case "1":
-          event.preventDefault();
-          router.push("/?mode=notes");
-          break;
-
-        case "2":
-          event.preventDefault();
-          router.push("/?mode=checklists");
-          break;
-
-        case "3":
-          event.preventDefault();
-          router.push("/?mode=time-tracking");
-          break;
-
         case "Escape":
           event.preventDefault();
           clearFocus();
-          if (pendingKeyTimerRef.current) clearTimeout(pendingKeyTimerRef.current);
+          if (pendingKeyTimerRef.current)
+            clearTimeout(pendingKeyTimerRef.current);
           setPendingKey(null);
           pendingKeyRef.current = null;
           break;
@@ -285,6 +389,8 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     navigateToFocused,
     dispatchVimEvent,
     triggerCategoryAction,
+    switchToMain,
+    switchToSidebar,
     openCreateNoteModal,
     openCreateChecklistModal,
     openSearch,
@@ -301,9 +407,18 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     return () =>
       window.removeEventListener(
         "vim:editor-mode-change",
-        handleEditorModeChange
+        handleEditorModeChange,
       );
   }, []);
+
+  // Reset to sidebar area when vim mode is toggled off
+  useEffect(() => {
+    if (!vimMode) {
+      setFocusedArea("sidebar");
+      focusedAreaRef.current = "sidebar";
+      setEditorMode("normal");
+    }
+  }, [vimMode]);
 
   return (
     <VimModeContext.Provider
@@ -312,6 +427,7 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
         pendingKey,
         isVimActive: vimMode,
         editorMode,
+        focusedArea,
         setEditorMode,
       }}
     >

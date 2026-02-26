@@ -16,6 +16,7 @@ export const VimExtension = Extension.create({
   name: "vimExtension",
 
   addProseMirrorPlugins() {
+    // Start in normal mode — user must press `i` to type
     let currentMode: EditorVimMode = "normal";
 
     return [
@@ -25,16 +26,15 @@ export const VimExtension = Extension.create({
             focus: () => {
               const isActive = useSettings.getState().vimMode;
               if (!isActive) return false;
-              // When editor is focused, enter insert mode automatically
-              currentMode = "insert";
-              dispatchEditorModeEvent("insert");
+              // Stay in normal mode on focus — user presses `i` to enter insert
+              currentMode = "normal";
+              dispatchEditorModeEvent("normal");
               return false;
             },
 
             blur: () => {
               const isActive = useSettings.getState().vimMode;
               if (!isActive) return false;
-              // When editor loses focus, reset to normal
               currentMode = "normal";
               dispatchEditorModeEvent("normal");
               return false;
@@ -56,7 +56,9 @@ export const VimExtension = Extension.create({
                   return true;
                 }
                 if (event.key === "Escape") {
-                  return false;
+                  // Already in normal mode — escape back to sidebar
+                  window.dispatchEvent(new CustomEvent("vim:escape-editor"));
+                  return true;
                 }
                 // Block printable characters in normal mode
                 if (
