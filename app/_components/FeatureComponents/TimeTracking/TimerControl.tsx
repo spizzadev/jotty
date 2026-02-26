@@ -79,9 +79,12 @@ export const TimerControl = ({
   const handleStop = async () => {
     if (!runningEntry) return;
     setLoading(true);
-    const result = taskId
-      ? await stopTimeEntry(taskId, runningEntry.id)
-      : await stopCategoryEntry(category ?? "", runningEntry.id);
+    const result = runningEntry.taskId
+      ? await stopTimeEntry(runningEntry.taskId, runningEntry.id)
+      : await stopCategoryEntry(
+          runningEntry.category ?? category ?? "",
+          runningEntry.id,
+        );
     setLoading(false);
     if (result.success && result.data) {
       onStop(result.data);
