@@ -20,6 +20,7 @@ export type VimFocusArea = "sidebar" | "main";
 
 interface VimModeContextType {
   focusedIndex: number;
+  focusedItemId: string | null;
   pendingKey: string | null;
   isVimActive: boolean;
   editorMode: VimEditorMode;
@@ -49,12 +50,14 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
   const { mode } = useAppMode();
 
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [focusedItemId, setFocusedItemId] = useState<string | null>(null);
   const [pendingKey, setPendingKey] = useState<string | null>(null);
   const [editorMode, setEditorMode] = useState<VimEditorMode>("normal");
   const [focusedArea, setFocusedArea] = useState<VimFocusArea>("sidebar");
 
   const pendingKeyRef = useRef<string | null>(null);
   const focusedIndexRef = useRef(-1);
+  const focusedItemIdRef = useRef<string | null>(null);
   const focusedAreaRef = useRef<VimFocusArea>("sidebar");
   const pendingKeyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastInteractionTimeRef = useRef(0);
@@ -81,6 +84,8 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     });
     setFocusedIndex(-1);
     focusedIndexRef.current = -1;
+    setFocusedItemId(null);
+    focusedItemIdRef.current = null;
   }, []);
 
   const setFocus = useCallback(
@@ -97,6 +102,9 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
       if (target) {
         target.setAttribute("data-vim-focused", "true");
         (target as HTMLElement).scrollIntoView({ block: "nearest" });
+        const id = target.getAttribute("data-vim-item-id") ?? null;
+        setFocusedItemId(id);
+        focusedItemIdRef.current = id;
       }
 
       setFocusedIndex(clampedIndex);
@@ -104,6 +112,56 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     },
     [getItems],
   );
+
+  // Re-apply focus highlight by item ID — called after DOM mutations so that
+  // focus follows the item to its new DOM position (e.g. after pin/reorder).
+  const syncFocusByItemId = useCallback(() => {
+    const id = focusedItemIdRef.current;
+    if (!id) return;
+
+    const items = getItems();
+
+    // Clear all stale highlights
+    document.querySelectorAll("[data-vim-focused]").forEach((el) => {
+      el.removeAttribute("data-vim-focused");
+    });
+
+    const idx = items.findIndex(
+      (el) => el.getAttribute("data-vim-item-id") === id,
+    );
+
+    if (idx >= 0) {
+      items[idx].setAttribute("data-vim-focused", "true");
+      focusedIndexRef.current = idx;
+      setFocusedIndex(idx);
+    } else {
+      // Item was deleted or is no longer visible — clear focus
+      setFocusedItemId(null);
+      focusedItemIdRef.current = null;
+      setFocusedIndex(-1);
+      focusedIndexRef.current = -1;
+    }
+  }, [getItems]);
+
+  // Watch for DOM mutations (router.refresh, pin, delete, category collapse) and
+  // re-sync the focus highlight to the correct element.
+  useEffect(() => {
+    if (!vimMode) return;
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const observer = new MutationObserver(() => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(syncFocusByItemId, 120);
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [vimMode, syncFocusByItemId]);
 
   const switchToMain = useCallback(() => {
     clearFocus();
@@ -424,6 +482,7 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     <VimModeContext.Provider
       value={{
         focusedIndex,
+        focusedItemId,
         pendingKey,
         isVimActive: vimMode,
         editorMode,
