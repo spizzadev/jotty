@@ -165,7 +165,12 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
               className={cn(
                 "flex items-center justify-between",
                 isOver && "bg-primary/10 rounded-jotty",
+                "data-[vim-focused=true]:ring-2 data-[vim-focused=true]:ring-primary data-[vim-focused=true]:ring-offset-1 data-[vim-focused=true]:rounded-md",
               )}
+              data-vim-item="true"
+              data-vim-item-id={`category::${category.path}`}
+              data-vim-item-type="category"
+              data-vim-category={category.path}
             >
               <div
                 className={cn(

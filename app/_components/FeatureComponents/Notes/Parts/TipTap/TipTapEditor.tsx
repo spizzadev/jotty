@@ -162,6 +162,17 @@ export const TiptapEditor = forwardRef<TiptapEditorRef, TiptapEditorProps>(
       },
     });
 
+    // Focus editor when vim mode switches to main area (Tab key or after navigation)
+    useEffect(() => {
+      const handleFocusMain = () => {
+        if (!useSettings.getState().vimMode || !editor) return;
+        editor.commands.focus();
+      };
+      window.addEventListener("vim:focus-main", handleFocusMain);
+      return () =>
+        window.removeEventListener("vim:focus-main", handleFocusMain);
+    }, [editor]);
+
     useImperativeHandle(ref, () => ({
       updateAtMentionData: (
         notes: any[],

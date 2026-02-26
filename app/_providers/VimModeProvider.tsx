@@ -180,14 +180,9 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     focusedAreaRef.current = "main";
     // Allow the programmatic focus to bypass the auto-focus bouncer
     lastInteractionTimeRef.current = Date.now();
+    // The editor component listens for this and calls editor.commands.focus()
+    // when it is mounted (handles both already-mounted and post-navigation cases)
     window.dispatchEvent(new CustomEvent("vim:focus-main"));
-    // Actually focus the ProseMirror editor so it receives keydown events
-    setTimeout(() => {
-      const proseMirror = document.querySelector(
-        '.ProseMirror[contenteditable="true"]',
-      ) as HTMLElement | null;
-      proseMirror?.focus();
-    }, 0);
   }, [clearFocus]);
 
   const switchToSidebar = useCallback(() => {
@@ -404,14 +399,21 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
           break;
 
         case "Enter":
-        case "l":
+        case "l": {
           event.preventDefault();
           if (currentIndex >= 0) {
-            navigateToFocused();
-            // After navigating to a note/checklist, switch to main area
-            switchToMain();
+            const focusedEl = items[currentIndex] as HTMLElement;
+            const itemType = focusedEl.getAttribute("data-vim-item-type");
+            if (itemType === "category") {
+              // Toggle category expand/collapse
+              triggerCategoryAction();
+            } else {
+              navigateToFocused();
+              switchToMain();
+            }
           }
           break;
+        }
 
         case "h":
           event.preventDefault();
