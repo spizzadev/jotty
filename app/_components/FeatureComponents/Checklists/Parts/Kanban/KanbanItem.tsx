@@ -26,6 +26,7 @@ interface KanbanItemProps {
   onUpdate: (updatedChecklist: Checklist) => void;
   isShared: boolean;
   statuses: KanbanStatus[];
+  isFocused?: boolean;
 }
 
 const KanbanItemComponent = ({
@@ -37,6 +38,7 @@ const KanbanItemComponent = ({
   onUpdate,
   isShared,
   statuses,
+  isFocused,
 }: KanbanItemProps) => {
   const { usersPublicData } = useAppMode();
   const { permissions } = usePermissions();
@@ -121,6 +123,7 @@ const KanbanItemComponent = ({
             getStatusColor(item.status),
             (isDragging || isSortableDragging) &&
               "opacity-50 scale-95 rotate-[4deg] shadow-lg z-50 transition-all duration-200",
+            isFocused && "ring-2 ring-primary ring-offset-1",
           )}
         >
           <div className="space-y-2">

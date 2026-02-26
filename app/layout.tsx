@@ -45,6 +45,7 @@ import { sanitizeUserForClient } from "@/app/_utils/user-sanitize-utils";
 import { KonamiProvider } from "./_providers/KonamiProvider";
 import { WebSocketProvider } from "./_providers/WebSocketProvider";
 import { isEnvEnabled } from "./_utils/env-utils";
+import { VimModeProvider } from "./_providers/VimModeProvider";
 
 export const generateMetadata = async (): Promise<Metadata> => {
   const settings = await getSettings();
@@ -260,18 +261,21 @@ export default async function RootLayout({
                           noteCategories={noteCategories.data || []}
                           checklistCategories={checklistCategories.data || []}
                         >
-                          <div className="min-h-screen bg-background text-foreground transition-colors jotty-page">
-                            <DynamicFavicon />
-                            {children}
+                          <VimModeProvider>
+                            <div className="min-h-screen bg-background text-foreground transition-colors jotty-page">
+                              <DynamicFavicon />
+                              {children}
 
-                            {!pathname?.includes("/public") && (
-                              <InstallPrompt />
-                            )}
+                              {!pathname?.includes("/public") && (
+                                <InstallPrompt />
+                              )}
 
-                            {serveUpdates && !pathname?.includes("/public") && (
-                              <UpdatePrompt />
-                            )}
-                          </div>
+                              {serveUpdates &&
+                                !pathname?.includes("/public") && (
+                                  <UpdatePrompt />
+                                )}
+                            </div>
+                          </VimModeProvider>
                         </ShortcutProvider>
                       </ToastProvider>
                     </NavigationGuardProvider>

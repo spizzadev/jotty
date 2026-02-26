@@ -13,13 +13,20 @@ import {
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { cn } from "@/app/_utils/global-utils";
 import { DropdownMenu } from "@/app/_components/GlobalComponents/Dropdowns/DropdownMenu";
-import { AppMode, Category, Checklist, Note, SanitisedUser } from "@/app/_types";
+import {
+  AppMode,
+  Category,
+  Checklist,
+  Note,
+  SanitisedUser,
+} from "@/app/_types";
 import { Draggable } from "@/app/_components/FeatureComponents/Sidebar/Parts/Draggable";
 import { SidebarItem } from "@/app/_components/FeatureComponents/Sidebar/Parts/SidebarItem";
 import { Modes } from "@/app/_types/enums";
 import { DropIndicator } from "@/app/_components/FeatureComponents/Sidebar/Parts/DropIndicator";
 import { Droppable } from "@/app/_components/FeatureComponents/Sidebar/Parts/Droppable";
 import { useTranslations } from "next-intl";
+import { useEffect } from "react";
 
 interface CategoryRendererProps {
   category: Category;
@@ -62,7 +69,7 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
   const getItemsInCategory = (categoryPath: string) =>
     allItems.filter(
       (item) =>
-        (item.category || "Uncategorized") === categoryPath && !item.isShared
+        (item.category || "Uncategorized") === categoryPath && !item.isShared,
     );
   const getSubCategories = (parentPath: string) =>
     allCategories.filter((cat) => cat.parent === parentPath);
@@ -74,7 +81,7 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
       directItems +
       subCategories.reduce(
         (total, subCat) => total + getTotalItemsInCategory(subCat.path),
-        0
+        0,
       )
     );
   };
@@ -84,9 +91,24 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
   const isCollapsed = collapsedCategories.has(category.path);
   const hasContent = categoryItems.length > 0 || subCategories.length > 0;
 
+  // Listen for vim toggle-category events
+  useEffect(() => {
+    const handleVimToggle = (event: Event) => {
+      const e = event as CustomEvent<{ category: string }>;
+      if (e.detail.category === category.path && hasContent) {
+        onToggleCategory(category.path);
+      }
+    };
+    document.addEventListener("vim:toggle-category", handleVimToggle);
+    return () =>
+      document.removeEventListener("vim:toggle-category", handleVimToggle);
+  }, [category.path, hasContent, onToggleCategory]);
+
   const dropdownItems = [
     {
-      label: t(mode === Modes.CHECKLISTS ? "checklists.newChecklist" : "notes.newNote"),
+      label: t(
+        mode === Modes.CHECKLISTS ? "checklists.newChecklist" : "notes.newNote",
+      ),
       onClick: () => onQuickCreate(category.path),
       icon:
         mode === Modes.CHECKLISTS ? (
@@ -116,8 +138,9 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
   const firstChildId = subCategories[0]
     ? `category::${subCategories[0].path}`
     : categoryItems[0]
-      ? `item::${categoryItems[0].category || "Uncategorized"}::${categoryItems[0].id
-      }`
+      ? `item::${categoryItems[0].category || "Uncategorized"}::${
+          categoryItems[0].id
+        }`
       : undefined;
 
   return (
@@ -141,15 +164,13 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
             <div
               className={cn(
                 "flex items-center justify-between",
-                isOver && "bg-primary/10 rounded-jotty"
+                isOver && "bg-primary/10 rounded-jotty",
               )}
             >
               <div
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 text-md lg:text-sm rounded-jotty transition-colors w-full text-left",
-                  hasContent
-                    ? "hover:bg-muted/50"
-                    : "text-muted-foreground"
+                  hasContent ? "hover:bg-muted/50" : "text-muted-foreground",
                 )}
                 style={{ paddingLeft: `${category.level * 16}px` }}
               >
@@ -160,7 +181,7 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
                   }}
                   className={cn(
                     "flex items-center shrink-0",
-                    hasContent ? "cursor-pointer" : "cursor-default"
+                    hasContent ? "cursor-pointer" : "cursor-default",
                   )}
                 >
                   {hasContent ? (
@@ -262,14 +283,16 @@ export const CategoryRenderer = (props: CategoryRendererProps) => {
                 />
               </Draggable>
               <DropIndicator
-                id={`drop-after-item::${item.category || "Uncategorized"}::${item.id
-                  }`}
+                id={`drop-after-item::${item.category || "Uncategorized"}::${
+                  item.id
+                }`}
                 data={{
                   type: "drop-indicator",
                   parentPath: category.path,
                   position: "after",
-                  targetDndId: `item::${item.category || "Uncategorized"}::${item.id
-                    }`,
+                  targetDndId: `item::${item.category || "Uncategorized"}::${
+                    item.id
+                  }`,
                   targetType: "item",
                 }}
               />

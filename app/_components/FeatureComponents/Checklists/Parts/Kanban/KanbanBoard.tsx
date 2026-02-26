@@ -28,6 +28,7 @@ import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { updateChecklistStatuses } from "@/app/_server/actions/checklist";
 import { unarchiveItem } from "@/app/_server/actions/checklist-item";
 import { useTranslations } from "next-intl";
+import { useKanbanVim } from "./useKanbanVim";
 
 interface KanbanBoardProps {
   checklist: Checklist;
@@ -69,13 +70,13 @@ export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
   const { linkIndex, notes, checklists, appSettings, allSharedItems } =
     useAppMode();
   const encodedCategory = encodeCategoryPath(
-    checklist.category || "Uncategorized"
+    checklist.category || "Uncategorized",
   );
   const isShared =
     allSharedItems?.checklists.some(
       (sharedChecklist) =>
         sharedChecklist.id === checklist.id &&
-        sharedChecklist.category === encodedCategory
+        sharedChecklist.category === encodedCategory,
     ) || false;
   const { permissions } = usePermissions();
   const {
@@ -96,8 +97,11 @@ export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
 
   const statuses = useMemo(() => {
     const currentStatuses = localChecklist.statuses || defaultStatuses;
-    return currentStatuses.map(status => {
-      if (status.id === TaskStatus.COMPLETED && status.autoComplete === undefined) {
+    return currentStatuses.map((status) => {
+      if (
+        status.id === TaskStatus.COMPLETED &&
+        status.autoComplete === undefined
+      ) {
         return { ...status, autoComplete: true };
       }
       return status;
@@ -112,6 +116,12 @@ export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
       status: status.id,
     }));
 
+  const { focusedItemId } = useKanbanVim({
+    statuses,
+    getItemsByStatus,
+    handleItemStatusUpdate,
+  });
+
   const handleSaveStatuses = async (newStatuses: KanbanStatus[]) => {
     const formData = new FormData();
     formData.append("uuid", localChecklist.uuid || "");
@@ -124,12 +134,15 @@ export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
     }
   };
 
-  const itemsByStatus = statuses.reduce((acc, status) => {
-    acc[status.id] = localChecklist.items.filter(
-      (item) => item.status === status.id && !item.isArchived
-    ).length;
-    return acc;
-  }, {} as Record<string, number>);
+  const itemsByStatus = statuses.reduce(
+    (acc, status) => {
+      acc[status.id] = localChecklist.items.filter(
+        (item) => item.status === status.id && !item.isArchived,
+      ).length;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const archivedItems = localChecklist.items.filter((item) => item.isArchived);
 
@@ -159,7 +172,7 @@ export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
         tolerance: 5,
       },
     }),
-    useSensor(KeyboardSensor)
+    useSensor(KeyboardSensor),
   );
 
   useEffect(() => {
@@ -173,7 +186,7 @@ export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
       localChecklist.category,
       ItemTypes.CHECKLIST,
       notes,
-      checklists
+      checklists,
     );
   }, [
     linkIndex,
@@ -240,10 +253,11 @@ export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
                 return (
                   <div
                     key={column.id}
-                    className={`${columns.length > 4
+                    className={`${
+                      columns.length > 4
                         ? "flex-shrink-0 min-w-[20%]"
                         : "min-w-[24%] "
-                      }`}
+                    }`}
                   >
                     <KanbanColumn
                       checklist={localChecklist}
@@ -259,6 +273,7 @@ export const KanbanBoard = ({ checklist, onUpdate }: KanbanBoardProps) => {
                         statuses.find((s) => s.id === column.id)?.color
                       }
                       statuses={statuses}
+                      focusedItemId={focusedItemId}
                     />
                   </div>
                 );

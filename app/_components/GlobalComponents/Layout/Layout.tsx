@@ -11,6 +11,7 @@ import { isMobileDevice } from "@/app/_utils/global-utils";
 import { Loading } from "@/app/_components/GlobalComponents/Layout/Loading";
 import { usePathname } from "next/navigation";
 import { useUIStore } from "@/app/_utils/ui-store";
+import { VimStatusBar } from "@/app/_components/GlobalComponents/VimStatusBar/VimStatusBar";
 
 interface LayoutProps {
   categories: Category[];
@@ -104,6 +105,7 @@ export const Layout = ({
           {children}
         </div>
       </main>
+      <VimStatusBar />
     </div>
   );
 };

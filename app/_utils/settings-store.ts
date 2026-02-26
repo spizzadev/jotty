@@ -22,7 +22,7 @@ type BuiltInTheme =
 type Theme = BuiltInTheme | string;
 
 const getSystemTheme = (
-  isRwMarkable?: boolean
+  isRwMarkable?: boolean,
 ): "rwmarkable-light" | "rwmarkable-dark" | "light" | "dark" => {
   if (typeof window !== "undefined") {
     const dark = isRwMarkable ? "rwmarkable-dark" : "dark";
@@ -41,17 +41,19 @@ interface SettingsState {
   autosaveNotes: boolean;
   showMarkdownPreview: boolean;
   showCompletedSuggestions: boolean;
-  viewMode: 'card' | 'list' | 'grid';
+  viewMode: "card" | "list" | "grid";
+  vimMode: boolean;
   setTheme: (theme: Theme) => void;
   setShowEmojis: (show: boolean) => void;
   setAutosaveNotes: (enabled: boolean) => void;
   setShowMarkdownPreview: (show: boolean) => void;
   setShowCompletedSuggestions: (show: boolean) => void;
   setCompactMode: (compact: boolean) => void;
-  setViewMode: (mode: 'card' | 'list' | 'grid') => void;
+  setViewMode: (mode: "card" | "list" | "grid") => void;
+  setVimMode: (enabled: boolean) => void;
   getResolvedTheme: (
     isRwMarkable: boolean,
-    userPreferredTheme?: string
+    userPreferredTheme?: string,
   ) => "rwmarkable-light" | "rwmarkable-dark" | "light" | "dark" | string;
   compactMode: boolean;
 }
@@ -65,7 +67,8 @@ export const useSettings = create<SettingsState & { isRwMarkable?: boolean }>()(
       showMarkdownPreview: false,
       showCompletedSuggestions: true,
       compactMode: false,
-      viewMode: 'card',
+      viewMode: "card",
+      vimMode: false,
       setTheme: (theme) => set({ theme }),
       setShowEmojis: (show) => set({ showEmojis: show }),
       setAutosaveNotes: (enabled) => set({ autosaveNotes: enabled }),
@@ -74,9 +77,10 @@ export const useSettings = create<SettingsState & { isRwMarkable?: boolean }>()(
         set({ showCompletedSuggestions: show }),
       setCompactMode: (compact) => set({ compactMode: compact }),
       setViewMode: (mode) => set({ viewMode: mode }),
+      setVimMode: (enabled) => set({ vimMode: enabled }),
       getResolvedTheme: (
         isRwMarkable: boolean,
-        userPreferredTheme?: string
+        userPreferredTheme?: string,
       ) => {
         const { theme: localStorageTheme } = get();
 
@@ -96,6 +100,6 @@ export const useSettings = create<SettingsState & { isRwMarkable?: boolean }>()(
     }),
     {
       name: "checklist-settings",
-    }
-  )
+    },
+  ),
 );

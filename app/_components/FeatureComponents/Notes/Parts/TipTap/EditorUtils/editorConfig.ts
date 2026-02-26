@@ -31,6 +31,7 @@ import { ExcalidrawExtension } from "@/app/_components/FeatureComponents/Notes/P
 import { CalloutExtension } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/CalloutExtension";
 import { generateCustomHtmlExtensions } from "@/app/_utils/custom-html-utils";
 import { getContrastColor } from "@/app/_utils/color-utils";
+import { VimExtension } from "@/app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/VimExtension";
 
 interface OverlayCallbacks {
   onImageClick: (position: any) => void;
@@ -59,7 +60,7 @@ export const createEditorExtensions = (
   callbacks: OverlayCallbacks,
   editorSettings?: EditorSettings,
   editorData?: EditorData,
-  t?: (key: string) => string
+  t?: (key: string) => string,
 ) => {
   const settings = editorSettings || {
     enableSlashCommands: true,
@@ -219,6 +220,7 @@ export const createEditorExtensions = (
     BulletList.extend({
       content: "listItem+",
     }),
+    VimExtension,
   ];
 
   return extensions;

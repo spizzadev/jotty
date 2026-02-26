@@ -22,7 +22,7 @@ import { DropdownMenu } from "@/app/_components/GlobalComponents/Dropdowns/Dropd
 import { AppMode, Checklist, Note } from "@/app/_types";
 import { ItemTypes, Modes } from "@/app/_types/enums";
 import { togglePin } from "@/app/_server/actions/dashboard";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ARCHIVED_DIR_NAME } from "@/app/_consts/files";
 import { toggleArchive } from "@/app/_server/actions/dashboard";
@@ -64,7 +64,11 @@ export const SidebarItem = ({
   const [showShareModal, setShowShareModal] = useState(false);
   const { globalSharing, appSettings } = useAppMode();
   const encodedCategory = encodeCategoryPath(item.category || "Uncategorized");
-  const itemDetails = sharingInfo(globalSharing, item.uuid || item.id, encodedCategory);
+  const itemDetails = sharingInfo(
+    globalSharing,
+    item.uuid || item.id,
+    encodedCategory,
+  );
 
   const isPubliclyShared = itemDetails.isPublic;
   const isShared = itemDetails.exists && itemDetails.sharedWith.length > 0;
@@ -73,8 +77,9 @@ export const SidebarItem = ({
   const sharedWith = itemDetails.sharedWith;
 
   const [isTogglingPin, setIsTogglingPin] = useState<string | null>(null);
+  const itemRef = useRef<HTMLDivElement>(null);
 
-  const itemHref = `/${mode === Modes.NOTES ? ItemTypes.NOTE : ItemTypes.CHECKLIST}/${buildCategoryPath(item.category || 'Uncategorized', item.id)}`;
+  const itemHref = `/${mode === Modes.NOTES ? ItemTypes.NOTE : ItemTypes.CHECKLIST}/${buildCategoryPath(item.category || "Uncategorized", item.id)}`;
 
   const handleDeleteItem = async () => {
     const formData = new FormData();
@@ -107,7 +112,7 @@ export const SidebarItem = ({
       const result = await togglePin(
         item.uuid || item.id,
         item.category || "Uncategorized",
-        mode === Modes.CHECKLISTS ? ItemTypes.CHECKLIST : ItemTypes.NOTE
+        mode === Modes.CHECKLISTS ? ItemTypes.CHECKLIST : ItemTypes.NOTE,
       );
       if (result.success) {
         router.refresh();
@@ -150,9 +155,7 @@ export const SidebarItem = ({
           },
         ]
       : []),
-    ...(onEditItem || isShareable
-      ? [{ type: "divider" as const }]
-      : []),
+    ...(onEditItem || isShareable ? [{ type: "divider" as const }] : []),
     {
       label: isItemPinned() ? t("common.unpinFromHome") : t("common.pinToHome"),
       onClick: handleTogglePin,
@@ -186,6 +189,28 @@ export const SidebarItem = ({
     },
   ];
 
+  // Listen for vim custom events dispatched on this element
+  useEffect(() => {
+    const el = itemRef.current;
+    if (!el) return;
+
+    const onVimDelete = () => setShowDeleteModal(true);
+    const onVimEdit = () => {
+      if (onEditItem) onEditItem(item);
+    };
+    const onVimPin = () => handleTogglePin();
+
+    el.addEventListener("vim:delete-item", onVimDelete);
+    el.addEventListener("vim:edit-item", onVimEdit);
+    el.addEventListener("vim:pin-item", onVimPin);
+
+    return () => {
+      el.removeEventListener("vim:delete-item", onVimDelete);
+      el.removeEventListener("vim:edit-item", onVimEdit);
+      el.removeEventListener("vim:pin-item", onVimPin);
+    };
+  }, [item, onEditItem, handleTogglePin]);
+
   const handleClick = (e: React.MouseEvent) => {
     if (checkWouldBlock()) {
       e.preventDefault();
@@ -198,8 +223,24 @@ export const SidebarItem = ({
     }
   };
 
+  const itemType =
+    mode === Modes.NOTES
+      ? "note"
+      : "type" in item && item.type === "task"
+        ? "task"
+        : "simple";
+
   return (
-    <div className="flex items-center group/item" style={style}>
+    <div
+      ref={itemRef}
+      className="flex items-center group/item data-[vim-focused=true]:ring-2 data-[vim-focused=true]:ring-primary data-[vim-focused=true]:ring-offset-1 data-[vim-focused=true]:rounded-md"
+      style={style}
+      data-vim-item="true"
+      data-vim-href={itemHref}
+      data-vim-item-id={item.uuid || item.id}
+      data-vim-item-type={itemType}
+      data-vim-category={item.category || "Uncategorized"}
+    >
       <Link
         href={itemHref}
         onClick={handleClick}
@@ -208,14 +249,14 @@ export const SidebarItem = ({
           "flex items-center gap-2 px-3 py-2 text-md lg:text-sm rounded-jotty transition-colors flex-1 text-left truncate",
           isSelected
             ? "bg-primary/60 text-primary-foreground"
-            : "hover:bg-muted/50 text-foreground"
+            : "hover:bg-muted/50 text-foreground",
         )}
       >
         {mode === Modes.NOTES ? (
           <File02Icon
             className={cn(
               "h-5 w-5 lg:h-4 lg:w-4 text-foreground flex-shrink-0",
-              isSelected ? "text-primary-foreground" : "text-foreground"
+              isSelected ? "text-primary-foreground" : "text-foreground",
             )}
           />
         ) : (
@@ -224,14 +265,14 @@ export const SidebarItem = ({
               <TaskDaily01Icon
                 className={cn(
                   "h-5 w-5 lg:h-4 lg:w-4 text-foreground flex-shrink-0",
-                  isSelected ? "text-primary-foreground" : "text-foreground"
+                  isSelected ? "text-primary-foreground" : "text-foreground",
                 )}
               />
             ) : (
               <CheckmarkSquare04Icon
                 className={cn(
                   "h-5 w-5 lg:h-4 lg:w-4 text-foreground flex-shrink-0",
-                  isSelected ? "text-primary-foreground" : "text-foreground"
+                  isSelected ? "text-primary-foreground" : "text-foreground",
                 )}
               />
             )}
@@ -245,7 +286,7 @@ export const SidebarItem = ({
 
         <div className="flex items-center gap-1 flex-shrink-0">
           {mode === Modes.NOTES && "encrypted" in item && item.encrypted && (
-            <span title={t('editor.encryptedNote')}>
+            <span title={t("editor.encryptedNote")}>
               <LockKeyIcon className="h-4 w-4 text-primary" />
             </span>
           )}
@@ -255,7 +296,7 @@ export const SidebarItem = ({
             </span>
           )}
           {isPubliclyShared && (
-            <span title={t('checklists.publiclyShared')}>
+            <span title={t("checklists.publiclyShared")}>
               <Globe02Icon className="h-4 w-4 text-primary" />
             </span>
           )}
@@ -300,7 +341,10 @@ export const SidebarItem = ({
         >
           <ShareModal
             isOpen={showShareModal}
-            onClose={() => { setShowShareModal(false); router.refresh() }}
+            onClose={() => {
+              setShowShareModal(false);
+              router.refresh();
+            }}
           />
         </MetadataProvider>
       )}
