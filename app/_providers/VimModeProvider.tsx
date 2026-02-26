@@ -131,11 +131,22 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     );
 
     if (idx >= 0) {
+      // Item still in DOM (may have moved) — re-highlight at new position
       items[idx].setAttribute("data-vim-focused", "true");
       focusedIndexRef.current = idx;
       setFocusedIndex(idx);
+    } else if (items.length > 0) {
+      // Item hidden (category collapsed) or deleted — stay at same position
+      const fallbackIdx = Math.min(focusedIndexRef.current, items.length - 1);
+      const target = items[Math.max(0, fallbackIdx)];
+      target.setAttribute("data-vim-focused", "true");
+      const newId = target.getAttribute("data-vim-item-id") ?? null;
+      focusedItemIdRef.current = newId;
+      setFocusedItemId(newId);
+      focusedIndexRef.current = Math.max(0, fallbackIdx);
+      setFocusedIndex(Math.max(0, fallbackIdx));
     } else {
-      // Item was deleted or is no longer visible — clear focus
+      // No items at all — clear focus
       setFocusedItemId(null);
       focusedItemIdRef.current = null;
       setFocusedIndex(-1);
@@ -167,7 +178,16 @@ export const VimModeProvider = ({ children }: { children: ReactNode }) => {
     clearFocus();
     setFocusedArea("main");
     focusedAreaRef.current = "main";
+    // Allow the programmatic focus to bypass the auto-focus bouncer
+    lastInteractionTimeRef.current = Date.now();
     window.dispatchEvent(new CustomEvent("vim:focus-main"));
+    // Actually focus the ProseMirror editor so it receives keydown events
+    setTimeout(() => {
+      const proseMirror = document.querySelector(
+        '.ProseMirror[contenteditable="true"]',
+      ) as HTMLElement | null;
+      proseMirror?.focus();
+    }, 0);
   }, [clearFocus]);
 
   const switchToSidebar = useCallback(() => {
