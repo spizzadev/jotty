@@ -20,9 +20,7 @@ import {
 } from "@/app/_utils/global-utils";
 import { Note } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
-import { getUserByNote } from "../_server/actions/users";
 import { extractYamlMetadata } from "@/app/_utils/yaml-metadata-utils";
-import { ConfirmModal } from "@/app/_components/GlobalComponents/Modals/ConfirmationModals/ConfirmModal";
 
 interface UseNoteEditorProps {
   note: Note;
@@ -59,7 +57,7 @@ export const useNoteEditor = ({
     return convertMarkdownToHtml(contentWithoutMetadata);
   });
   const [isMarkdownMode, setIsMarkdownMode] = useState(
-    isMinimalMode || defaultEditorIsMarkdown
+    isMinimalMode || defaultEditorIsMarkdown,
   );
   const [isPrinting, setIsPrinting] = useState(false);
   const notesDefaultMode = user?.notesDefaultMode || "view";
@@ -92,7 +90,7 @@ export const useNoteEditor = ({
       isMarkdownMode
         ? processMarkdownContent(editorContent)
         : convertHtmlToMarkdownUnified(editorContent, user?.tableSyntax),
-    [editorContent, isMarkdownMode, user?.tableSyntax]
+    [editorContent, isMarkdownMode, user?.tableSyntax],
   );
 
   useEffect(() => {
@@ -155,7 +153,7 @@ export const useNoteEditor = ({
       }
 
       const { contentWithoutMetadata: cleanContent } = extractYamlMetadata(
-        derivedMarkdownContent
+        derivedMarkdownContent,
       );
 
       let contentToSave = cleanContent;
@@ -173,8 +171,14 @@ export const useNoteEditor = ({
               const signingData = JSON.parse(passphrase);
               if (signingData.signNote) {
                 encryptFormData.append("signNote", "true");
-                encryptFormData.append("useStoredSigningKey", signingData.useStoredSigningKey.toString());
-                encryptFormData.append("signingPassphrase", signingData.signingPassphrase);
+                encryptFormData.append(
+                  "useStoredSigningKey",
+                  signingData.useStoredSigningKey.toString(),
+                );
+                encryptFormData.append(
+                  "signingPassphrase",
+                  signingData.signingPassphrase,
+                );
               }
             } catch (parseError) {
               await logAudit({
@@ -182,7 +186,10 @@ export const useNoteEditor = ({
                 action: "note_saved_encrypted",
                 category: "note",
                 success: true,
-                metadata: { message: t("encryption.pgpSaveWithoutSigning"), error: String(parseError) }
+                metadata: {
+                  message: t("encryption.pgpSaveWithoutSigning"),
+                  error: String(parseError),
+                },
               });
             }
 
@@ -210,7 +217,7 @@ export const useNoteEditor = ({
             note.uuid!,
             title,
             true,
-            { encryptionMethod: note.encryptionMethod }
+            { encryptionMethod: note.encryptionMethod },
           );
         } catch (error) {
           console.error("Error encrypting note:", error);
@@ -223,7 +230,10 @@ export const useNoteEditor = ({
       formData.append("id", note.id);
       formData.append("title", useAutosave ? note.title : title);
       formData.append("content", contentToSave);
-      formData.append("category", useAutosave ? (note.category || "Uncategorized") : category);
+      formData.append(
+        "category",
+        useAutosave ? note.category || "Uncategorized" : category,
+      );
       formData.append("originalCategory", note.category || "Uncategorized");
       formData.append("user", note.owner || user?.username || "");
       formData.append("uuid", note.uuid || "");
@@ -244,7 +254,7 @@ export const useNoteEditor = ({
 
         const categoryPath = buildCategoryPath(
           category || "Uncategorized",
-          result.data.id
+          result.data.id,
         );
         router.push(`/note/${categoryPath}`);
       }
@@ -258,7 +268,7 @@ export const useNoteEditor = ({
       onUpdate,
       router,
       isEditingEncrypted,
-    ]
+    ],
   );
 
   useEffect(() => {
@@ -306,7 +316,11 @@ export const useNoteEditor = ({
     return () => unregisterNavigationGuard();
   }, [hasUnsavedChanges, registerNavigationGuard, unregisterNavigationGuard]);
 
-  const handleEditorContentChange = (content: string, isMarkdown: boolean, isDirty: boolean) => {
+  const handleEditorContentChange = (
+    content: string,
+    isMarkdown: boolean,
+    isDirty: boolean,
+  ) => {
     setEditorContent(content);
     setIsMarkdownMode(isMarkdown);
     setContentIsDirty(isDirty);
@@ -353,7 +367,7 @@ export const useNoteEditor = ({
       setEditorContent(decryptedContent);
       setIsEditing(true);
     },
-    [note.uuid, note.title]
+    [note.uuid, note.title],
   );
 
   const handlePrint = () => {
@@ -365,7 +379,7 @@ export const useNoteEditor = ({
         : "";
 
     const printUrl = `/public/note/${categoryUrlPath}${encodeId(
-      note.id
+      note.id,
     )}?view_mode=print`;
 
     const iframe = document.createElement("iframe");
@@ -453,16 +467,8 @@ export const useNoteEditor = ({
     setIsPrinting,
     isEditingEncrypted,
     handleEditEncrypted,
-    DeleteModal: () => (
-      <ConfirmModal
-        isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
-        title={t("common.delete")}
-        message={t("common.confirmDeleteItem", { itemTitle: note.title })}
-        confirmText={t("common.delete")}
-        variant="destructive"
-      />
-    ),
+    showDeleteModal,
+    closeDeleteModal: () => setShowDeleteModal(false),
+    confirmDelete,
   };
 };

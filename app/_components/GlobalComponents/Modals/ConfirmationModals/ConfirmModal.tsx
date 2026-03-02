@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 interface ConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   title: string;
   message: string;
   confirmText?: string;
@@ -27,8 +27,8 @@ export const ConfirmModal = ({
 }: ConfirmModalProps) => {
   const t = useTranslations();
 
-  const handleConfirm = () => {
-    onConfirm();
+  const handleConfirm = async () => {
+    await onConfirm();
     onClose();
   };
 

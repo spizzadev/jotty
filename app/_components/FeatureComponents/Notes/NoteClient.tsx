@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Note, Category } from "@/app/_types";
 import { NoteEditor } from "@/app/_components/FeatureComponents/Notes/Parts/NoteEditor/NoteEditor";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
@@ -11,6 +12,7 @@ import { useShortcuts } from "@/app/_hooks/useShortcuts";
 import { useNoteEditor } from "@/app/_hooks/useNoteEditor";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { buildCategoryPath } from "@/app/_utils/global-utils";
+import { ConfirmModal } from "@/app/_components/GlobalComponents/Modals/ConfirmationModals/ConfirmModal";
 import { CloneCategoryModal } from "@/app/_components/GlobalComponents/Modals/ConfirmationModals/CloneCategoryModal";
 import { SwipeNavigationWrapper } from "@/app/_components/FeatureComponents/Notes/Parts/SwipeNavigationWrapper";
 
@@ -21,6 +23,7 @@ interface NoteClientProps {
 
 export const NoteClient = ({ note, categories }: NoteClientProps) => {
   const router = useRouter();
+  const t = useTranslations();
   const { checkNavigation } = useNavigationGuard();
   const { openCreateNoteModal, openCreateCategoryModal, openSettings } =
     useShortcut();
@@ -129,7 +132,15 @@ export const NoteClient = ({ note, categories }: NoteClientProps) => {
           onClone={handleClone}
         />
       </SwipeNavigationWrapper>
-      <viewModel.DeleteModal />
+      <ConfirmModal
+        isOpen={viewModel.showDeleteModal}
+        onClose={viewModel.closeDeleteModal}
+        onConfirm={viewModel.confirmDelete}
+        title={t("common.delete")}
+        message={t("common.confirmDeleteItem", { itemTitle: localNote.title })}
+        confirmText={t("common.delete")}
+        variant="destructive"
+      />
       {showCloneModal && (
         <CloneCategoryModal
           isOpen={showCloneModal}

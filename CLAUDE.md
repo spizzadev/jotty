@@ -21,8 +21,8 @@ yarn test:run tests/server-actions/note.test.ts
 
 Mock data generators (useful for local testing):
 ```bash
-yarn mock:data:lists   # Generate checklist mock data
-yarn mock:data:notes   # Generate note mock data
+yarn mock:data:lists <username>   # Generate checklist mock data for a user
+yarn mock:data:notes <username>   # Generate note mock data for a user
 ```
 
 ---
@@ -180,6 +180,30 @@ Without `durationMin` → starts a live timer. With `durationMin` → creates a 
 
 Tests live in `tests/`, mirroring `app/_server/actions/` structure. Uses Vitest with node environment. Tests write to a `data/` dir relative to the test runner — `tests/setup.ts` handles cleanup.
 
+### Note Editor
+
+Notes use **TipTap** as the rich-text editor. Custom extensions live in `app/_components/FeatureComponents/Notes/Parts/TipTap/CustomExtensions/` (slash commands, `@mention` links, internal links, callouts, Mermaid/Drawio/Excalidraw embeds, etc.). The toolbar is in `Parts/TipTap/Toolbar/` and floating menus in `Parts/TipTap/FloatingMenu/`.
+
+### Server Action Internal Structure
+
+Complex server action modules (e.g. `note/`, `checklist/`) are split into:
+- `readers.ts` — low-level file reads
+- `parsers.ts` — parse raw file content into typed objects
+- `queries.ts` — higher-level data access (combines readers + parsers)
+- `crud.ts` — create/update/delete operations
+- `index.ts` — public exports
+
+### Component Placement
+
+- `app/_components/GlobalComponents/` — reusable UI primitives (buttons, modals, form elements, cards, layout)
+- `app/_components/FeatureComponents/` — feature-specific components (Notes, Checklists, TimeTracking, Admin, etc.)
+
+Don't add feature logic to GlobalComponents; don't use inline styles or hardcode Tailwind classes when a GlobalComponent already exists.
+
 ### i18n
 
-Translations in `app/_translations/[locale].json`. Uses `next-intl`. Access in components via `useTranslations()` hook. When adding new UI strings, add keys to all locale files or use a hardcoded English string if the feature is not yet translated.
+Translations in `app/_translations/[locale].json`. Uses `next-intl`. Access in components via `useTranslations()` hook. **All UI strings must use translation keys** — no hardcoded strings in components. Add keys to all locale files when adding new UI text.
+
+### Branch Workflow
+
+New branches must be created off `develop` (not `main`). Pull requests must target `develop`. `main` is the release branch.
