@@ -83,9 +83,7 @@ export const NoteClient = ({ note, categories }: NoteClientProps) => {
   };
 
   const handleDelete = () => {
-    checkNavigation(() => {
-      router.push("/?mode=notes");
-    });
+    router.push("/?mode=notes");
   };
 
   const viewModel = useNoteEditor({

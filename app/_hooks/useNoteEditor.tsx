@@ -9,6 +9,7 @@ import {
 import { useSettings } from "@/app/_utils/settings-store";
 import { useEditorActivityStore } from "@/app/_utils/editor-activity-store";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
+import { useToast } from "@/app/_providers/ToastProvider";
 import { deleteNote, updateNote } from "@/app/_server/actions/note";
 import { encryptNoteContent } from "@/app/_server/actions/pgp";
 import { encryptXChaCha } from "@/app/_server/actions/xchacha";
@@ -38,6 +39,7 @@ export const useNoteEditor = ({
   const t = useTranslations();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { showToast } = useToast();
   const { user } = useAppMode();
   const isMinimalMode = user?.disableRichEditor === "enable";
   const defaultEditorIsMarkdown = user?.notesDefaultEditor === "markdown";
@@ -350,11 +352,18 @@ export const useNoteEditor = ({
     formData.append("id", note.id);
     formData.append("category", note.category || "");
     if (note.uuid) formData.append("uuid", note.uuid);
-    await deleteNote(formData);
-    onDelete?.(note.id);
-    router.refresh();
-    onBack();
+    if (note.owner) formData.append("owner", note.owner);
+    const result = await deleteNote(formData);
     setShowDeleteModal(false);
+    if (result.success) {
+      onDelete?.(note.id);
+    } else {
+      showToast({
+        type: "error",
+        title: t("common.error"),
+        message: (result as any).error || t("common.somethingWentWrong"),
+      });
+    }
   };
 
   const handleUnsavedChangesSave = () =>

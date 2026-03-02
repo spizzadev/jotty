@@ -175,6 +175,9 @@ export interface NoteEditorViewModel {
     method: string,
     decryptedContent: string,
   ) => void;
+  showDeleteModal: boolean;
+  closeDeleteModal: () => void;
+  confirmDelete: () => Promise<void>;
 }
 
 export interface Category {
