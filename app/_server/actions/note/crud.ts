@@ -163,6 +163,15 @@ export const updateNote = async (formData: FormData, autosaveNotes = false) => {
       currentUser = await getUsername();
     }
 
+    const actingUsername =
+      typeof currentUser === "string"
+        ? currentUser
+        : (currentUser as { username?: string })?.username;
+
+    if (!actingUsername) {
+      return { error: "Not authenticated" };
+    }
+
     const sanitizedContent = sanitizeMarkdown(content);
     const { contentWithoutMetadata } = stripYaml(sanitizedContent);
     const processedContent = settings?.editor?.enableBilateralLinks
@@ -175,19 +184,19 @@ export const updateNote = async (formData: FormData, autosaveNotes = false) => {
 
     const convertedContent = processedContent;
 
-    const note = await getNoteById(uuid || id, originalCategory, currentUser);
-
-    const canEdit = await checkUserPermission(
-      id,
-      originalCategory,
-      "note",
-      currentUser,
-      PermissionTypes.EDIT,
-    );
+    const note = await getNoteById(uuid || id, originalCategory, undefined);
 
     if (!note) {
       throw new Error("Note not found");
     }
+
+    const canEdit = await checkUserPermission(
+      note.uuid || id,
+      originalCategory,
+      "note",
+      actingUsername,
+      PermissionTypes.EDIT,
+    );
 
     if (!canEdit) {
       return { error: "Permission denied" };

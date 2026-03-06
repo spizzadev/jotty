@@ -3,6 +3,7 @@
 import {
   CheckmarkSquare04Icon,
   File02Icon,
+  GridIcon,
   Logout01Icon,
   SidebarLeftIcon,
   TimeQuarterIcon,
@@ -41,8 +42,10 @@ export const QuickNav = ({
   isEditorInEditMode = false,
 }: QuickNavProps) => {
   const router = useRouter();
-  const { mode } = useAppMode();
+  const { mode, tagsEnabled, tagsIndex } = useAppMode();
   const { checkNavigation } = useNavigationGuard();
+  const totalTags = Object.keys(tagsIndex).length;
+  const showTagsTab = tagsEnabled && totalTags > 0;
   const t = useTranslations();
   const [isScrolled, setIsScrolled] = useState(true);
   const lastScrollY = useRef(0);
@@ -169,6 +172,27 @@ export const QuickNav = ({
               }
             />
           ))}
+
+          {showTagsTab && (
+            <NavigationGlobalIcon
+              icon={
+                <GridIcon
+                  className={cn(
+                    "h-10 w-10 p-2 rounded-jotty",
+                    mode === Modes.TAGS
+                      ? "bg-primary text-primary-foreground"
+                      : "",
+                  )}
+                />
+              }
+              onClick={() =>
+                checkNavigation(() => {
+                  onModeChange?.(Modes.TAGS);
+                  router.push("/?mode=tags");
+                })
+              }
+            />
+          )}
 
           <NavigationSearchIcon onModeChange={onModeChange} />
         </div>

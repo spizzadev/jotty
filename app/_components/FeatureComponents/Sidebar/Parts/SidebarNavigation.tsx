@@ -3,6 +3,7 @@
 import {
   CheckmarkSquare04Icon,
   File02Icon,
+  GridIcon,
   TimeQuarterIcon,
 } from "hugeicons-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
@@ -27,8 +28,11 @@ export const SidebarNavigation = ({
   mode,
   onModeChange,
 }: SidebarNavigationProps) => {
-  const { user } = useAppMode();
+  const { user, tagsEnabled, tagsIndex } = useAppMode();
   const t = useTranslations();
+  const totalTags = Object.keys(tagsIndex).length;
+  const showTagsTab = tagsEnabled && totalTags > 0;
+
   const modes: ModeOption[] = [
     {
       id: Modes.CHECKLISTS,
@@ -50,7 +54,7 @@ export const SidebarNavigation = ({
   const orderNote = user?.landingPage === Modes.NOTES ? -1 : 1;
   const orderChecklist = user?.landingPage === Modes.CHECKLISTS ? 0 : 1;
 
-  const orderedModes = modes.sort((a, b) => {
+  const orderedModes = [...modes].sort((a, b) => {
     if (a.id === Modes.NOTES) return orderNote;
     if (a.id === Modes.CHECKLISTS) return orderChecklist;
     return 0;
@@ -79,6 +83,21 @@ export const SidebarNavigation = ({
           </Button>
         );
       })}
+      {showTagsTab && (
+        <Button
+          variant={mode === Modes.TAGS ? "default" : "ghost"}
+          size="sm"
+          onClick={() => onModeChange(Modes.TAGS)}
+          className={cn(
+            "justify-center gap-2 h-14 lg:h-9 py-6 text-md lg:text-sm w-[48px]",
+            mode === Modes.TAGS
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-accent-foreground",
+          )}
+        >
+          <GridIcon className="h-5 w-5 lg:h-4 lg:w-4" />
+        </Button>
+      )}
     </div>
   );
 };

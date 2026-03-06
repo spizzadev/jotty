@@ -6,7 +6,7 @@ import { RenameCategoryModal } from "@/app/_components/GlobalComponents/Modals/C
 import { EditChecklistModal } from "@/app/_components/GlobalComponents/Modals/ChecklistModals/EditChecklistModal";
 import { EditNoteModal } from "@/app/_components/GlobalComponents/Modals/NotesModal/EditNoteModal";
 import { SettingsModal } from "@/app/_components/GlobalComponents/Modals/SettingsModals/Settings";
-import { Checklist, Note } from "@/app/_types";
+import { AppMode, Checklist, Note } from "@/app/_types";
 import { SidebarNavigation } from "./Parts/SidebarNavigation";
 import { CategoryList } from "./Parts/CategoryList";
 import { SharedItemsList } from "./Parts/SharedItemsList";
@@ -19,7 +19,7 @@ import { SidebarProps, useSidebar } from "@/app/_hooks/useSidebar";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { useSidebarStore } from "@/app/_utils/sidebar-store";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
 
 export const Sidebar = (props: SidebarProps) => {
@@ -33,7 +33,7 @@ export const Sidebar = (props: SidebarProps) => {
     user,
   } = props;
 
-  const { checklists, notes, tagsIndex, tagsEnabled } = useAppMode();
+  const { checklists, notes, tagsEnabled, tagsIndex } = useAppMode();
   const totalTags = Object.keys(tagsIndex).length;
   const searchParams = useSearchParams();
   const { mode, setMode } = useAppMode();
@@ -72,6 +72,10 @@ export const Sidebar = (props: SidebarProps) => {
         : sidebarMode;
   }
 
+  if (sidebarMode === Modes.TAGS && (!tagsEnabled || totalTags === 0)) {
+    sidebarMode = (defaultMode as AppMode) || Modes.CHECKLISTS;
+  }
+
   useEffect(() => {
     if (mode !== sidebarMode) {
       setMode(sidebarMode);
@@ -86,11 +90,11 @@ export const Sidebar = (props: SidebarProps) => {
 
   const isTimeTracking = sidebarMode === Modes.TIME_TRACKING;
   const currentItems =
-    sidebarMode === Modes.CHECKLISTS
-      ? checklists
-      : sidebarMode === Modes.NOTES
-        ? notes || []
-        : [];
+    sidebarMode === Modes.TAGS || isTimeTracking
+      ? []
+      : sidebarMode === Modes.CHECKLISTS
+        ? checklists
+        : notes || [];
 
   if (!sidebar.isInitialized) return null;
 
@@ -100,21 +104,23 @@ export const Sidebar = (props: SidebarProps) => {
         isOpen={isOpen}
         onClose={onClose}
         title={
-          <button
-            onClick={() =>
-              sidebar.setCategoriesSectionCollapsed(
-                !sidebar.categoriesSectionCollapsed,
-              )
-            }
-            className="jotty-sidebar-categories-title flex items-center gap-1 text-sm lg:text-xs font-bold uppercase text-muted-foreground tracking-wider hover:text-foreground transition-colors"
-          >
-            {sidebar.categoriesSectionCollapsed ? (
-              <ArrowRight01Icon className="h-3 w-3" />
-            ) : (
-              <ArrowDown01Icon className="h-3 w-3" />
-            )}
-            {t("notes.categories")}
-          </button>
+          sidebarMode !== Modes.TAGS && !isTimeTracking ? (
+            <button
+              onClick={() =>
+                sidebar.setCategoriesSectionCollapsed(
+                  !sidebar.categoriesSectionCollapsed,
+                )
+              }
+              className="jotty-sidebar-categories-title flex items-center gap-1 text-sm lg:text-xs font-bold uppercase text-muted-foreground tracking-wider hover:text-foreground transition-colors"
+            >
+              {sidebar.categoriesSectionCollapsed ? (
+                <ArrowRight01Icon className="h-3 w-3" />
+              ) : (
+                <ArrowDown01Icon className="h-3 w-3" />
+              )}
+              {t("notes.categories")}
+            </button>
+          ) : null
         }
         navigation={
           <SidebarNavigation
@@ -123,7 +129,7 @@ export const Sidebar = (props: SidebarProps) => {
           />
         }
         headerActions={
-          !isTimeTracking ? (
+          sidebarMode !== Modes.TAGS && !isTimeTracking ? (
             <button
               onClick={sidebar.handleToggleAllCategories}
               className="jotty-sidebar-categories-toggle-all text-sm lg:text-xs font-medium text-primary hover:underline focus:outline-none"
@@ -135,7 +141,7 @@ export const Sidebar = (props: SidebarProps) => {
           ) : null
         }
         footer={
-          !isTimeTracking ? (
+          sidebarMode !== Modes.TAGS && !isTimeTracking ? (
             <SidebarActions
               mode={sidebar.mode}
               onOpenCreateModal={onOpenCreateModal}
@@ -143,27 +149,20 @@ export const Sidebar = (props: SidebarProps) => {
             />
           ) : null
         }
-        tagsSection={
-          !isTimeTracking &&
-          sidebar.mode === Modes.NOTES &&
-          tagsEnabled &&
-          totalTags > 0 ? (
+      >
+        {isTimeTracking ? (
+          <TimeTrackingSidebar />
+        ) : sidebarMode === Modes.TAGS ? (
+          <div className="space-y-4">
             <TagsList
-              collapsed={sidebar.tagsCollapsed}
-              onToggleCollapsed={() =>
-                sidebar.setTagsCollapsed(!sidebar.tagsCollapsed)
-              }
+              collapsed={false}
+              onToggleCollapsed={() => {}}
               collapsedTags={sidebar.collapsedTags}
               toggleTag={sidebar.toggleTag}
               onTagSelect={sidebar.handleTagSelect}
               onClose={onClose}
-              isItemSelected={sidebar.isItemSelected}
             />
-          ) : null
-        }
-      >
-        {isTimeTracking ? (
-          <TimeTrackingSidebar />
+          </div>
         ) : (
           <div className="space-y-4">
             <SharedItemsList

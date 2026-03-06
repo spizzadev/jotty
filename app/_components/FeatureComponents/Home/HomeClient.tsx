@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { ChecklistHome } from "@/app/_components/FeatureComponents/Home/Parts/ChecklistHome";
 import { NotesHome } from "@/app/_components/FeatureComponents/Home/Parts/NotesHome";
 import { TimeTrackingView } from "@/app/_components/FeatureComponents/TimeTracking/TimeTrackingView";
+import { TagsHome } from "@/app/_components/FeatureComponents/Home/Parts/TagsHome";
 import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
 import { Checklist, Category, Note, SanitisedUser } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
@@ -11,12 +12,6 @@ import { useShortcut } from "@/app/_providers/ShortcutsProvider";
 import { Modes } from "@/app/_types/enums";
 import { buildCategoryPath } from "@/app/_utils/global-utils";
 import { MobileHeader } from "@/app/_components/GlobalComponents/Layout/MobileHeader";
-
-interface SharingStatus {
-  isShared: boolean;
-  isPubliclyShared: boolean;
-  sharedWith: string[];
-}
 
 interface HomeClientProps {
   initialLists: Checklist[];
@@ -55,7 +50,7 @@ export const HomeClient = ({
   return (
     <Layout
       categories={
-        mode === Modes.NOTES ? initialDocsCategories : initialCategories
+        mode === Modes.TAGS ? [] : mode === Modes.NOTES ? initialDocsCategories : initialCategories
       }
       onOpenSettings={openSettings}
       onOpenCreateModal={handleOpenCreateModal}
@@ -103,6 +98,15 @@ export const HomeClient = ({
 
       {mode === Modes.TIME_TRACKING && (
         <TimeTrackingView initialTasks={initialTasks} user={user} />
+      )}
+
+      {mode === Modes.TAGS && (
+        <TagsHome
+          notes={initialDocs}
+          checklists={initialLists}
+          user={user}
+          onCreateModal={handleOpenCreateModal}
+        />
       )}
     </Layout>
   );
