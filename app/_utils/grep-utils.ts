@@ -39,7 +39,7 @@ export const grepFindFileByField = async (
   try {
     const escapedValue = value.replace(/['"\\]/g, "\\$&");
     const { stdout } = await execAsync(
-      `grep -rl "^${field}: ${escapedValue}$" "${dir}" --include="*.md" 2>/dev/null | head -1 || true`,
+      `find "${dir}" -name "*.md" -type f -print0 | xargs -0 grep -rl "^${field}: ${escapedValue}$" 2>/dev/null | head -1 || true`,
     );
 
     const filePath = stdout.trim();
@@ -72,7 +72,7 @@ export const grepCheckUuidExists = async (
 ): Promise<boolean> => {
   try {
     const { stdout } = await execAsync(
-      `grep -rl "uuid: ${uuid}" "${dir}" --include="*.md" 2>/dev/null || true`,
+      `find "${dir}" -name "*.md" -type f -print0 | xargs -0 grep -rl "uuid: ${uuid}" 2>/dev/null || true`,
     );
     return stdout.trim().length > 0;
   } catch {
@@ -88,7 +88,7 @@ export const grepFindFilesByField = async (
   try {
     const escapedValue = value.replace(/['"\\]/g, "\\$&");
     const { stdout } = await execAsync(
-      `grep -rl "^${field}: ${escapedValue}$" "${dir}" --include="*.md" 2>/dev/null || true`,
+      `find "${dir}" -name "*.md" -type f -print0 | xargs -0 grep -rl "^${field}: ${escapedValue}$" 2>/dev/null || true`,
     );
 
     const files = stdout.trim().split("\n").filter(Boolean);
@@ -128,7 +128,11 @@ export const grepExtractAllFrontmatters = async (
         if (currentFile && currentLines.length > 0) {
           try {
             const parsed = yaml.load(currentLines.join("\n"));
-            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+            if (
+              parsed &&
+              typeof parsed === "object" &&
+              !Array.isArray(parsed)
+            ) {
               result.set(currentFile, parsed as Record<string, unknown>);
             }
           } catch {}
@@ -249,7 +253,7 @@ export const grepSearchContent = async (
 ): Promise<GrepSearchResult[]> => {
   try {
     const { stdout } = await execAsync(
-      `grep -rli "${pattern}" "${dir}" --include="*.md" 2>/dev/null || true`,
+      `find "${dir}" -name "*.md" -type f -print0 | xargs -0 grep -rli "${pattern}" 2>/dev/null || true`,
     );
 
     const files = stdout.trim().split("\n").filter(Boolean);

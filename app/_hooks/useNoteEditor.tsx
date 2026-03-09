@@ -258,7 +258,14 @@ export const useNoteEditor = ({
           category || "Uncategorized",
           result.data.id,
         );
+        router.refresh();
         router.push(`/note/${categoryPath}`);
+      } else if (!useAutosave && (result as any).error) {
+        showToast({
+          type: "error",
+          title: t("common.error"),
+          message: (result as any).error || t("common.somethingWentWrong"),
+        });
       }
     },
     [
@@ -357,6 +364,8 @@ export const useNoteEditor = ({
     setShowDeleteModal(false);
     if (result.success) {
       onDelete?.(note.id);
+      router.refresh();
+      onBack();
     } else {
       showToast({
         type: "error",

@@ -9,6 +9,7 @@ yarn dev              # Start dev server (Next.js)
 yarn build            # Build for production (+ runs postbuild.js)
 yarn start            # Start production server
 yarn lint             # Run ESLint
+npx tsc --noEmit      # Type-check without emitting files
 yarn test             # Run tests in watch mode (Vitest)
 yarn test:run         # Run tests once (CI mode)
 yarn test:coverage    # Run tests with coverage report
@@ -23,6 +24,14 @@ Mock data generators (useful for local testing):
 ```bash
 yarn mock:data:lists <username>   # Generate checklist mock data for a user
 yarn mock:data:notes <username>   # Generate note mock data for a user
+```
+
+Docker (production uses `node:20-alpine`):
+```bash
+docker compose build --no-cache   # Rebuild image (required after source changes)
+docker compose up -d              # Start container
+docker compose down               # Stop container
+docker logs jotty                 # View logs
 ```
 
 ---
@@ -171,10 +180,16 @@ Without `durationMin` → starts a live timer. With `durationMin` → creates a 
 | File | Purpose |
 |------|---------|
 | `app/_utils/yaml-metadata-utils.ts` | Parse/write YAML frontmatter, `generateUuid()`, `updateYamlMetadata()` |
+| `app/_utils/grep-utils.ts` | File lookup via shell commands (`grepFindFileByUuid`, `grepSearchContent`, etc.) |
 | `app/_utils/global-utils.ts` | `cn()` (clsx), `sanitizeFilename()`, misc |
 | `app/_utils/user-sanitize-utils.ts` | `sanitizeUserForClient()` — strips sensitive fields before passing user to client |
 | `app/_utils/sidebar-store.ts` | Zustand store for sidebar state |
+| `app/_server/lib/metadata-cache.ts` | In-process FS-watcher cache for note/checklist metadata; invalidated on `.md`/`order.json` changes |
 | `app/_consts/files.ts` | All data directory path constants |
+
+**Alpine grep compatibility**: The Docker image uses `node:20-alpine` (BusyBox grep). BusyBox grep does **not** support `--include=`. All shell commands in `grep-utils.ts` must use `find ... -name "*.md" -type f -print0 | xargs -0 grep` instead of `grep ... --include="*.md"`. Filenames can contain spaces, so `-print0`/`-0` are required.
+
+**`checkUserPermission` gotcha**: This function does an `fs.access()` check using the `id` argument as a filename. Always pass the note/checklist filename ID (e.g. `"my-note"`), never a UUID — otherwise permission checks will always fail.
 
 ### Testing
 

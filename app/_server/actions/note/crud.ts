@@ -184,14 +184,18 @@ export const updateNote = async (formData: FormData, autosaveNotes = false) => {
 
     const convertedContent = processedContent;
 
-    const note = await getNoteById(uuid || id, originalCategory, undefined);
+    const note = await getNoteById(
+      uuid || id,
+      originalCategory,
+      actingUsername,
+    );
 
     if (!note) {
       throw new Error("Note not found");
     }
 
     const canEdit = await checkUserPermission(
-      note.uuid || id,
+      id,
       originalCategory,
       "note",
       actingUsername,
