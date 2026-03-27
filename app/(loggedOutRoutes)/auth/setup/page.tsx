@@ -7,10 +7,9 @@ import { isEnvEnabled } from "@/app/_utils/env-utils";
 export const dynamic = "force-dynamic";
 
 export default async function SetupPage() {
-  const ssoEnabled = process.env.SSO_MODE === "oidc";
   const allowLocal = isEnvEnabled(process.env.SSO_FALLBACK_LOCAL);
 
-  if (ssoEnabled && !allowLocal) {
+  if (process.env.SSO_MODE && !allowLocal) {
     redirect("/auth/login");
   }
 
