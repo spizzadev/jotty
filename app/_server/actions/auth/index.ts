@@ -255,7 +255,7 @@ export const login = async (formData: FormData) => {
           ? "__Host-session"
           : "session";
 
-      cookies().set(ldapCookieName, ldapSessionId, {
+      (await cookies()).set(ldapCookieName, ldapSessionId, {
         httpOnly: true,
         secure:
           process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
