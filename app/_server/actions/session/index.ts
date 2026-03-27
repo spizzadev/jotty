@@ -16,7 +16,7 @@ export interface SessionData {
   ipAddress: string;
   createdAt: string;
   lastActivity: string;
-  loginType?: "local" | "sso" | "pending-mfa";
+  loginType?: "local" | "sso" | "ldap" | "pending-mfa";
 }
 
 export interface Session {
@@ -48,7 +48,7 @@ export const readSessions = async (): Promise<Session> => {
 export const createSession = async (
   sessionId: string,
   username: string,
-  loginType: "local" | "sso" | "pending-mfa",
+  loginType: "local" | "sso" | "pending-mfa" | "ldap",
 ): Promise<void> => {
   const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "Unknown";
@@ -111,7 +111,7 @@ export const getSessionId = async (): Promise<string> => {
 };
 
 export const getLoginType = async (): Promise<
-  "local" | "sso" | "pending-mfa" | undefined
+  "local" | "sso" | "pending-mfa" | "ldap" | undefined
 > => {
   const sessionId = await getSessionId();
   if (!sessionId) return undefined;
