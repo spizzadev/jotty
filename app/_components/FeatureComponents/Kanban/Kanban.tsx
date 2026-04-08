@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -9,7 +9,10 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
+  pointerWithin,
   closestCorners,
+  CollisionDetection,
+  rectIntersection,
 } from "@dnd-kit/core";
 import { Checklist, KanbanStatus } from "@/app/_types";
 import { KanbanColumn } from "./KanbanColumn";
@@ -26,7 +29,7 @@ import { getReferences } from "@/app/_utils/indexes-utils";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { encodeCategoryPath } from "@/app/_utils/global-utils";
 import { usePermissions } from "@/app/_providers/PermissionsProvider";
-import { Settings01Icon, Archive02Icon, Calendar03Icon, TaskDaily01Icon } from "hugeicons-react";
+import { Settings01Icon, Archive02Icon, Calendar03Icon, TaskDaily01Icon, Search01Icon } from "hugeicons-react";
 import { CalendarView } from "./CalendarView";
 import { KanbanCardDetail } from "./KanbanCardDetail";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
@@ -46,6 +49,9 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showArchivedModal, setShowArchivedModal] = useState(false);
   const [viewMode, setViewMode] = useState<"board" | "calendar">("board");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
+  const [assigneeFilter, setAssigneeFilter] = useState("");
   const [calendarSelectedItem, setCalendarSelectedItem] = useState<import("@/app/_types").Item | null>(null);
   const { linkIndex, notes, checklists, appSettings, allSharedItems } =
     useAppMode();
@@ -136,10 +142,76 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
     }
   };
 
-  const handleToggleItem = async (itemId: string, completed: boolean) => {
+  const handleToggleItem = useCallback(async (itemId: string, completed: boolean) => {
     const newStatus = completed ? TaskStatus.COMPLETED : TaskStatus.TODO;
     await handleItemStatusUpdate(itemId, newStatus);
-  };
+  }, [handleItemStatusUpdate]);
+
+  const _hasFilters = searchQuery || priorityFilter || assigneeFilter;
+
+  const _filterItems = useCallback((items: import("@/app/_types").Item[]) => {
+    if (!_hasFilters) return items;
+    return items.filter((item) => {
+      if (searchQuery && !item.text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+      if (priorityFilter && item.priority !== priorityFilter) return false;
+      if (assigneeFilter && item.assignee !== assigneeFilter) return false;
+      return true;
+    });
+  }, [searchQuery, priorityFilter, assigneeFilter, _hasFilters]);
+
+  const _uniqueAssignees = useMemo(() => {
+    const assignees = new Set<string>();
+    localChecklist.items.forEach((item) => {
+      if (item.assignee) assignees.add(item.assignee);
+    });
+    return Array.from(assignees);
+  }, [localChecklist.items]);
+
+  const _renderColumns = useCallback(() => (
+    <div
+      className={
+        columns.length <= 6
+          ? "h-full min-w-0 kanban-grid gap-4 p-2 sm:p-4"
+          : "h-full min-w-0 flex gap-4 p-2 sm:p-4"
+      }
+      style={columns.length <= 6 ? {
+        "--kanban-col-count": columns.length,
+      } as React.CSSProperties : undefined}
+    >
+      {columns.map((column) => {
+        const items = _filterItems(getItemsByStatus(column.status));
+        return (
+          <div
+            key={column.id}
+            className={columns.length > 6 ? "flex-shrink-0" : "min-w-0"}
+            style={columns.length > 6 ? { width: "280px" } : undefined}
+          >
+            <KanbanColumn
+              checklist={localChecklist}
+              id={column.id}
+              title={column.title}
+              items={items}
+              status={column.status}
+              checklistId={localChecklist.id}
+              category={localChecklist.category || "Uncategorized"}
+              onUpdate={handleItemUpdate}
+              isShared={isShared}
+              statusColor={
+                statuses.find((s) => s.id === column.id)?.color
+              }
+              statuses={statuses}
+            />
+          </div>
+        );
+      })}
+    </div>
+  ), [columns, getItemsByStatus, _filterItems, localChecklist, handleItemUpdate, isShared, statuses]);
+
+  const _collisionDetection: CollisionDetection = useCallback((args) => {
+    const pointerCollisions = pointerWithin(args);
+    if (pointerCollisions.length > 0) return pointerCollisions;
+    return closestCorners(args);
+  }, []);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -243,6 +315,43 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
           )}
         </div>
       </div>
+      {viewMode === "board" && (
+        <div className="flex flex-wrap gap-2 items-center px-2 sm:px-4 pb-2">
+          <div className="relative flex-1 min-w-[150px] max-w-xs">
+            <Search01Icon className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("kanban.searchPlaceholder")}
+              className="w-full pl-7 pr-2 py-1.5 text-xs bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
+            />
+          </div>
+          <select
+            value={priorityFilter}
+            onChange={(e) => setPriorityFilter(e.target.value)}
+            className="px-2 py-1.5 text-xs bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
+          >
+            <option value="">{t("kanban.allPriorities")}</option>
+            <option value="critical">{t("kanban.critical")}</option>
+            <option value="high">{t("kanban.high")}</option>
+            <option value="medium">{t("kanban.medium")}</option>
+            <option value="low">{t("kanban.low")}</option>
+          </select>
+          {isShared && _uniqueAssignees.length > 0 && (
+            <select
+              value={assigneeFilter}
+              onChange={(e) => setAssigneeFilter(e.target.value)}
+              className="px-2 py-1.5 text-xs bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
+            >
+              <option value="">{t("kanban.allAssignees")}</option>
+              {_uniqueAssignees.map((assignee) => (
+                <option key={assignee} value={assignee}>{assignee}</option>
+              ))}
+            </select>
+          )}
+        </div>
+      )}
       <div className="flex-1 min-w-0 w-full max-w-full overflow-auto pb-[8.5em]">
         {viewMode === "calendar" ? (
           <div className="p-4">
@@ -254,48 +363,12 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
         ) : isClient ? (
           <DndContext
             sensors={sensors}
-            collisionDetection={closestCorners}
+            collisionDetection={_collisionDetection}
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
           >
-            <div
-              className={
-                columns.length <= 6
-                  ? "h-full min-w-0 kanban-grid gap-4 p-2 sm:p-4"
-                  : "h-full min-w-0 flex gap-4 p-2 sm:p-4"
-              }
-              style={columns.length <= 6 ? {
-                "--kanban-col-count": columns.length,
-              } as React.CSSProperties : undefined}
-            >
-              {columns.map((column) => {
-                const items = getItemsByStatus(column.status);
-                return (
-                  <div
-                    key={column.id}
-                    className={columns.length > 6 ? "flex-shrink-0" : "min-w-0"}
-                    style={columns.length > 6 ? { width: "280px" } : undefined}
-                  >
-                    <KanbanColumn
-                      checklist={localChecklist}
-                      id={column.id}
-                      title={column.title}
-                      items={items}
-                      status={column.status}
-                      checklistId={localChecklist.id}
-                      category={localChecklist.category || "Uncategorized"}
-                      onUpdate={handleItemUpdate}
-                      isShared={isShared}
-                      statusColor={
-                        statuses.find((s) => s.id === column.id)?.color
-                      }
-                      statuses={statuses}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+            {_renderColumns()}
 
             <DragOverlay>
               {activeItem ? (
@@ -313,43 +386,7 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
             </DragOverlay>
           </DndContext>
         ) : (
-            <div
-            className={
-              columns.length <= 6
-                ? "h-full min-w-0 kanban-grid gap-4 p-2 sm:p-4"
-                : "h-full min-w-0 flex gap-4 p-2 sm:p-4"
-            }
-            style={columns.length <= 6 ? {
-              "--kanban-col-count": columns.length,
-            } as React.CSSProperties : undefined}
-          >
-            {columns.map((column) => {
-              const items = getItemsByStatus(column.status);
-              return (
-                <div
-                  key={column.id}
-                  className={columns.length > 6 ? "flex-shrink-0" : "min-w-0"}
-                  style={columns.length > 6 ? { width: "280px" } : undefined}
-                >
-                  <KanbanColumn
-                    checklist={localChecklist}
-                    id={column.id}
-                    title={column.title}
-                    items={items}
-                    status={column.status}
-                    checklistId={localChecklist.id}
-                    category={localChecklist.category || "Uncategorized"}
-                    onUpdate={handleItemUpdate}
-                    isShared={isShared}
-                    statusColor={
-                      statuses.find((s) => s.id === column.id)?.color
-                    }
-                    statuses={statuses}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          _renderColumns()
         )}
 
         <div className="px-4 pt-4 pb-[100px] lg:pb-4">

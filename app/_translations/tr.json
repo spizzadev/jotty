@@ -240,7 +240,11 @@
     "disable": "Devre Dışı Bırak",
     "restoring": "Geri yükleniyor...",
     "retry": "Tekrar Dene",
-    "copiedToClipboard": "Panoya kopyalandı"
+    "copiedToClipboard": "Panoya kopyalandı",
+    "items": "Öğeler",
+    "connected": "Bağlı",
+    "offline": "Çevrimdışı",
+    "reconnecting": "Yeniden bağlanıyor..."
   },
   "history": {
     "noteHistory": "Not Geçmişi",
@@ -511,7 +515,9 @@
     "noTasks": "Görev yok",
     "noSubtasksYet": "Henüz alt görev yok. Başlamak için aşağıdan bir tane ekleyin.",
     "addTime": "Süre Ekle",
-    "enterTimeInMinutes": "Süreyi dakika cinsinden girin"
+    "enterTimeInMinutes": "Süreyi dakika cinsinden girin",
+    "convertToKanbanBoard": "Kanban panosuna dönüştür",
+    "kanbanBoard": "Kanban panosu"
   },
   "tasks": {
     "title": "Görevler",
@@ -595,7 +601,24 @@
     "recentBoards": "Son panolar",
     "showAllBoards": "Tüm panoları göster",
     "unassigned": "Atanmamış",
-    "targetDate": "Hedef tarih"
+    "targetDate": "Hedef tarih",
+    "statusUpdated": "Durum güncellendi",
+    "itemArchived": "Öğe arşivlendi",
+    "itemDeleted": "Öğe silindi",
+    "estimatedTime": "Tahmini süre (saat)",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "Tempo",
+    "noItemsFound": "Mevcut filtrelere uyan öğe yok",
+    "searchPlaceholder": "Öğe ara...",
+    "allPriorities": "Tüm öncelikler",
+    "allAssignees": "Tüm atananlar",
+    "timeEntries": "Zaman kayıtları",
+    "noTimeEntries": "Henüz zaman kaydı yok",
+    "editSessions": "Oturumları düzenle",
+    "session": "oturum",
+    "sessions": "oturum",
+    "startTime": "Başlangıç",
+    "endTime": "Bitiş"
   },
   "profile": {
     "userProfile": "Kullanıcı Profili",
@@ -821,7 +844,12 @@
     "codeBlockChoice": "Kod bloğu stilini seçin",
     "themedCodeBlock": "Temalı kod bloğu",
     "defaultCodeBlock": "Kodlayıcı (varsayılan)",
-    "codeBlockChoiceDescription": "Codepen benzeri varsayılan kod bloğu stili veya temalı kod bloğu stili arasında seçim yapın."
+    "codeBlockChoiceDescription": "Codepen benzeri varsayılan kod bloğu stili veya temalı kod bloğu stili arasında seçim yapın.",
+    "hideConnectionIndicatorDescription": "Logo alanındaki websocket bağlantı göstergesini gizler. Bu ayara bakılmadan, çevrimdışıysenız kırmızı noktayı görmeye devam edersiniz.",
+    "selectConnectionIndicator": "Bağlantı göstergesi durumunu seçin",
+    "showIndicator": "Göstergeyi göster",
+    "hideIndicator": "Göstergeyi gizle",
+    "hideConnectionIndicator": "Logodaki bağlantı göstergesini gizle"
   },
   "admin": {
     "title": "Yönetici",
@@ -1210,7 +1238,9 @@
     "calloutInfo": "Bilgi",
     "calloutWarning": "Uyarı",
     "calloutSuccess": "Başarılı",
-    "calloutDanger": "Tehlike"
+    "calloutDanger": "Tehlike",
+    "lineNumbers": "Satır numaraları",
+    "ruler": "Cetvel"
   },
   "sharing": {
     "share": "Paylaş",
@@ -1566,6 +1596,9 @@
     "assignmentTitle": "Size verilen görev",
     "assignmentMessage": "\"{board}\" içindeki \"{task}\"",
     "reminderTitle": "Görev gecikti",
-    "reminderMessage": "\"{board}\" içindeki \"{task}\" hatırlatıcısının tarihi geçti"
+    "reminderMessage": "\"{board}\" içindeki \"{task}\" hatırlatıcısının tarihi geçti",
+    "unread": "okunmadı",
+    "sharingTitle": "{user} sizinle bir {type} paylaştı",
+    "sharingMessage": "Paylaşılan {type} öğesini görmek için açın"
   }
 }

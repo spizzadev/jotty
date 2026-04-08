@@ -20,6 +20,44 @@ import {
 import { checkUserPermission } from "../sharing";
 import { broadcast } from "@/app/_server/ws/broadcast";
 import { updateItem, updateAllChildren } from "@/app/_utils/item-tree-utils";
+import { KanbanStatus, Item } from "@/app/_types";
+
+const _findParent = (items: Item[], childId: string): Item | null => {
+  for (const item of items) {
+    if (item.children?.some((c) => c.id === childId)) return item;
+    if (item.children) {
+      const found = _findParent(item.children, childId);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+const _autoCompleteParent = (
+  items: Item[],
+  childId: string,
+  statuses: KanbanStatus[] | undefined,
+  username: string,
+  now: string
+): Item[] => {
+  const parent = _findParent(items, childId);
+  if (!parent || !parent.children) return items;
+
+  const allChildrenCompleted = parent.children.every((c) => c.completed);
+  if (!allChildrenCompleted) return items;
+
+  const autoCompleteStatus = statuses?.find((s) => s.autoComplete);
+  if (!autoCompleteStatus) return items;
+
+  return updateItem(items, parent.id, (p) => ({
+    ...p,
+    completed: true,
+    status: autoCompleteStatus.id,
+    lastModifiedBy: username,
+    lastModifiedAt: now,
+    history: [...(p.history || []), { status: autoCompleteStatus.id, timestamp: now, user: username }],
+  }));
+};
 
 export const updateItemStatus = async (
   formData: FormData,
@@ -106,9 +144,13 @@ export const updateItemStatus = async (
       return { ...item, ...updates };
     });
 
+    const itemsWithParentAutoComplete = _autoCompleteParent(
+      updatedItems, itemId, list.statuses, username, now
+    );
+
     const updatedList = {
       ...list,
-      items: updatedItems,
+      items: itemsWithParentAutoComplete,
       updatedAt: now,
     };
 

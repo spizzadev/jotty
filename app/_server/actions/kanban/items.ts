@@ -29,22 +29,21 @@ const _getFilePath = async (list: Checklist): Promise<string> => {
   return path.join(userDir, categoryDir, filename);
 };
 
-const _saveAndBroadcast = async (list: Checklist) => {
+async function _saveAndBroadcast(list: Checklist, username: string) {
   const filePath = await _getFilePath(list);
   await serverWriteFile(filePath, listToMarkdown(list));
 
-  const currentUser = await getCurrentUser();
   await broadcast({
     type: "checklist",
     action: "updated",
     entityId: list.uuid || list.id,
-    username: currentUser?.username || "",
+    username,
   });
 
   try {
     revalidatePath("/");
-  } catch {}
-};
+  } catch { }
+}
 
 export const updateKanbanItemPriority = async (formData: FormData) => {
   try {
@@ -52,10 +51,11 @@ export const updateKanbanItemPriority = async (formData: FormData) => {
       "listId", "itemId", "priority", "category",
     ]);
 
-    const currentUser = await getCurrentUser();
+    const [currentUser, list] = await Promise.all([
+      getCurrentUser(),
+      getListById(listId, undefined, category),
+    ]);
     if (!currentUser) return { error: "Not authenticated" };
-
-    const list = await getListById(listId, undefined, category);
     if (!list) return { error: "List not found" };
 
     const canEdit = await checkUserPermission(
@@ -75,7 +75,7 @@ export const updateKanbanItemPriority = async (formData: FormData) => {
       updatedAt: now,
     };
 
-    await _saveAndBroadcast(updatedList);
+    await _saveAndBroadcast(updatedList, currentUser.username);
     return { success: true, data: updatedList };
   } catch (error) {
     console.error("Error updating priority:", error);
@@ -89,10 +89,11 @@ export const updateKanbanItemScore = async (formData: FormData) => {
       "listId", "itemId", "score", "category",
     ]);
 
-    const currentUser = await getCurrentUser();
+    const [currentUser, list] = await Promise.all([
+      getCurrentUser(),
+      getListById(listId, undefined, category),
+    ]);
     if (!currentUser) return { error: "Not authenticated" };
-
-    const list = await getListById(listId, undefined, category);
     if (!list) return { error: "List not found" };
 
     const canEdit = await checkUserPermission(
@@ -112,7 +113,7 @@ export const updateKanbanItemScore = async (formData: FormData) => {
       updatedAt: now,
     };
 
-    await _saveAndBroadcast(updatedList);
+    await _saveAndBroadcast(updatedList, currentUser.username);
     return { success: true, data: updatedList };
   } catch (error) {
     console.error("Error updating score:", error);
@@ -126,10 +127,11 @@ export const assignKanbanItem = async (formData: FormData) => {
       "listId", "itemId", "assignee", "category",
     ]);
 
-    const currentUser = await getCurrentUser();
+    const [currentUser, list] = await Promise.all([
+      getCurrentUser(),
+      getListById(listId, undefined, category),
+    ]);
     if (!currentUser) return { error: "Not authenticated" };
-
-    const list = await getListById(listId, undefined, category);
     if (!list) return { error: "List not found" };
 
     const canEdit = await checkUserPermission(
@@ -149,7 +151,7 @@ export const assignKanbanItem = async (formData: FormData) => {
       updatedAt: now,
     };
 
-    await _saveAndBroadcast(updatedList);
+    await _saveAndBroadcast(updatedList, currentUser.username);
 
     if (assignee && assignee !== currentUser.username) {
       const assignedItem = findItem(updatedList.items, itemId);
@@ -174,10 +176,11 @@ export const setKanbanItemReminder = async (formData: FormData) => {
       "listId", "itemId", "reminder", "category",
     ]);
 
-    const currentUser = await getCurrentUser();
+    const [currentUser, list] = await Promise.all([
+      getCurrentUser(),
+      getListById(listId, undefined, category),
+    ]);
     if (!currentUser) return { error: "Not authenticated" };
-
-    const list = await getListById(listId, undefined, category);
     if (!list) return { error: "List not found" };
 
     const canEdit = await checkUserPermission(
@@ -206,7 +209,7 @@ export const setKanbanItemReminder = async (formData: FormData) => {
       updatedAt: now,
     };
 
-    await _saveAndBroadcast(updatedList);
+    await _saveAndBroadcast(updatedList, currentUser.username);
     return { success: true, data: updatedList };
   } catch (error) {
     console.error("Error setting reminder:", error);
@@ -234,7 +237,7 @@ export const markReminderNotified = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
     };
 
-    await _saveAndBroadcast(updatedList);
+    await _saveAndBroadcast(updatedList, list.owner || "");
     return { success: true, data: updatedList };
   } catch (error) {
     console.error("Error marking reminder:", error);

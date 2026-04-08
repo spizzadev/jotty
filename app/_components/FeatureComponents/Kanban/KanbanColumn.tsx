@@ -11,6 +11,7 @@ import { KanbanCard } from "./KanbanCard";
 import { cn } from "@/app/_utils/global-utils";
 import { TaskStatus } from "@/app/_types/enums";
 import { useTranslations } from "next-intl";
+import { TaskDaily01Icon } from "hugeicons-react";
 
 interface KanbanColumnProps {
   checklist: Checklist;
@@ -92,9 +93,10 @@ const KanbanColumnComponent = ({
 
       <div
         ref={setNodeRef}
+        aria-label={`${title} column`}
         className={cn(
           "flex-1 min-w-0 rounded-jotty border-2 border-dashed p-3 min-h-[200px] transition-colors duration-200",
-          isOver && "border-primary bg-primary/5"
+          isOver && "border-primary/70 bg-primary/10 shadow-md"
         )}
         style={{
           borderColor: isOver ? undefined : borderColor,
@@ -116,11 +118,13 @@ const KanbanColumnComponent = ({
                 onUpdate={onUpdate}
                 isShared={isShared}
                 statuses={statuses}
+                statusColor={statusColor}
               />
             ))}
             {items.length === 0 && (
-              <div className="text-center text-muted-foreground text-md lg:text-sm py-8">
-                {t('checklists.noTasks')}
+              <div className="flex flex-col items-center justify-center text-muted-foreground/50 py-8 gap-2">
+                <TaskDaily01Icon className="h-8 w-8" />
+                <span className="text-md lg:text-sm">{t('checklists.noTasks')}</span>
               </div>
             )}
           </div>

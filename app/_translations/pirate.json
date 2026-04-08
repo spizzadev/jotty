@@ -243,7 +243,8 @@
     "copiedToClipboard": "Scribed to hook",
     "offline": "Offline",
     "connected": "Connected",
-    "reconnecting": "Reconnecting..."
+    "reconnecting": "Reconnecting...",
+    "items": "Cargo bits"
   },
   "history": {
     "noteHistory": "Log History",
@@ -514,7 +515,9 @@
     "noTasks": "No chores",
     "noSubtasksYet": "No small chores yet.",
     "addTime": "Add Sand",
-    "enterTimeInMinutes": "Minutes of sand"
+    "enterTimeInMinutes": "Minutes of sand",
+    "convertToKanbanBoard": "Turn it into a Kanban chart",
+    "kanbanBoard": "Kanban chart"
   },
   "tasks": {
     "title": "Chores",
@@ -598,7 +601,24 @@
     "recentBoards": "Recent boards",
     "showAllBoards": "Show all boards",
     "unassigned": "No crew assigned",
-    "targetDate": "Target date"
+    "targetDate": "Target date",
+    "statusUpdated": "Status be updated",
+    "itemArchived": "Item sent to Davy Jones’s hold",
+    "itemDeleted": "Item walked the plank",
+    "estimatedTime": "Estimated hours o’ toil",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "Tempo",
+    "noItemsFound": "No cargo matches yer filters",
+    "searchPlaceholder": "Search the hold...",
+    "allPriorities": "All priorities",
+    "allAssignees": "All hands",
+    "timeEntries": "Time log entries",
+    "noTimeEntries": "No time entries in the log yet",
+    "editSessions": "Edit watches",
+    "session": "watch",
+    "sessions": "watches",
+    "startTime": "Start o’ bell",
+    "endTime": "End o’ bell"
   },
   "profile": {
     "userProfile": "Deckhand",
@@ -1575,6 +1595,9 @@
     "assignmentTitle": "Task assigned to you",
     "assignmentMessage": "\"{task}\" in \"{board}\"",
     "reminderTitle": "Task overdue",
-    "reminderMessage": "\"{task}\" in \"{board}\" is past its reminder"
+    "reminderMessage": "\"{task}\" in \"{board}\" is past its reminder",
+    "unread": "unread",
+    "sharingTitle": "{user} shared a {type} with ye",
+    "sharingMessage": "Open to eyeball the shared {type}"
   }
 }

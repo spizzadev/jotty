@@ -9,11 +9,12 @@ import {
   updateItem,
   deleteItem,
   bulkToggleItems,
+  updateItemStatus,
 } from "@/app/_server/actions/checklist-item";
 import { createNotificationForUser } from "@/app/_server/actions/notifications";
 import { getUsersWithAccess } from "@/app/_server/actions/sharing";
 import { getUsers } from "@/app/_server/actions/users";
-import { FloppyDiskIcon, MultiplicationSignIcon } from "hugeicons-react";
+import { FloppyDiskIcon, MultiplicationSignIcon, ArrowDown01Icon, ArrowRight01Icon } from "hugeicons-react";
 import { convertMarkdownToHtml } from "@/app/_utils/markdown-utils";
 import { usePermissions } from "@/app/_providers/PermissionsProvider";
 import { usePreferredDateTime } from "@/app/_hooks/usePreferredDateTime";
@@ -78,6 +79,7 @@ export const KanbanCardDetail = ({
   const { permissions } = usePermissions();
   const { formatDateTimeString } = usePreferredDateTime();
 
+  const [showHistory, setShowHistory] = useState(false);
   const [item, setItem] = useState(initialItem);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(initialItem.text);
@@ -87,6 +89,7 @@ export const KanbanCardDetail = ({
   const [targetDateInput, setTargetDateInput] = useState(initialItem.targetDate || "");
   const [priorityInput, setPriorityInput] = useState<KanbanPriority>(initialItem.priority || KanbanPriorityLevel.NONE);
   const [assigneeInput, setAssigneeInput] = useState(initialItem.assignee || "");
+  const [estimatedTimeInput, setEstimatedTimeInput] = useState(initialItem.estimatedTime?.toString() || "");
   const [availableUsers, setAvailableUsers] = useState<{ username: string; avatarUrl?: string }[]>([]);
   const [boardIsShared, setBoardIsShared] = useState(false);
 
@@ -99,6 +102,7 @@ export const KanbanCardDetail = ({
     setTargetDateInput(initialItem.targetDate || "");
     setPriorityInput(initialItem.priority || KanbanPriorityLevel.NONE);
     setAssigneeInput(initialItem.assignee || "");
+    setEstimatedTimeInput(initialItem.estimatedTime?.toString() || "");
   }, [initialItem]);
 
   useEffect(() => {
@@ -200,6 +204,16 @@ export const KanbanCardDetail = ({
     }
   };
 
+  const _allChildrenComplete = (children: Item[]): boolean =>
+    children.every((child) =>
+      child.completed && (!child.children?.length || _allChildrenComplete(child.children))
+    );
+
+  const _autoCompleteStatus = useMemo(() => {
+    const statuses = checklist.statuses || [];
+    return statuses.find((s) => s.autoComplete);
+  }, [checklist.statuses]);
+
   const handleToggleSubtask = async (subtaskId: string, completed: boolean) => {
     const formData = new FormData();
     formData.append("listId", checklistId);
@@ -210,7 +224,20 @@ export const KanbanCardDetail = ({
     if (result.success && result.data) {
       onUpdate(result.data);
       const updatedItem = _findItemInChecklist(result.data, item.id);
-      if (updatedItem) setItem(updatedItem);
+      if (updatedItem) {
+        setItem(updatedItem);
+        if (_autoCompleteStatus && updatedItem.children?.length && _allChildrenComplete(updatedItem.children)) {
+          const statusFormData = new FormData();
+          statusFormData.append("listId", checklistId);
+          statusFormData.append("itemId", item.id);
+          statusFormData.append("status", _autoCompleteStatus.id);
+          statusFormData.append("category", category);
+          const statusResult = await updateItemStatus(statusFormData);
+          if (statusResult.success && statusResult.data) {
+            onUpdate(statusResult.data as import("@/app/_types").Checklist);
+          }
+        }
+      }
     }
   };
 
@@ -289,15 +316,21 @@ export const KanbanCardDetail = ({
     await _saveField({ targetDate: value ? new Date(value).toISOString() : "" });
   };
 
+  const handleEstimatedTimeSave = async () => {
+    const hours = parseFloat(estimatedTimeInput);
+    if (isNaN(hours)) return;
+    await _saveField({ estimatedTime: hours.toString() });
+  };
+
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title={item.text || t("checklists.untitledTask")}
-      className="lg:!max-w-[80vw] lg:!w-full lg:!h-[80vh] !max-h-[80vh] overflow-y-auto"
+      className="[&_.jotty-modal-header]:shrink-0 lg:!max-w-[80vw] lg:!w-full lg:!h-[80vh] lg:!max-h-[80vh] max-h-[min(90dvh,100dvh)] !flex !flex-col overflow-y-auto overscroll-contain lg:overflow-hidden"
     >
-      <div className="flex flex-col lg:flex-row gap-6 min-h-0">
-        <div className="flex-1 min-w-0 space-y-4 overflow-y-auto">
+      <div className="flex flex-col lg:flex-row gap-6 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+        <div className="min-w-0 space-y-4 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
           {isEditing ? (
             <div className="space-y-4">
               <div>
@@ -354,6 +387,38 @@ export const KanbanCardDetail = ({
             </div>
           )}
 
+          {!isEditing && item.history && item.history.length > 0 && (
+            <div className="border-t border-border pt-4">
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full"
+              >
+                {showHistory ? (
+                  <ArrowDown01Icon className="h-4 w-4" />
+                ) : (
+                  <ArrowRight01Icon className="h-4 w-4" />
+                )}
+                {t("common.statusChanges", { count: item.history.length })}
+              </button>
+              {showHistory && (
+                <div className="mt-2 space-y-1.5 max-h-48 overflow-y-auto">
+                  {item.history.map((change, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 rounded-jotty px-3 py-2"
+                    >
+                      <span className="font-medium text-foreground">{change.status}</span>
+                      <span className="text-muted-foreground/50">&bull;</span>
+                      <span>{change.user}</span>
+                      <span className="text-muted-foreground/50">&bull;</span>
+                      <span>{formatDateTimeString(change.timestamp)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {!isEditing && (
             <div className="border-t border-border pt-4">
               <KanbanCardDetailSubtasks
@@ -371,7 +436,7 @@ export const KanbanCardDetail = ({
           )}
         </div>
 
-        <div className="lg:w-64 lg:flex-shrink-0 lg:border-l lg:border-border lg:pl-6">
+        <div className="lg:w-80 lg:flex-shrink-0 lg:border-l lg:border-border lg:pl-6 lg:min-h-0 lg:overflow-y-auto">
           <KanbanCardDetailProperties
             item={item}
             priorityInput={priorityInput}
@@ -379,6 +444,7 @@ export const KanbanCardDetail = ({
             assigneeInput={assigneeInput}
             reminderInput={reminderInput}
             targetDateInput={targetDateInput}
+            estimatedTimeInput={estimatedTimeInput}
             availableUsers={availableUsers}
             canEdit={!!permissions?.canEdit}
             isShared={boardIsShared}
@@ -403,9 +469,16 @@ export const KanbanCardDetail = ({
                 });
               }
             }}
-            onReminderChange={setReminderInput}
+            onReminderChange={async (v) => {
+              setReminderInput(v);
+              await _saveField({
+                reminder: v ? JSON.stringify({ datetime: new Date(v).toISOString() }) : "",
+              });
+            }}
             onReminderSave={handleReminderSave}
             onTargetDateChange={handleTargetDateChange}
+            onEstimatedTimeChange={setEstimatedTimeInput}
+            onEstimatedTimeSave={handleEstimatedTimeSave}
             formatDateTimeString={formatDateTimeString}
           />
         </div>

@@ -14,6 +14,7 @@ export interface TimeEntry {
   startTime: string;
   endTime?: string;
   duration?: number;
+  user?: string;
 }
 
 export interface RecurrenceRule {

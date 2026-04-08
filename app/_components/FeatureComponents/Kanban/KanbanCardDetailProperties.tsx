@@ -2,6 +2,7 @@
 
 import { Dropdown } from "@/app/_components/GlobalComponents/Dropdowns/Dropdown";
 import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
+import { DatePicker, DateTimePicker } from "@/app/_components/GlobalComponents/FormElements/DatePicker";
 import { Item, KanbanPriority } from "@/app/_types";
 import { KanbanPriorityLevel } from "@/app/_types/enums";
 import {
@@ -19,6 +20,7 @@ interface KanbanCardDetailPropertiesProps {
   assigneeInput: string;
   reminderInput: string;
   targetDateInput: string;
+  estimatedTimeInput: string;
   availableUsers: { username: string; avatarUrl?: string }[];
   canEdit: boolean;
   isShared: boolean;
@@ -31,6 +33,8 @@ interface KanbanCardDetailPropertiesProps {
   onReminderChange: (v: string) => void;
   onReminderSave: () => void;
   onTargetDateChange: (v: string) => void;
+  onEstimatedTimeChange: (v: string) => void;
+  onEstimatedTimeSave: () => void;
   formatDateTimeString: (v: string) => string;
 }
 
@@ -41,6 +45,7 @@ export const KanbanCardDetailProperties = ({
   assigneeInput,
   reminderInput,
   targetDateInput,
+  estimatedTimeInput,
   availableUsers,
   canEdit,
   isShared,
@@ -53,6 +58,8 @@ export const KanbanCardDetailProperties = ({
   onReminderChange,
   onReminderSave,
   onTargetDateChange,
+  onEstimatedTimeChange,
+  onEstimatedTimeSave,
   formatDateTimeString,
 }: KanbanCardDetailPropertiesProps) => {
   const t = useTranslations();
@@ -112,28 +119,28 @@ export const KanbanCardDetailProperties = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {canEdit && (
         <>
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            <label className="block text-xs font-medium text-muted-foreground mb-2">
               {t("kanban.priority")}
             </label>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1.5">
               {priorities.map((p) => (
                 <button
                   key={p}
                   onClick={() => onPriorityChange(p)}
                   className={cn(
-                    "text-[11px] px-2 py-1 rounded-jotty border transition-all flex items-center gap-1",
+                    "text-[11px] px-2.5 py-1.5 rounded-jotty border transition-all flex items-center gap-1.5",
                     priorityInput === p
-                      ? "border-border bg-muted text-foreground font-semibold"
-                      : "border-border text-muted-foreground hover:border-primary/50",
+                      ? "border-primary/50 bg-primary/5 text-foreground font-semibold"
+                      : "border-border text-muted-foreground hover:border-primary/30 hover:bg-muted/50",
                   )}
                 >
                   {p !== KanbanPriorityLevel.NONE && (
                     <span
-                      className="w-1.5 h-1.5 rounded-jotty flex-shrink-0"
+                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                       style={{ backgroundColor: getPriorityDotColor(p) }}
                     />
                   )}
@@ -144,7 +151,7 @@ export const KanbanCardDetailProperties = ({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            <label className="block text-xs font-medium text-muted-foreground mb-2">
               {t("kanban.score")}
             </label>
             <input
@@ -155,14 +162,14 @@ export const KanbanCardDetailProperties = ({
               onChange={(e) => onScoreChange(e.target.value)}
               onBlur={onScoreSave}
               onKeyDown={(e) => e.key === "Enter" && onScoreSave()}
-              className="w-20 px-2 py-1 text-sm bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
+              className="w-full px-3 py-2 text-sm bg-background border border-input rounded-jotty focus:outline-none focus:border-ring transition-colors"
               placeholder="0"
             />
           </div>
 
           {isShared && (
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+              <label className="block text-xs font-medium text-muted-foreground mb-2">
                 {t("kanban.assignee")}
               </label>
               <Dropdown
@@ -175,28 +182,49 @@ export const KanbanCardDetailProperties = ({
           )}
 
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            <label className="block text-xs font-medium text-muted-foreground mb-2">
               {t("kanban.reminder")}
             </label>
-            <input
-              type="datetime-local"
-              value={toLocalDateTimeValue(reminderInput)}
-              onChange={(e) => onReminderChange(e.target.value)}
+            <DateTimePicker
+              value={reminderInput}
+              onChange={onReminderChange}
               onBlur={onReminderSave}
-              className="w-full px-2 py-1.5 text-sm bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            <label className="block text-xs font-medium text-muted-foreground mb-2">
               {t("kanban.targetDate")}
             </label>
-            <input
-              type="date"
-              value={toLocalDateValue(targetDateInput)}
-              onChange={(e) => onTargetDateChange(e.target.value)}
-              className="w-full px-2 py-1.5 text-sm bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
+            <DatePicker
+              value={targetDateInput}
+              onChange={onTargetDateChange}
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-2">
+              {t("kanban.estimatedTime")}
+            </label>
+            <input
+              type="number"
+              min="0"
+              step="0.5"
+              value={estimatedTimeInput}
+              onChange={(e) => onEstimatedTimeChange(e.target.value)}
+              onBlur={onEstimatedTimeSave}
+              onKeyDown={(e) => e.key === "Enter" && onEstimatedTimeSave()}
+              className="w-full px-3 py-2 text-sm bg-background border border-input rounded-jotty focus:outline-none focus:border-ring transition-colors"
+              placeholder="0"
+            />
+            {item.estimatedTime && item.timeEntries && item.timeEntries.length > 0 && (
+              <p className="text-xs text-muted-foreground mt-1.5">
+                {t("kanban.actualVsEstimated", {
+                  actual: (item.timeEntries.reduce((sum, e) => sum + (e.duration || 0), 0) / 3600).toFixed(1) + "h",
+                  estimated: item.estimatedTime + "h",
+                })}
+              </p>
+            )}
           </div>
         </>
       )}

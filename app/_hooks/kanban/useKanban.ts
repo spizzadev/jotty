@@ -148,7 +148,8 @@ export const useKanbanBoard = ({
       (item) => item.status === targetStatus && !item.isArchived && item.id !== activeIdStr
     );
 
-    const isDraggingDown = !isCrossColumn && (() => {
+    const isDraggingDown = (() => {
+      if (isCrossColumn) return false;
       const allColumnItems = localChecklist.items.filter(
         (item) => item.status === targetStatus && !item.isArchived
       );
@@ -162,7 +163,18 @@ export const useKanbanBoard = ({
       insertIndex = columnItems.length;
     } else {
       const overIndex = columnItems.findIndex((item) => item.id === overIdStr);
-      insertIndex = overIndex === -1 ? columnItems.length : isDraggingDown ? overIndex + 1 : overIndex;
+      if (overIndex === -1) {
+        insertIndex = columnItems.length;
+      } else if (isCrossColumn) {
+        const overRect = over.rect;
+        const dragY = event.activatorEvent && "clientY" in event.activatorEvent
+          ? (event.activatorEvent as PointerEvent).clientY + (event.delta?.y || 0)
+          : 0;
+        const overMidY = overRect ? overRect.top + overRect.height / 2 : 0;
+        insertIndex = dragY > overMidY ? overIndex + 1 : overIndex;
+      } else {
+        insertIndex = isDraggingDown ? overIndex + 1 : overIndex;
+      }
     }
 
     const activeItem = localChecklist.items.find((item) => item.id === activeIdStr);
@@ -192,6 +204,10 @@ export const useKanbanBoard = ({
         reorderFormData.append("activeItemId", activeIdStr);
         reorderFormData.append("overItemId", overIdStr);
         reorderFormData.append("category", localChecklist.category || "Uncategorized");
+        const overIdx = columnItems.findIndex((item) => item.id === overIdStr);
+        if (insertIndex > overIdx) {
+          reorderFormData.append("position", "after");
+        }
 
         await reorderItems(reorderFormData);
       }

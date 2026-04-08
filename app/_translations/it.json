@@ -240,7 +240,11 @@
     "copiedToClipboard": "Copiato negli appunti",
     "offline": "Non in linea",
     "connected": "Collegato",
-    "reconnecting": "Riconnessione..."
+    "reconnecting": "Riconnessione...",
+    "disable": "Disattiva",
+    "history": "Cronologia",
+    "items": "Elementi",
+    "noResults": "Nessun risultato"
   },
   "auth": {
     "loginTitle": "Accedi",
@@ -274,7 +278,8 @@
     "version": "Versione {version}",
     "createUser": "Crea Utente",
     "attemptsRemaining": "Attenzione: {count, plural, one {# tentativo} other {# tentativi}} rimanenti prima del blocco dell'account",
-    "accountLocked": "Troppi tentativi falliti. Riprova tra {seconds} {seconds, plural, one {secondo} other {secondi}}"
+    "accountLocked": "Troppi tentativi falliti. Riprova tra {seconds} {seconds, plural, one {secondo} other {secondi}}",
+    "notAuthorized": "Non sei autorizzato ad accedere a questa applicazione. Contatta l’amministratore."
   },
   "mfa": {
     "title": "Autenticazione a Due Fattori",
@@ -485,7 +490,9 @@
     "noTasks": "Nessun task",
     "noSubtasksYet": "Nessuna attività secondaria. Aggiungine una qui sotto per iniziare.",
     "addTime": "Aggiungi tempo",
-    "enterTimeInMinutes": "Inserisci il tuo tempo in minuti"
+    "enterTimeInMinutes": "Inserisci il tuo tempo in minuti",
+    "convertToKanbanBoard": "Converti in bacheca Kanban",
+    "kanbanBoard": "Bacheca Kanban"
   },
   "tasks": {
     "title": "Attività",
@@ -569,7 +576,24 @@
     "recentBoards": "Board recenti",
     "showAllBoards": "Mostra tutte le board",
     "unassigned": "Non assegnato",
-    "targetDate": "Data obiettivo"
+    "targetDate": "Data obiettivo",
+    "statusUpdated": "Stato aggiornato",
+    "itemArchived": "Elemento archiviato",
+    "itemDeleted": "Elemento eliminato",
+    "estimatedTime": "Tempo stimato (ore)",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "Tempo",
+    "noItemsFound": "Nessun elemento corrisponde ai filtri attuali",
+    "searchPlaceholder": "Cerca elementi...",
+    "allPriorities": "Tutte le priorità",
+    "allAssignees": "Tutti gli assegnatari",
+    "timeEntries": "Registrazioni tempo",
+    "noTimeEntries": "Nessuna registrazione tempo",
+    "editSessions": "Modifica sessioni",
+    "session": "sessione",
+    "sessions": "sessioni",
+    "startTime": "Inizio",
+    "endTime": "Fine"
   },
   "profile": {
     "userProfile": "Utente",
@@ -979,7 +1003,13 @@
     "updatingTags": "Aggiornamento...",
     "updateTagsTitle": "Scansiona le note per hashtag e aggiorna frontmatter",
     "tagsUpdated": "{processed} file elaborati, {updated} aggiornati con nuovi tag",
-    "failedToUpdateTags": "Impossibile aggiornare i tag"
+    "failedToUpdateTags": "Impossibile aggiornare i tag",
+    "historyEnabled": "Cronologia note",
+    "historyDescription": "Tiene traccia della cronologia delle versioni delle note. Consente di ripristinare versioni precedenti. Solo i salvataggi manuali creano punti nella cronologia (non il salvataggio automatico).",
+    "disableHistory": "Disattiva cronologia",
+    "disableHistoryWarning": "La disattivazione elimina in modo permanente tutte le versioni salvate per tutti gli utenti. Operazione irreversibile.",
+    "historyDisabled": "La cronologia delle note è stata disattivata e tutti i dati di cronologia sono stati eliminati.",
+    "failedToDisableHistory": "Impossibile disattivare la cronologia"
   },
   "errors": {
     "notFound": "Non Trovato",
@@ -1176,7 +1206,14 @@
     "excalidrawDescription": "Editor di diagrammi in stile schizzo",
     "noLanguagesFound": "Nessun linguaggio trovato",
     "ruler": "Righello",
-    "lineNumbers": "Numeri di riga"
+    "lineNumbers": "Numeri di riga",
+    "callout": "Riquadro",
+    "createCallout": "Crea un riquadro informativo",
+    "changeCalloutType": "Cambia tipo di riquadro",
+    "calloutInfo": "Info",
+    "calloutWarning": "Avviso",
+    "calloutSuccess": "Successo",
+    "calloutDanger": "Pericolo"
   },
   "sharing": {
     "share": "Condividi",
@@ -1558,6 +1595,9 @@
     "assignmentTitle": "Compito assegnato a te",
     "assignmentMessage": "\"{task}\" in \"{board}\"",
     "reminderTitle": "Compito in ritardo",
-    "reminderMessage": "\"{task}\" in \"{board}\" ha superato il promemoria"
+    "reminderMessage": "\"{task}\" in \"{board}\" ha superato il promemoria",
+    "unread": "non letto",
+    "sharingTitle": "{user} ha condiviso un {type} con te",
+    "sharingMessage": "Apri per vedere il {type} condiviso"
   }
 }

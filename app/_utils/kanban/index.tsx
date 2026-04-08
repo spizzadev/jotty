@@ -74,9 +74,3 @@ export const sortByPriority = (items: Item[]): Item[] =>
   [...items].sort((a, b) =>
     _getPrioritySortOrder(a.priority) - _getPrioritySortOrder(b.priority)
   );
-
-export const calculatePriorityScore = (item: Item): number => {
-  const priorityWeight = 5 - _getPrioritySortOrder(item.priority);
-  const scoreWeight = item.score ?? 0;
-  return priorityWeight * 10 + scoreWeight;
-};

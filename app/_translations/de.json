@@ -240,7 +240,11 @@
     "copiedToClipboard": "In die Zwischenablage kopiert",
     "offline": "Offline",
     "connected": "Verbunden",
-    "reconnecting": "Verbindung wird wieder hergestellt..."
+    "reconnecting": "Verbindung wird wieder hergestellt...",
+    "continue": "Weiter",
+    "history": "Verlauf",
+    "disable": "Deaktivieren",
+    "items": "Elemente"
   },
   "auth": {
     "loginTitle": "Anmelden",
@@ -273,7 +277,9 @@
     "createAdminAccountDescription": "Erstelle dein Admin-Konto um zu beginnen",
     "version": "Version {version}",
     "createUser": "Benutzer erstellen",
-    "notAuthorized": "Du bist nicht berechtigt, auf diese Anwendung zuzugreifen. Kontaktiere deinen Administrator."
+    "notAuthorized": "Du bist nicht berechtigt, auf diese Anwendung zuzugreifen. Kontaktiere deinen Administrator.",
+    "attemptsRemaining": "Warnung: Noch {count, plural, one {# Versuch} other {# Versuche}} bis zur Kontosperre",
+    "accountLocked": "Zu viele fehlgeschlagene Versuche. Bitte versuche es in {seconds} {seconds, plural, one {Sekunde} other {Sekunden}} erneut."
   },
   "mfa": {
     "title": "Zwei-Faktor-Authentifizierung",
@@ -472,7 +478,21 @@
     "noItemsYet": "Noch keine Elemente",
     "addFirstItem": "Füge dein erstes Element hinzu um zu beginnen!",
     "noTasks": "Keine Aufgaben",
-    "noSubtasksYet": "Noch keine Unteraufgaben. Füge unten eine hinzu um zu beginnen."
+    "noSubtasksYet": "Noch keine Unteraufgaben. Füge unten eine hinzu um zu beginnen.",
+    "addTime": "Zeit hinzufügen",
+    "enterTimeInMinutes": "Zeit in Minuten eingeben",
+    "checkAll": "Alle abhaken",
+    "checkAllConfirmTitle": "Alle Einträge abhaken?",
+    "checkAllConfirmMessage": "Möchtest du wirklich alle {count} Einträge und Untereinträge abhaken? Sie werden als erledigt markiert.",
+    "uncheckAll": "Alle Haken entfernen",
+    "uncheckAllConfirmTitle": "Alle Haken entfernen?",
+    "uncheckAllConfirmMessage": "Möchtest du wirklich alle {count} Einträge und Untereinträge deaktivieren? Sie werden als unerledigt markiert.",
+    "clearAll": "Alle löschen",
+    "clearAllConfirmTitle": "Alle Einträge löschen?",
+    "clearAllCompletedConfirmMessage": "Möchtest du wirklich alle {count} erledigten Einträge und Untereinträge löschen? Dies kann nicht rückgängig gemacht werden.",
+    "clearAllIncompleteConfirmMessage": "Möchtest du wirklich alle {count} unerledigten Einträge und Untereinträge löschen? Dies kann nicht rückgängig gemacht werden.",
+    "convertToKanbanBoard": "In Kanban-Board umwandeln",
+    "kanbanBoard": "Kanban-Board"
   },
   "tasks": {
     "title": "Aufgaben",
@@ -556,7 +576,24 @@
     "recentBoards": "Letzte Boards",
     "showAllBoards": "Alle Boards anzeigen",
     "unassigned": "Nicht zugewiesen",
-    "targetDate": "Zieldatum"
+    "targetDate": "Zieldatum",
+    "statusUpdated": "Status aktualisiert",
+    "itemArchived": "Element archiviert",
+    "itemDeleted": "Element gelöscht",
+    "estimatedTime": "Geschätzte Zeit (Stunden)",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "Tempo",
+    "noItemsFound": "Keine Elemente entsprechen den aktuellen Filtern",
+    "searchPlaceholder": "Elemente suchen...",
+    "allPriorities": "Alle Prioritäten",
+    "allAssignees": "Alle Zuständigen",
+    "timeEntries": "Zeiteinträge",
+    "noTimeEntries": "Noch keine Zeiteinträge",
+    "editSessions": "Sitzungen bearbeiten",
+    "session": "Sitzung",
+    "sessions": "Sitzungen",
+    "startTime": "Start",
+    "endTime": "Ende"
   },
   "profile": {
     "userProfile": "Benutzer",
@@ -966,7 +1003,13 @@
     "updatingTags": "Aktualisiere...",
     "updateTagsTitle": "Notizen nach Hashtags durchsuchen und Frontmatter aktualisieren",
     "tagsUpdated": "{processed} Dateien verarbeitet, {updated} mit neuen Tags aktualisiert",
-    "failedToUpdateTags": "Tags konnten nicht aktualisiert werden"
+    "failedToUpdateTags": "Tags konnten nicht aktualisiert werden",
+    "historyEnabled": "Notizverlauf",
+    "historyDescription": "Versionsverlauf für Notizen. Ermöglicht die Wiederherstellung früherer Versionen. Nur manuelles Speichern erstellt Verlaufspunkte (nicht Autosave).",
+    "disableHistory": "Verlauf deaktivieren",
+    "disableHistoryWarning": "Das Deaktivieren des Verlaufs löscht dauerhaft alle gespeicherten Versionen für alle Nutzer. Dies kann nicht rückgängig gemacht werden.",
+    "historyDisabled": "Der Notizverlauf wurde deaktiviert und alle Verlaufsdaten gelöscht.",
+    "failedToDisableHistory": "Verlauf konnte nicht deaktiviert werden"
   },
   "errors": {
     "notFound": "Nicht gefunden",
@@ -1158,8 +1201,19 @@
     "drawioDescription": "Visueller Diagramm-Editor",
     "excalidrawDescription": "Editor für Diagramme im Zeichenstil",
     "noLanguagesFound": "Keine Sprachen gefunden",
-    "ruler": "Herrscher",
-    "lineNumbers": "Zeilennummern"
+    "ruler": "Lineal",
+    "lineNumbers": "Zeilennummern",
+    "addLink": "Link hinzufügen",
+    "enterURL": "URL eingeben",
+    "addImage": "Bild hinzufügen",
+    "enterImageURL": "Bild-URL eingeben",
+    "callout": "Hinweis",
+    "createCallout": "Hinweisblock erstellen",
+    "changeCalloutType": "Hinweistyp ändern",
+    "calloutInfo": "Info",
+    "calloutWarning": "Warnung",
+    "calloutSuccess": "Erfolg",
+    "calloutDanger": "Gefahr"
   },
   "sharing": {
     "share": "Freigeben",
@@ -1534,6 +1588,16 @@
     "assignmentTitle": "Ihnen zugewiesene Aufgabe",
     "assignmentMessage": "„{task}“ in „{board}“",
     "reminderTitle": "Aufgabe überfällig",
-    "reminderMessage": "„{task}“ in „{board}“ ist abgelaufen"
+    "reminderMessage": "„{task}“ in „{board}“ ist abgelaufen",
+    "unread": "ungelesen",
+    "sharingTitle": "{user} hat ein {type} mit dir geteilt",
+    "sharingMessage": "Öffnen, um das geteilte {type} anzuzeigen"
+  },
+  "notFound": {
+    "title": "Seite nicht gefunden",
+    "newHaiku": "Neues Haiku",
+    "goHome": "Zur Startseite",
+    "seenCount": "Du hast {count} {count, plural, one {Haiku} other {Haikus}} gesehen",
+    "imNoPoet": "Ich bin kein Dichter, und Jotty auch nicht. Das sind zufällige Wörter in Folge."
   }
 }

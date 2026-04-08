@@ -241,7 +241,10 @@
     "copiedToClipboard": "Skopiowano do schowka",
     "offline": "Nieaktywny",
     "connected": "Połączony",
-    "reconnecting": "Ponowne łączenie..."
+    "reconnecting": "Ponowne łączenie...",
+    "disable": "Wyłącz",
+    "history": "Historia",
+    "items": "Elementy"
   },
   "auth": {
     "loginTitle": "Logowanie",
@@ -275,7 +278,8 @@
     "version": "Wersja {version}",
     "createUser": "Utwórz użytkownika",
     "attemptsRemaining": "Uwaga: {count, plural, one {# próba} few {# próby} other {# prób}} pozostało przed zablokowaniem konta",
-    "accountLocked": "Zbyt wiele nieudanych prób. Spróbuj ponownie za {seconds} {seconds, plural, one {sekundę} few {sekundy} other {sekund}}"
+    "accountLocked": "Zbyt wiele nieudanych prób. Spróbuj ponownie za {seconds} {seconds, plural, one {sekundę} few {sekundy} other {sekund}}",
+    "notAuthorized": "Nie masz uprawnień dostępu do tej aplikacji. Skontaktuj się z administratorem."
   },
   "mfa": {
     "title": "Autoryzacja dwuskładnikowa",
@@ -486,7 +490,9 @@
     "noTasks": "Brak zadań",
     "noSubtasksYet": "Brak podzadań. Dodaj jedno poniżej, aby zacząć.",
     "addTime": "Dodaj Czas",
-    "enterTimeInMinutes": "Wprowadź czas w minutach"
+    "enterTimeInMinutes": "Wprowadź czas w minutach",
+    "convertToKanbanBoard": "Konwertuj na tablicę Kanban",
+    "kanbanBoard": "Tablica Kanban"
   },
   "tasks": {
     "title": "Zadania",
@@ -570,7 +576,24 @@
     "recentBoards": "Ostatnie tablice",
     "showAllBoards": "Pokaż wszystkie tablice",
     "unassigned": "Nieprzypisany",
-    "targetDate": "Data docelowa"
+    "targetDate": "Data docelowa",
+    "statusUpdated": "Status zaktualizowany",
+    "itemArchived": "Element zarchiwizowany",
+    "itemDeleted": "Element usunięty",
+    "estimatedTime": "Szacowany czas (godziny)",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "Tempo",
+    "noItemsFound": "Żaden element nie pasuje do bieżących filtrów",
+    "searchPlaceholder": "Szukaj elementów...",
+    "allPriorities": "Wszystkie priorytety",
+    "allAssignees": "Wszyscy przypisani",
+    "timeEntries": "Wpisy czasu",
+    "noTimeEntries": "Brak wpisów czasu",
+    "editSessions": "Edytuj sesje",
+    "session": "sesja",
+    "sessions": "sesje",
+    "startTime": "Początek",
+    "endTime": "Koniec"
   },
   "profile": {
     "userProfile": "Użytkownik",
@@ -980,7 +1003,13 @@
     "updatingTags": "Aktualizowanie...",
     "updateTagsTitle": "Przeskanuj notatki w poszukiwaniu hashtagów i zaktualizuj frontmatter",
     "tagsUpdated": "Przetworzono {processed} plików, zaktualizowano {updated} z nowymi tagami",
-    "failedToUpdateTags": "Nie udało się zaktualizować tagów"
+    "failedToUpdateTags": "Nie udało się zaktualizować tagów",
+    "historyEnabled": "Historia notatek",
+    "historyDescription": "Śledzi historię wersji notatek. Umożliwia przywracanie wcześniejszych wersji. Punkty historii tworzy tylko ręczny zapis (nie autozapis).",
+    "disableHistory": "Wyłącz historię",
+    "disableHistoryWarning": "Wyłączenie historii trwale usunie wszystkie zapisane wersje dla wszystkich użytkowników. Tej operacji nie cofniesz.",
+    "historyDisabled": "Historia notatek została wyłączona, a wszystkie dane historii usunięte.",
+    "failedToDisableHistory": "Nie udało się wyłączyć historii"
   },
   "errors": {
     "notFound": "Nie znaleziono",
@@ -1177,7 +1206,14 @@
     "excalidrawDescription": "Edytor szkicowy",
     "noLanguagesFound": "Nie znaleziono języków",
     "ruler": "Linijka",
-    "lineNumbers": "Numery linii"
+    "lineNumbers": "Numery linii",
+    "callout": "Ramka",
+    "createCallout": "Utwórz blok ramki",
+    "changeCalloutType": "Zmień typ ramki",
+    "calloutInfo": "Informacja",
+    "calloutWarning": "Ostrzeżenie",
+    "calloutSuccess": "Sukces",
+    "calloutDanger": "Zagrożenie"
   },
   "sharing": {
     "share": "Udostępnij",
@@ -1505,7 +1541,8 @@
     "mfaverificationfailed": "Weryfikacja MFA nie powiodła się",
     "mfabackupcodeused": "Użyto kodu kopii zapasowej MFA",
     "mfabackupcodefailed": "Nie udało się użyć kodu kopii zapasowej MFA",
-    "mfabackupcodesregenerated": "Wygenerowano kody kopii zapasowych MFA"
+    "mfabackupcodesregenerated": "Wygenerowano kody kopii zapasowych MFA",
+    "usersettingsupdated": "Zaktualizowano ustawienia użytkownika"
   },
   "help": {
     "howTo": "Jak to zrobić",
@@ -1561,6 +1598,9 @@
     "assignmentTitle": "Zadanie przydzielone Tobie",
     "assignmentMessage": "„{task}” w „{board}”",
     "reminderTitle": "Zadanie przeterminowane",
-    "reminderMessage": "Przypomnienie o zadaniu „{task}” w „{board}” minęło"
+    "reminderMessage": "Przypomnienie o zadaniu „{task}” w „{board}” minęło",
+    "unread": "nieprzeczyt.",
+    "sharingTitle": "{user} udostępnił(a) ci {type}",
+    "sharingMessage": "Otwórz, aby zobaczyć udostępniony {type}"
   }
 }

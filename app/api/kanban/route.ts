@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withApiAuth } from "@/app/_utils/api-utils";
 import { getUserChecklists, createList } from "@/app/_server/actions/checklist";
-import { isKanbanType, TaskStatus } from "@/app/_types/enums";
+import { isKanbanType } from "@/app/_types/enums";
 import { Checklist, Result } from "@/app/_types";
+import { transformBoard } from "@/app/_utils/kanban/api-transforms";
 
 export const dynamic = "force-dynamic";
 
@@ -47,42 +48,7 @@ export async function GET(request: NextRequest) {
         );
       }
 
-      const transformItem = (item: any, index: number): any => {
-        const baseItem: any = {
-          id: item.id,
-          index,
-          text: item.text,
-          status: item.status || TaskStatus.TODO,
-          completed: item.completed,
-          priority: item.priority,
-          score: item.score,
-          assignee: item.assignee,
-          reminder: item.reminder,
-        };
-
-        if (item.children && item.children.length > 0) {
-          baseItem.children = item.children.map(
-            (child: any, childIndex: number) =>
-              transformItem(child, childIndex),
-          );
-        }
-
-        return baseItem;
-      };
-
-      const data = boards.map((list) => ({
-        id: list.uuid || list.id,
-        title: list.title,
-        category: list.category || "Uncategorized",
-        statuses: list.statuses || [
-          { id: "todo", name: "To Do", order: 0 },
-          { id: "in_progress", name: "In Progress", order: 1 },
-          { id: "completed", name: "Completed", order: 2 },
-        ],
-        items: list.items.map((item, index) => transformItem(item, index)),
-        createdAt: list.createdAt,
-        updatedAt: list.updatedAt,
-      }));
+      const data = boards.map((list) => transformBoard(list));
 
       return NextResponse.json({ boards: data });
     } catch (error) {
@@ -130,21 +96,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      const transformedBoard = {
-        id: result.data?.uuid || result.data?.id,
-        title: result.data?.title,
-        category: result.data?.category || "Uncategorized",
-        statuses: result.data?.statuses || [
-          { id: "todo", name: "To Do", order: 0 },
-          { id: "in_progress", name: "In Progress", order: 1 },
-          { id: "completed", name: "Completed", order: 2 },
-        ],
-        items: [],
-        createdAt: result.data?.createdAt,
-        updatedAt: result.data?.updatedAt,
-      };
-
-      return NextResponse.json({ success: true, data: transformedBoard });
+      return NextResponse.json({ success: true, data: transformBoard(result.data) });
     } catch (error) {
       console.error("API Error:", error);
       return NextResponse.json(

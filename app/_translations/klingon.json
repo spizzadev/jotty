@@ -243,7 +243,8 @@
     "copiedToClipboard": "De' lI'lu'pu'",
     "offline": "Offline",
     "connected": "Connected",
-    "reconnecting": "Reconnecting..."
+    "reconnecting": "Reconnecting...",
+    "items": "chelmey"
   },
   "history": {
     "noteHistory": "ghItlh Qu' tetlh",
@@ -514,7 +515,9 @@
     "noTasks": "Qu'mey tu'be'lu'",
     "noSubtasksYet": "Qu'Hommey tu'be'lu'. bItaghmeH wa' yIchel.",
     "addTime": "poH yIchel",
-    "enterTimeInMinutes": "tupmey yIghItlh"
+    "enterTimeInMinutes": "tupmey yIghItlh",
+    "convertToKanbanBoard": "Kanban beQ DachoH",
+    "kanbanBoard": "Kanban beQ"
   },
   "tasks": {
     "title": "Qu'mey",
@@ -598,7 +601,24 @@
     "recentBoards": "Kanban beQmey rIn",
     "showAllBoards": "Hoch beQmey yIcha'",
     "unassigned": "ghu' ghoSbe'",
-    "targetDate": "jaj target"
+    "targetDate": "jaj target",
+    "statusUpdated": "choH pIt",
+    "itemArchived": "Pol",
+    "itemDeleted": "Qaw'pu'",
+    "estimatedTime": "pIq chartoq (rep)",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "DoS",
+    "noItemsFound": "vI' pe'mey Hutlh",
+    "searchPlaceholder": "chel yInej...",
+    "allPriorities": "Hoch nom mIw",
+    "allAssignees": "Hoch ghu' ghoS",
+    "timeEntries": "pIq De'",
+    "noTimeEntries": "pIq De' pagh",
+    "editSessions": "meeting yIchoH",
+    "session": "meeting wa'",
+    "sessions": "meeting",
+    "startTime": "qaStaHvIS",
+    "endTime": "bav"
   },
   "profile": {
     "userProfile": "lo'wI'",
@@ -1578,6 +1598,9 @@
     "assignmentTitle": "Task assigned to you",
     "assignmentMessage": "\"{task}\" in \"{board}\"",
     "reminderTitle": "Task overdue",
-    "reminderMessage": "\"{task}\" in \"{board}\" is past its reminder"
+    "reminderMessage": "\"{task}\" in \"{board}\" is past its reminder",
+    "unread": "laDlu'be'",
+    "sharingTitle": "{user} {type} Dajach",
+    "sharingMessage": "{type} yIleghmeH yI'el"
   }
 }

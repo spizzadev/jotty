@@ -243,7 +243,8 @@
     "copiedToClipboard": "已复制到剪贴板",
     "offline": "离线",
     "connected": "已连接",
-    "reconnecting": "正在重新连接..."
+    "reconnecting": "正在重新连接...",
+    "items": "项目"
   },
   "history": {
     "noteHistory": "笔记历史",
@@ -514,7 +515,9 @@
     "noTasks": "无任务",
     "noSubtasksYet": "暂无子任务。在下方添加一个以开始。",
     "addTime": "添加时间",
-    "enterTimeInMinutes": "输入时间（分钟）"
+    "enterTimeInMinutes": "输入时间（分钟）",
+    "convertToKanbanBoard": "转换为看板",
+    "kanbanBoard": "看板"
   },
   "tasks": {
     "title": "任务",
@@ -598,7 +601,24 @@
     "recentBoards": "最近看板",
     "showAllBoards": "显示所有看板",
     "unassigned": "未分配",
-    "targetDate": "目标日期"
+    "targetDate": "目标日期",
+    "statusUpdated": "状态已更新",
+    "itemArchived": "项目已归档",
+    "itemDeleted": "项目已删除",
+    "estimatedTime": "预估时间（小时）",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "节拍",
+    "noItemsFound": "没有符合当前筛选条件的项目",
+    "searchPlaceholder": "搜索项目...",
+    "allPriorities": "所有优先级",
+    "allAssignees": "所有负责人",
+    "timeEntries": "时间记录",
+    "noTimeEntries": "还没有时间记录",
+    "editSessions": "编辑记录时段",
+    "session": "记录",
+    "sessions": "记录",
+    "startTime": "开始",
+    "endTime": "结束"
   },
   "profile": {
     "userProfile": "用户",
@@ -1578,6 +1598,9 @@
     "assignmentTitle": "分配给您的任务",
     "assignmentMessage": "“{board}”中的“{task}”",
     "reminderTitle": "任务逾期",
-    "reminderMessage": "“{board}”中的“{task}”已超过提醒时间"
+    "reminderMessage": "“{board}”中的“{task}”已超过提醒时间",
+    "unread": "未读",
+    "sharingTitle": "{user} 与你共享了{type}",
+    "sharingMessage": "打开以查看共享的{type}"
   }
 }

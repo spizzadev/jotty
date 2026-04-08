@@ -240,7 +240,11 @@
     "copiedToClipboard": "Copié dans le presse-papiers",
     "offline": "Hors ligne",
     "connected": "Connecté",
-    "reconnecting": "Reconnexion..."
+    "reconnecting": "Reconnexion...",
+    "disable": "Désactiver",
+    "history": "Historique",
+    "items": "Éléments",
+    "noResults": "Aucun résultat"
   },
   "auth": {
     "loginTitle": "Connexion",
@@ -274,7 +278,8 @@
     "version": "Version {version}",
     "createUser": "Créer un utilisateur",
     "attemptsRemaining": "Attention : {count, plural, one {# tentative} other {# tentatives}} restantes avant le verrouillage du compte",
-    "accountLocked": "Trop de tentatives échouées. Veuillez réessayer dans {seconds} {seconds, plural, one {seconde} other {secondes}}"
+    "accountLocked": "Trop de tentatives échouées. Veuillez réessayer dans {seconds} {seconds, plural, one {seconde} other {secondes}}",
+    "notAuthorized": "Vous n’êtes pas autorisé à accéder à cette application. Contactez votre administrateur."
   },
   "mfa": {
     "title": "Authentification à deux facteurs",
@@ -485,7 +490,9 @@
     "noTasks": "Aucune tâche",
     "noSubtasksYet": "Aucune sous‑tâche pour le moment. Ajoutez‑en une ci‑dessous pour commencer.",
     "addTime": "Ajouter du Temps",
-    "enterTimeInMinutes": "Entrez votre temps en minutes"
+    "enterTimeInMinutes": "Entrez votre temps en minutes",
+    "convertToKanbanBoard": "Convertir en tableau Kanban",
+    "kanbanBoard": "Tableau Kanban"
   },
   "tasks": {
     "title": "Tâches",
@@ -569,7 +576,24 @@
     "recentBoards": "Tableaux récents",
     "showAllBoards": "Afficher tous les tableaux",
     "unassigned": "Non assigné",
-    "targetDate": "Date cible"
+    "targetDate": "Date cible",
+    "statusUpdated": "Statut mis à jour",
+    "itemArchived": "Élément archivé",
+    "itemDeleted": "Élément supprimé",
+    "estimatedTime": "Temps estimé (heures)",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "Tempo",
+    "noItemsFound": "Aucun élément ne correspond aux filtres actuels",
+    "searchPlaceholder": "Rechercher des éléments...",
+    "allPriorities": "Toutes les priorités",
+    "allAssignees": "Tous les assignés",
+    "timeEntries": "Entrées de temps",
+    "noTimeEntries": "Pas encore d’entrées de temps",
+    "editSessions": "Modifier les sessions",
+    "session": "session",
+    "sessions": "sessions",
+    "startTime": "Début",
+    "endTime": "Fin"
   },
   "profile": {
     "userProfile": "Utilisateur",
@@ -979,7 +1003,13 @@
     "updatingTags": "Mise à jour...",
     "updateTagsTitle": "Analyser les notes pour les hashtags et mettre à jour le frontmatter",
     "tagsUpdated": "{processed} fichiers traités, {updated} mis à jour avec de nouveaux tags",
-    "failedToUpdateTags": "Échec de la mise à jour des tags"
+    "failedToUpdateTags": "Échec de la mise à jour des tags",
+    "historyEnabled": "Historique des notes",
+    "historyDescription": "Conserve l’historique des versions des notes. Permet de restaurer des versions antérieures. Seules les sauvegardes manuelles créent des points d’historique (pas l’enregistrement automatique).",
+    "disableHistory": "Désactiver l’historique",
+    "disableHistoryWarning": "Désactiver l’historique supprimera définitivement toutes les versions enregistrées pour tous les utilisateurs. Action irréversible.",
+    "historyDisabled": "L’historique des notes a été désactivé et toutes les données d’historique ont été supprimées.",
+    "failedToDisableHistory": "Échec de la désactivation de l’historique"
   },
   "errors": {
     "notFound": "Introuvable",
@@ -1176,7 +1206,14 @@
     "excalidrawDescription": "Éditeur de diagrammes style croquis",
     "noLanguagesFound": "Aucun langage trouvé",
     "ruler": "Règle",
-    "lineNumbers": "Numéros de ligne"
+    "lineNumbers": "Numéros de ligne",
+    "callout": "Encadré",
+    "createCallout": "Créer un encadré",
+    "changeCalloutType": "Modifier le type d’encadré",
+    "calloutInfo": "Info",
+    "calloutWarning": "Avertissement",
+    "calloutSuccess": "Succès",
+    "calloutDanger": "Danger"
   },
   "sharing": {
     "share": "Partager",
@@ -1557,6 +1594,9 @@
     "assignmentTitle": "Tâche qui vous est assignée",
     "assignmentMessage": "\"{task}\" dans \"{board}\"",
     "reminderTitle": "Tâche en retard",
-    "reminderMessage": "\"{task}\" dans \"{board}\" a dépassé son rappel"
+    "reminderMessage": "\"{task}\" dans \"{board}\" a dépassé son rappel",
+    "unread": "non lu(s)",
+    "sharingTitle": "{user} a partagé un {type} avec vous",
+    "sharingMessage": "Ouvrez pour voir le {type} partagé"
   }
 }

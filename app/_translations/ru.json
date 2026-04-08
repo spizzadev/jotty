@@ -243,7 +243,8 @@
     "copiedToClipboard": "Скопировано в буфер обмена",
     "offline": "Не в сети",
     "connected": "Подключено",
-    "reconnecting": "Переподключение..."
+    "reconnecting": "Переподключение...",
+    "items": "Элементы"
   },
   "history": {
     "noteHistory": "История заметки",
@@ -514,7 +515,9 @@
     "noTasks": "Нет задач",
     "noSubtasksYet": "Пока нет подзадач. Добавьте одну ниже, чтобы начать.",
     "addTime": "Добавить время",
-    "enterTimeInMinutes": "Введите время в минутах"
+    "enterTimeInMinutes": "Введите время в минутах",
+    "convertToKanbanBoard": "Преобразовать в Kanban-доску",
+    "kanbanBoard": "Kanban-доска"
   },
   "tasks": {
     "title": "Задачи",
@@ -598,7 +601,24 @@
     "recentBoards": "Недавние доски",
     "showAllBoards": "Показать все доски",
     "unassigned": "Не назначено",
-    "targetDate": "Целевая дата"
+    "targetDate": "Целевая дата",
+    "statusUpdated": "Статус обновлён",
+    "itemArchived": "Элемент архивирован",
+    "itemDeleted": "Элемент удалён",
+    "estimatedTime": "Оценка времени (часы)",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "Темп",
+    "noItemsFound": "Нет элементов по текущим фильтрам",
+    "searchPlaceholder": "Поиск элементов...",
+    "allPriorities": "Все приоритеты",
+    "allAssignees": "Все исполнители",
+    "timeEntries": "Записи времени",
+    "noTimeEntries": "Записей времени пока нет",
+    "editSessions": "Редактировать сессии",
+    "session": "сессия",
+    "sessions": "сессии",
+    "startTime": "Начало",
+    "endTime": "Конец"
   },
   "profile": {
     "userProfile": "Пользователь",
@@ -1574,6 +1594,9 @@
     "assignmentTitle": "Задача, порученная вам",
     "assignmentMessage": "«{task}» на «{board}»",
     "reminderTitle": "Задача просрочена",
-    "reminderMessage": "Напоминание о задаче \"{task}\" на \"{board}\" прошло."
+    "reminderMessage": "Напоминание о задаче \"{task}\" на \"{board}\" прошло.",
+    "unread": "непрочит.",
+    "sharingTitle": "{user} поделился(-ась) с вами: {type}",
+    "sharingMessage": "Откройте, чтобы посмотреть общий {type}"
   }
 }

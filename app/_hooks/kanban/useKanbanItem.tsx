@@ -10,6 +10,7 @@ import {
   archiveItem,
 } from "@/app/_server/actions/checklist-item";
 import { ConfirmModal } from "@/app/_components/GlobalComponents/Modals/ConfirmationModals/ConfirmModal";
+import { useToast } from "@/app/_providers/ToastProvider";
 
 const TIMER_STORAGE_KEY = (checklistId: string, itemId: string) =>
   `jotty-timer-${checklistId}-${itemId}`;
@@ -30,6 +31,7 @@ export const useKanbanItem = ({
   onUpdate,
 }: UseKanbanItemProps) => {
   const t = useTranslations();
+  const { showToast } = useToast();
   const [isRunning, setIsRunning] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -219,6 +221,7 @@ export const useKanbanItem = ({
     const result = await updateItemStatus(formData);
     if (result.success && result.data) {
       onUpdate(result.data as Checklist);
+      showToast({ type: "success", title: t("common.success"), message: t("kanban.statusUpdated") });
     }
   };
 
@@ -278,6 +281,7 @@ export const useKanbanItem = ({
 
     const result = await deleteItem(formData);
     if (result.success) {
+      showToast({ type: "success", title: t("common.success"), message: t("kanban.itemDeleted") });
       onUpdate({
         id: checklistId,
         title: "",
@@ -301,6 +305,7 @@ export const useKanbanItem = ({
     const result = await archiveItem(formData);
     if (result.success && result.data) {
       onUpdate(result.data as Checklist);
+      showToast({ type: "success", title: t("common.success"), message: t("kanban.itemArchived") });
     }
   };
 

@@ -27,6 +27,7 @@ import { CircleIcon, Notification03Icon, UserIcon } from "hugeicons-react";
 import { usePreferredDateTime } from "@/app/_hooks/usePreferredDateTime";
 import { useTranslations } from "next-intl";
 import { UserAvatar } from "../../GlobalComponents/User/UserAvatar";
+import { TimeEntriesModal } from "./TimeEntriesModal";
 
 interface KanbanCardProps {
   checklist: Checklist;
@@ -37,6 +38,7 @@ interface KanbanCardProps {
   onUpdate: (updatedChecklist: Checklist) => void;
   isShared: boolean;
   statuses: KanbanStatus[];
+  statusColor?: string;
 }
 
 const KanbanCardComponent = ({
@@ -48,6 +50,7 @@ const KanbanCardComponent = ({
   onUpdate,
   isShared,
   statuses,
+  statusColor,
 }: KanbanCardProps) => {
   const t = useTranslations();
   const { usersPublicData } = useAppMode();
@@ -68,6 +71,7 @@ const KanbanCardComponent = ({
   );
 
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showTimeEntriesModal, setShowTimeEntriesModal] = useState(false);
 
   const kanbanItemHook = useKanbanItem({
     checklist,
@@ -113,6 +117,19 @@ const KanbanCardComponent = ({
 
   return (
     <>
+      {showTimeEntriesModal && item.timeEntries && (
+        <TimeEntriesModal
+          isOpen={showTimeEntriesModal}
+          onClose={() => setShowTimeEntriesModal(false)}
+          timeEntries={item.timeEntries}
+          checklistId={checklistId}
+          itemId={item.id}
+          category={category}
+          onUpdate={onUpdate}
+          usersPublicData={usersPublicData}
+        />
+      )}
+
       {showDetailModal && (
         <KanbanCardDetail
           checklist={checklist}
@@ -131,12 +148,13 @@ const KanbanCardComponent = ({
           style={style}
           {...attributes}
           {...listeners}
+          aria-label={item.text}
           onDoubleClick={() => setShowDetailModal(true)}
           className={cn(
             "group bg-background border rounded-jotty p-3 transition-all duration-200 hover:shadow-md cursor-grab active:cursor-grabbing min-w-0",
             getStatusColor(item.status),
             (isDragging || isSortableDragging) &&
-              "opacity-50 scale-95 rotate-[4deg] shadow-lg z-50 transition-all duration-200",
+              "opacity-60 scale-[0.98] shadow-lg border-primary/40 z-50 transition-all duration-200",
           )}
         >
           <div className="space-y-2">
@@ -162,7 +180,12 @@ const KanbanCardComponent = ({
 
             <div className="flex flex-wrap gap-1.5">
               {item.priority && item.priority !== "none" && (
-                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-jotty bg-muted text-muted-foreground flex items-center gap-1">
+                <span className={cn(
+                  "text-[10px] font-medium px-1.5 py-0.5 rounded-jotty flex items-center gap-1",
+                  item.priority === "critical" && "bg-destructive/10 text-destructive",
+                  item.priority === "high" && "bg-warning/10 text-warning",
+                  item.priority !== "critical" && item.priority !== "high" && "bg-muted text-muted-foreground"
+                )}>
                   <span
                     className="w-2 h-2 rounded-jotty flex-shrink-0"
                     style={{
@@ -220,6 +243,7 @@ const KanbanCardComponent = ({
                   usersPublicData={usersPublicData}
                   formatDateString={formatDateString}
                   formatTimeString={formatTimeString}
+                  onOpenTimeEntries={() => setShowTimeEntriesModal(true)}
                 />
               </div>
             )}
