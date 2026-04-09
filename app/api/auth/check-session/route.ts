@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { readSessions } from "@/app/_server/actions/session";
-import { isEnvEnabled } from "@/app/_utils/env-utils";
+import { getSessionCookieName } from "@/app/_utils/env-utils";
 
 type Session = Record<string, string>;
 
@@ -10,11 +10,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const cookieStore = await cookies();
-    const cookieName =
-      process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-        ? "__Host-session"
-        : "session";
-    const sessionId = cookieStore.get(cookieName)?.value;
+    const sessionId = cookieStore.get(getSessionCookieName())?.value;
 
     if (!sessionId) {
       return new NextResponse(JSON.stringify({ error: "No session cookie" }), {

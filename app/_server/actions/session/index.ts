@@ -7,7 +7,7 @@ import { readJsonFile, writeJsonFile } from "../file";
 import { SESSION_DATA_FILE, SESSIONS_FILE } from "@/app/_consts/files";
 import { getCurrentUser } from "../users";
 import { logAuthEvent } from "@/app/_server/actions/log";
-import { isEnvEnabled } from "@/app/_utils/env-utils";
+import { getSessionCookieName } from "@/app/_utils/env-utils";
 
 export interface SessionData {
   id: string;
@@ -104,9 +104,7 @@ export const getSessionsForUser = async (
 
 export const getSessionId = async (): Promise<string> => {
   const cookieName =
-    process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-      ? "__Host-session"
-      : "session";
+getSessionCookieName();
   return (await cookies()).get(cookieName)?.value || "";
 };
 
@@ -214,11 +212,7 @@ export const terminateAllOtherSessions = async (): Promise<Result<null>> => {
       };
     }
 
-    const cookieName =
-      process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-        ? "__Host-session"
-        : "session";
-    const sessionId = (await cookies()).get(cookieName)?.value;
+    const sessionId = (await cookies()).get(getSessionCookieName())?.value;
 
     await removeAllSessionsForUser(currentUser.username, sessionId);
 

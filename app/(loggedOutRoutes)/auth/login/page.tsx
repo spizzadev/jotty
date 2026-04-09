@@ -15,7 +15,7 @@ export default async function LoginPage() {
   const allowLocal = isEnvEnabled(process.env.SSO_FALLBACK_LOCAL);
 
   const hasExistingUsers = await hasUsers();
-  if (!hasExistingUsers && (!authMode || allowLocal)) {
+  if (!hasExistingUsers && !authMode) {
     redirect("/auth/setup");
   }
 
@@ -23,10 +23,12 @@ export default async function LoginPage() {
     return <SsoOnlyLogin />;
   }
 
+  const showRegisterLink = allowLocal && !hasExistingUsers;
+
   return (
     <AuthShell>
       <div className="space-y-6">
-        <LoginForm ssoEnabled={ssoIsOidc} />
+        <LoginForm ssoEnabled={ssoIsOidc} showRegisterLink={showRegisterLink} />
       </div>
     </AuthShell>
   );

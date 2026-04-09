@@ -14,7 +14,7 @@ import {
 } from "@/app/_server/actions/file";
 import { USERS_FILE } from "@/app/_consts/files";
 import { logAudit } from "@/app/_server/actions/log";
-import { isEnvEnabled, isDebugFlag } from "@/app/_utils/env-utils";
+import { isDebugFlag, isSecureEnv, getSessionCookieName } from "@/app/_utils/env-utils";
 
 const debugProxy = isDebugFlag("proxy");
 
@@ -351,15 +351,10 @@ export async function GET(request: NextRequest) {
   await ensureUser(username, isAdmin);
 
   const sessionId = base64UrlEncode(crypto.randomBytes(32));
-  const cookieName =
-    process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-      ? "__Host-session"
-      : "session";
   const response = NextResponse.redirect(`${appUrl}/`);
-  response.cookies.set(cookieName, sessionId, {
+  response.cookies.set(getSessionCookieName(), sessionId, {
     httpOnly: true,
-    secure:
-      process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS),
+    secure: isSecureEnv(),
     sameSite: "lax",
     path: "/",
     maxAge: 30 * 24 * 60 * 60,

@@ -2,7 +2,7 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import path from "path";
 import { lock, unlock } from "proper-lockfile";
 import {
@@ -24,7 +24,12 @@ import fs from "fs/promises";
 import { CHECKLISTS_DIR, NOTES_DIR, USERS_FILE } from "@/app/_consts/files";
 import { logAuthEvent } from "../log";
 import { getUsername, ensureUser } from "../users";
-import { isEnvEnabled, getAuthMode } from "@/app/_utils/env-utils";
+import {
+  isSecureEnv,
+  getAuthMode,
+  getSessionCookieName,
+  getMfaPendingCookieName,
+} from "@/app/_utils/env-utils";
 import { ldapLogin } from "./ldap";
 
 interface User {
@@ -34,11 +39,92 @@ interface User {
   isSuperAdmin?: boolean;
   createdAt?: string;
   lastLogin?: string;
+  failedLoginAttempts?: number;
+  nextAllowedLoginAttempt?: string;
+  mfaEnabled?: boolean;
 }
 
 const hashPassword = (password: string): string => {
   return createHash("sha256").update(password).digest("hex");
 };
+
+const _generateSessionId = (): string => randomBytes(32).toString("hex");
+
+async function _setSessionCookie(
+  sessionId: string,
+  cookieName: string,
+  maxAge: number,
+) {
+  (await cookies()).set(cookieName, sessionId, {
+    httpOnly: true,
+    secure: isSecureEnv(),
+    sameSite: "lax",
+    maxAge,
+    path: "/",
+  });
+}
+
+async function _handleFailedLogin(
+  users: User[],
+  username: string,
+  bruteforceProtectionDisabled: boolean,
+) {
+  const user = users.find(
+    (u: User) => u.username.toLowerCase() === username.toLowerCase(),
+  );
+
+  if (user && !bruteforceProtectionDisabled) {
+    const userIndex = users.findIndex(
+      (u: User) => u.username.toLowerCase() === username.toLowerCase(),
+    );
+
+    if (userIndex !== -1) {
+      const failedAttempts =
+        (users[userIndex].failedLoginAttempts || 0) + 1;
+      users[userIndex].failedLoginAttempts = failedAttempts;
+
+      const delayMs = _youShallNotPass(failedAttempts);
+      let lockedUntil: string | undefined;
+      if (delayMs > 0) {
+        lockedUntil = new Date(Date.now() + delayMs).toISOString();
+        users[userIndex].nextAllowedLoginAttempt = lockedUntil;
+      } else {
+        users[userIndex].nextAllowedLoginAttempt = undefined;
+      }
+
+      await writeJsonFile(users, USERS_FILE);
+
+      await logAuthEvent(
+        "login",
+        username,
+        false,
+        `Invalid credentials - attempt ${failedAttempts}`,
+      );
+
+      const attemptsRemaining = Math.max(0, 4 - failedAttempts);
+      const waitSeconds = delayMs > 0 ? Math.ceil(delayMs / 1000) : 0;
+
+      return {
+        error:
+          delayMs > 0
+            ? "Too many failed attempts"
+            : "Invalid username or password",
+        attemptsRemaining,
+        failedAttempts,
+        ...(lockedUntil && { lockedUntil, waitSeconds }),
+      };
+    }
+  }
+
+  await logAuthEvent("login", username, false, "Invalid username or password");
+  return {
+    error: "Invalid username or password",
+    attemptsRemaining: undefined as number | undefined,
+    failedAttempts: undefined as number | undefined,
+    lockedUntil: undefined as string | undefined,
+    waitSeconds: undefined as number | undefined,
+  };
+}
 
 /**
  * 🧙‍♂️
@@ -88,9 +174,7 @@ export const register = async (formData: FormData) => {
   users.push(newUser);
   await writeJsonFile(users, USERS_FILE);
 
-  const sessionId = createHash("sha256")
-    .update(Math.random().toString())
-    .digest("hex");
+  const sessionId = _generateSessionId();
 
   let sessions = await readSessions();
 
@@ -104,19 +188,7 @@ export const register = async (formData: FormData) => {
 
   await writeSessions(sessions);
 
-  const cookieName =
-    process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-      ? "__Host-session"
-      : "session";
-
-  (await cookies()).set(cookieName, sessionId, {
-    httpOnly: true,
-    secure:
-      process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS),
-    sameSite: "lax",
-    maxAge: 30 * 24 * 60 * 60,
-    path: "/",
-  });
+  await _setSessionCookie(sessionId, getSessionCookieName(), 30 * 24 * 60 * 60);
 
   const userChecklistDir = path.join(
     process.cwd(),
@@ -143,11 +215,13 @@ export const login = async (formData: FormData) => {
   }
 
   const usersFile = path.join(process.cwd(), "data", "users", "users.json");
+  await fs.mkdir(path.dirname(usersFile), { recursive: true });
+  try { await fs.access(usersFile); } catch { await fs.writeFile(usersFile, "[]", "utf-8"); }
   await lock(usersFile);
   let lockReleased = false;
 
   try {
-    const users = await readJsonFile(USERS_FILE);
+    const users = (await readJsonFile(USERS_FILE)) || [];
     const user = users.find(
       (u: User) => u.username.toLowerCase() === username.toLowerCase(),
     );
@@ -193,56 +267,7 @@ export const login = async (formData: FormData) => {
           redirect("/auth/login?error=unauthorized");
         }
 
-        if (user && !bruteforceProtectionDisabled) {
-          const userIndex = users.findIndex(
-            (u: User) => u.username.toLowerCase() === username.toLowerCase(),
-          );
-
-          if (userIndex !== -1) {
-            const failedAttempts =
-              (users[userIndex].failedLoginAttempts || 0) + 1;
-            users[userIndex].failedLoginAttempts = failedAttempts;
-
-            const delayMs = _youShallNotPass(failedAttempts);
-            let lockedUntil: string | undefined;
-            if (delayMs > 0) {
-              lockedUntil = new Date(Date.now() + delayMs).toISOString();
-              users[userIndex].nextAllowedLoginAttempt = lockedUntil;
-            } else {
-              users[userIndex].nextAllowedLoginAttempt = undefined;
-            }
-
-            await writeJsonFile(users, USERS_FILE);
-
-            await logAuthEvent(
-              "login",
-              username,
-              false,
-              `Invalid credentials - attempt ${failedAttempts}`,
-            );
-
-            const attemptsRemaining = Math.max(0, 4 - failedAttempts);
-            const waitSeconds = delayMs > 0 ? Math.ceil(delayMs / 1000) : 0;
-
-            return {
-              error:
-                delayMs > 0
-                  ? "Too many failed attempts"
-                  : "Invalid username or password",
-              attemptsRemaining,
-              failedAttempts,
-              ...(lockedUntil && { lockedUntil, waitSeconds }),
-            };
-          }
-        }
-
-        await logAuthEvent(
-          "login",
-          username,
-          false,
-          "Invalid username or password",
-        );
-        return { error: "Invalid username or password" };
+        return await _handleFailedLogin(users, username, bruteforceProtectionDisabled);
       }
 
       lockReleased = true;
@@ -250,104 +275,21 @@ export const login = async (formData: FormData) => {
 
       await ensureUser(ldapResult.username, ldapResult.isAdmin);
 
-      const ldapSessionId = createHash("sha256")
-        .update(Math.random().toString())
-        .digest("hex");
-
+      const ldapSessionId = _generateSessionId();
       await createSession(ldapSessionId, ldapResult.username, "ldap");
-
-      const ldapCookieName =
-        process.env.NODE_ENV === "production" && process.env.HTTPS === "true"
-          ? "__Host-session"
-          : "session";
-
-      (await cookies()).set(ldapCookieName, ldapSessionId, {
-        httpOnly: true,
-        secure:
-          process.env.NODE_ENV === "production" && process.env.HTTPS === "true",
-        sameSite: "lax",
-        maxAge: 30 * 24 * 60 * 60,
-        path: "/",
-      });
-
+      await _setSessionCookie(ldapSessionId, getSessionCookieName(), 30 * 24 * 60 * 60);
       await logAuthEvent("login", ldapResult.username, true);
 
       redirect("/");
     }
 
     if (!user || user.passwordHash !== hashPassword(password)) {
-      if (user && !bruteforceProtectionDisabled) {
-        const userIndex = users.findIndex(
-          (u: User) => u.username.toLowerCase() === username.toLowerCase(),
-        );
-
-        if (userIndex !== -1) {
-          const failedAttempts =
-            (users[userIndex].failedLoginAttempts || 0) + 1;
-          users[userIndex].failedLoginAttempts = failedAttempts;
-
-          const delayMs = _youShallNotPass(failedAttempts);
-          let lockedUntil: string | undefined;
-          if (delayMs > 0) {
-            lockedUntil = new Date(Date.now() + delayMs).toISOString();
-            users[userIndex].nextAllowedLoginAttempt = lockedUntil;
-          } else {
-            users[userIndex].nextAllowedLoginAttempt = undefined;
-          }
-
-          await writeJsonFile(users, USERS_FILE);
-
-          await logAuthEvent(
-            "login",
-            username,
-            false,
-            `Invalid credentials - attempt ${failedAttempts}`,
-          );
-
-          const attemptsRemaining = Math.max(0, 4 - failedAttempts);
-          const waitSeconds = delayMs > 0 ? Math.ceil(delayMs / 1000) : 0;
-
-          return {
-            error:
-              delayMs > 0
-                ? "Too many failed attempts"
-                : "Invalid username or password",
-            attemptsRemaining,
-            failedAttempts,
-            ...(lockedUntil && { lockedUntil, waitSeconds }),
-          };
-        }
-      }
-
-      await logAuthEvent(
-        "login",
-        username,
-        false,
-        "Invalid username or password",
-      );
-      return { error: "Invalid username or password" };
+      return await _handleFailedLogin(users, username, bruteforceProtectionDisabled);
     }
 
     if (user.mfaEnabled) {
-      const pendingSessionId = createHash("sha256")
-        .update(`pending-mfa-${Math.random().toString()}`)
-        .digest("hex");
-
-      const cookieName =
-        process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-          ? "__Host-mfa-pending"
-          : "mfa-pending";
-
-      (await cookies()).set(cookieName, pendingSessionId, {
-        httpOnly: true,
-        secure:
-          process.env.NODE_ENV === "production" &&
-          isEnvEnabled(process.env.HTTPS),
-        sameSite: "lax",
-        maxAge: 10 * 60,
-        path: "/",
-      });
-
+      const pendingSessionId = _generateSessionId();
+      await _setSessionCookie(pendingSessionId, getMfaPendingCookieName(), 10 * 60);
       await createSession(pendingSessionId, user.username, "pending-mfa");
 
       redirect("/auth/verify-mfa");
@@ -363,31 +305,14 @@ export const login = async (formData: FormData) => {
       await writeJsonFile(users, USERS_FILE);
     }
 
-    const sessionId = createHash("sha256")
-      .update(Math.random().toString())
-      .digest("hex");
+    const sessionId = _generateSessionId();
     const sessions = await readSessions();
     sessions[sessionId] = user.username;
 
     await writeSessions(sessions);
 
     await createSession(sessionId, user.username, "local");
-
-    const cookieName =
-      process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-        ? "__Host-session"
-        : "session";
-
-    (await cookies()).set(cookieName, sessionId, {
-      httpOnly: true,
-      secure:
-        process.env.NODE_ENV === "production" &&
-        isEnvEnabled(process.env.HTTPS),
-      sameSite: "lax",
-      maxAge: 30 * 24 * 60 * 60,
-      path: "/",
-    });
-
+    await _setSessionCookie(sessionId, getSessionCookieName(), 30 * 24 * 60 * 60);
     await logAuthEvent("login", user.username, true);
 
     redirect("/");
@@ -400,12 +325,7 @@ export const login = async (formData: FormData) => {
 
 export const logout = async () => {
   const username = await getUsername();
-
-  const cookieName =
-    process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-      ? "__Host-session"
-      : "session";
-
+  const cookieName = getSessionCookieName();
   const sessionId = (await cookies()).get(cookieName)?.value;
 
   if (sessionId) {
@@ -440,10 +360,7 @@ export const verifyMfaLogin = async (formData: FormData) => {
     return { error: "Code is required" };
   }
 
-  const pendingCookieName =
-    process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-      ? "__Host-mfa-pending"
-      : "mfa-pending";
+  const pendingCookieName = getMfaPendingCookieName();
 
   const pendingSessionId = (await cookies()).get(pendingCookieName)?.value;
 
@@ -507,9 +424,7 @@ export const verifyMfaLogin = async (formData: FormData) => {
     await writeJsonFile(users, USERS_FILE);
   }
 
-  const sessionId = createHash("sha256")
-    .update(Math.random().toString())
-    .digest("hex");
+  const sessionId = _generateSessionId();
 
   sessions[sessionId] = username;
   delete sessions[pendingSessionId];
@@ -519,20 +434,7 @@ export const verifyMfaLogin = async (formData: FormData) => {
   await createSession(sessionId, username, "local");
 
   (await cookies()).delete(pendingCookieName);
-
-  const cookieName =
-    process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-      ? "__Host-session"
-      : "session";
-
-  (await cookies()).set(cookieName, sessionId, {
-    httpOnly: true,
-    secure:
-      process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS),
-    sameSite: "lax",
-    maxAge: 30 * 24 * 60 * 60,
-    path: "/",
-  });
+  await _setSessionCookie(sessionId, getSessionCookieName(), 30 * 24 * 60 * 60);
 
   await logAuthEvent("login", username, true);
 
