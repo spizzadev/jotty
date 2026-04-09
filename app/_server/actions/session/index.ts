@@ -7,7 +7,7 @@ import { readJsonFile, writeJsonFile } from "../file";
 import { SESSION_DATA_FILE, SESSIONS_FILE } from "@/app/_consts/files";
 import { getCurrentUser } from "../users";
 import { logAuthEvent } from "@/app/_server/actions/log";
-import { isEnvEnabled } from "@/app/_utils/env-utils";
+import { getSessionCookieName } from "@/app/_utils/env-utils";
 
 export interface SessionData {
   id: string;
@@ -16,7 +16,7 @@ export interface SessionData {
   ipAddress: string;
   createdAt: string;
   lastActivity: string;
-  loginType?: "local" | "sso" | "pending-mfa";
+  loginType?: "local" | "sso" | "ldap" | "pending-mfa";
 }
 
 export interface Session {
@@ -48,7 +48,7 @@ export const readSessions = async (): Promise<Session> => {
 export const createSession = async (
   sessionId: string,
   username: string,
-  loginType: "local" | "sso" | "pending-mfa",
+  loginType: "local" | "sso" | "pending-mfa" | "ldap",
 ): Promise<void> => {
   const headersList = await headers();
   const userAgent = headersList.get("user-agent") || "Unknown";
@@ -104,14 +104,12 @@ export const getSessionsForUser = async (
 
 export const getSessionId = async (): Promise<string> => {
   const cookieName =
-    process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-      ? "__Host-session"
-      : "session";
+getSessionCookieName();
   return (await cookies()).get(cookieName)?.value || "";
 };
 
 export const getLoginType = async (): Promise<
-  "local" | "sso" | "pending-mfa" | undefined
+  "local" | "sso" | "pending-mfa" | "ldap" | undefined
 > => {
   const sessionId = await getSessionId();
   if (!sessionId) return undefined;
@@ -214,11 +212,7 @@ export const terminateAllOtherSessions = async (): Promise<Result<null>> => {
       };
     }
 
-    const cookieName =
-      process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-        ? "__Host-session"
-        : "session";
-    const sessionId = (await cookies()).get(cookieName)?.value;
+    const sessionId = (await cookies()).get(getSessionCookieName())?.value;
 
     await removeAllSessionsForUser(currentUser.username, sessionId);
 

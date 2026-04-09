@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { getEnvOrFile } from "@/app/_server/actions/file";
-import { isEnvEnabled, isDebugFlag } from "@/app/_utils/env-utils";
+import { isEnvEnabled, isDebugFlag, getAuthMode } from "@/app/_utils/env-utils";
 
 const debugProxy = isDebugFlag("proxy");
 
@@ -20,10 +20,10 @@ function sha256(input: string) {
 }
 
 export async function GET(request: NextRequest) {
-  const ssoMode = process.env.SSO_MODE;
+  const authMode = getAuthMode();
   const appUrl = process.env.APP_URL || request.nextUrl.origin;
 
-  if (ssoMode && ssoMode?.toLowerCase() !== "oidc") {
+  if (authMode && authMode?.toLowerCase() !== "oidc") {
     if (debugProxy) {
       console.log("SSO LOGIN - ssoMode is not oidc");
     }

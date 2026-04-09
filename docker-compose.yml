@@ -21,7 +21,7 @@ services:
       #- INTERNAL_API_URL=http://localhost:3000
       #- SERVE_PUBLIC_IMAGES=yes
       #- SERVE_PUBLIC_FILES=yes
-      #- SSO_MODE=oidc
+      #- AUTH_MODE=oidc
       #- OIDC_ISSUER=<YOUR_SSO_ISSUER>
       #- OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
       #- OIDC_CLIENT_SECRET=your_client_secret
