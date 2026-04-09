@@ -12,10 +12,6 @@ vi.mock("@/app/_server/actions/file", () => ({
 
 import { ldapLogin } from "@/app/_server/actions/auth/ldap";
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 const BASE_ENV = {
   LDAP_URL: "ldap://ldap.example.com:389",
   LDAP_BIND_DN: "cn=service,dc=example,dc=com",
@@ -57,10 +53,6 @@ function setupClient({
   return { mockBind, mockSearch, mockUnbind };
 }
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
 describe("ldapLogin()", () => {
   beforeEach(() => {
     resetAllMocks();
@@ -85,8 +77,6 @@ describe("ldapLogin()", () => {
     }
   });
 
-  // Core credential checks
-
   it("returns invalid_credentials when user is not found in the directory", async () => {
     setupClient({ searchEntries: [] });
     const result = await ldapLogin("alice", "password");
@@ -104,8 +94,6 @@ describe("ldapLogin()", () => {
     expect(result).toEqual({ ok: true, username: "alice", isAdmin: false });
   });
 
-  // Connection errors — must NOT appear as invalid_credentials
-
   it("returns connection_error when the service account bind throws a network error", async () => {
     setupClient({ serviceBindError: new Error("ECONNREFUSED") });
     const result = await ldapLogin("alice", "password");
@@ -117,8 +105,6 @@ describe("ldapLogin()", () => {
     const result = await ldapLogin("alice", "password");
     expect(result).toEqual({ ok: false, kind: "connection_error" });
   });
-
-  // Group-based access control
 
   it("returns unauthorized when LDAP_USER_GROUPS is set and user has no matching memberOf", async () => {
     process.env.LDAP_USER_GROUPS = "cn=jotty,ou=groups,dc=example,dc=com";
@@ -187,14 +173,12 @@ describe("ldapLogin()", () => {
     expect(result).toEqual({ ok: true, username: "alice", isAdmin: true });
   });
 
-  // Config
-
   it("uses uid as the default search attribute when LDAP_USER_ATTRIBUTE is not set", async () => {
     const { mockSearch } = setupClient();
     await ldapLogin("alice", "password");
     expect(mockSearch).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ filter: "(uid=alice)" })
+      expect.objectContaining({ filter: "(uid=alice)" }),
     );
   });
 
@@ -204,11 +188,9 @@ describe("ldapLogin()", () => {
     await ldapLogin("alice", "password");
     expect(mockSearch).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ filter: "(sAMAccountName=alice)" })
+      expect.objectContaining({ filter: "(sAMAccountName=alice)" }),
     );
   });
-
-  // Cleanup
 
   it("calls unbind after a successful authentication", async () => {
     const { mockUnbind } = setupClient();

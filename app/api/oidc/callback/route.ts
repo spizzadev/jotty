@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import path from "path";
 import { getEnvOrFile } from "@/app/_server/actions/file";
 import { lock, unlock } from "proper-lockfile";
+import { getAuthMode } from "@/app/_utils/env-utils";
 import { ensureUser } from "@/app/_server/actions/users";
 import { jwtVerify, createRemoteJWKSet, decodeJwt } from "jose";
 import { createSession } from "@/app/_server/actions/session";
@@ -52,7 +53,7 @@ function checkClaims(
 export async function GET(request: NextRequest) {
   const appUrl = process.env.APP_URL || request.nextUrl.origin;
 
-  if (process.env.SSO_MODE !== "oidc") {
+  if (getAuthMode() !== "oidc") {
     return NextResponse.redirect(`${appUrl}/auth/login`);
   }
 

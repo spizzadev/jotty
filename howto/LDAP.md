@@ -14,7 +14,7 @@
 services:
   jotty:
     environment:
-      - SSO_MODE=ldap
+      - AUTH_MODE=ldap
       - LDAP_URL=ldap://ldap.example.com:389
       - LDAP_BIND_DN=cn=service,dc=example,dc=com
       - LDAP_BIND_PASSWORD=service-account-password
@@ -25,7 +25,7 @@ services:
 
 ### Required
 
-- `SSO_MODE=ldap` — Enables LDAP authentication. The standard username/password form is used; the OIDC "Sign in with SSO" button is not shown.
+- `AUTH_MODE=ldap` — Enables LDAP authentication. The standard username/password form is used; the OIDC "Sign in with SSO" button is not shown. (Previously `SSO_MODE=ldap`, which still works as a fallback.)
 - `LDAP_URL=ldap://ldap.example.com:389` — URL of your LDAP server. Use `ldaps://` on port `636` for TLS.
 - `LDAP_BIND_DN=cn=service,dc=example,dc=com` — Distinguished name of the service account used to search the directory.
 - `LDAP_BIND_PASSWORD=secret` — Password of the service account. See [Docker Secrets](#docker-secrets) for storing this securely.
@@ -99,7 +99,7 @@ To prevent the service account password from appearing in `docker inspect` outpu
 services:
   jotty:
     environment:
-      - SSO_MODE=ldap
+      - AUTH_MODE=ldap
       - LDAP_URL=ldap://ldap.example.com:389
       - LDAP_BIND_DN=cn=service,dc=example,dc=com
       - LDAP_BIND_PASSWORD_FILE=/run/secrets/ldap_password

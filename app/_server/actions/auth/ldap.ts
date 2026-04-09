@@ -18,13 +18,13 @@ function escapeLdapFilter(value: string): string {
 
 export async function ldapLogin(
   username: string,
-  password: string
+  password: string,
 ): Promise<LdapLoginResult> {
   const url = process.env.LDAP_URL;
   const bindDN = process.env.LDAP_BIND_DN;
   const bindPassword = await getEnvOrFile(
     "LDAP_BIND_PASSWORD",
-    "LDAP_BIND_PASSWORD_FILE"
+    "LDAP_BIND_PASSWORD_FILE",
   );
   const baseDN = process.env.LDAP_BASE_DN;
   const userAttribute = process.env.LDAP_USER_ATTRIBUTE || "uid";
@@ -44,7 +44,6 @@ export async function ldapLogin(
   const client = new Client({ url });
 
   try {
-    // Step 1: bind as service account to gain search access
     try {
       await client.bind(bindDN, bindPassword);
     } catch (err) {
@@ -54,7 +53,6 @@ export async function ldapLogin(
       return { ok: false, kind: "connection_error" };
     }
 
-    // Step 2: search for the user entry by configured attribute
     let userDN = "";
     let memberOf: string[] = [];
 
@@ -84,14 +82,12 @@ export async function ldapLogin(
       return { ok: false, kind: "connection_error" };
     }
 
-    // Step 3: bind as the found user to verify their password
     try {
       await client.bind(userDN, password);
     } catch (err) {
       return { ok: false, kind: "invalid_credentials" };
     }
 
-    // Step 4: apply group-based access control
     const adminGroupList = (process.env.LDAP_ADMIN_GROUPS || "")
       .split("|")
       .map((g) => g.trim())

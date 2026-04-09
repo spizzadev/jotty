@@ -24,7 +24,7 @@ import fs from "fs/promises";
 import { CHECKLISTS_DIR, NOTES_DIR, USERS_FILE } from "@/app/_consts/files";
 import { logAuthEvent } from "../log";
 import { getUsername, ensureUser } from "../users";
-import { isEnvEnabled } from "@/app/_utils/env-utils";
+import { isEnvEnabled, getAuthMode } from "@/app/_utils/env-utils";
 import { ldapLogin } from "./ldap";
 
 interface User {
@@ -41,7 +41,7 @@ const hashPassword = (password: string): string => {
 };
 
 /**
- * �‍♂️
+ * 🧙‍♂️
  */
 const _youShallNotPass = (attempts: number): number => {
   if (attempts <= 3) return 0;
@@ -144,7 +144,6 @@ export const login = async (formData: FormData) => {
 
   const usersFile = path.join(process.cwd(), "data", "users", "users.json");
   await lock(usersFile);
-  // fccview is onto you!
   let lockReleased = false;
 
   try {
@@ -179,7 +178,7 @@ export const login = async (formData: FormData) => {
       }
     }
 
-    if (process.env.SSO_MODE === "ldap") {
+    if (getAuthMode() === "ldap") {
       const ldapResult = await ldapLogin(username, password);
 
       if (!ldapResult.ok) {
@@ -194,14 +193,14 @@ export const login = async (formData: FormData) => {
           redirect("/auth/login?error=unauthorized");
         }
 
-        // invalid_credentials — increment brute-force counter if user exists locally
         if (user && !bruteforceProtectionDisabled) {
           const userIndex = users.findIndex(
-            (u: User) => u.username.toLowerCase() === username.toLowerCase()
+            (u: User) => u.username.toLowerCase() === username.toLowerCase(),
           );
 
           if (userIndex !== -1) {
-            const failedAttempts = (users[userIndex].failedLoginAttempts || 0) + 1;
+            const failedAttempts =
+              (users[userIndex].failedLoginAttempts || 0) + 1;
             users[userIndex].failedLoginAttempts = failedAttempts;
 
             const delayMs = _youShallNotPass(failedAttempts);
@@ -219,14 +218,17 @@ export const login = async (formData: FormData) => {
               "login",
               username,
               false,
-              `Invalid credentials - attempt ${failedAttempts}`
+              `Invalid credentials - attempt ${failedAttempts}`,
             );
 
             const attemptsRemaining = Math.max(0, 4 - failedAttempts);
             const waitSeconds = delayMs > 0 ? Math.ceil(delayMs / 1000) : 0;
 
             return {
-              error: delayMs > 0 ? "Too many failed attempts" : "Invalid username or password",
+              error:
+                delayMs > 0
+                  ? "Too many failed attempts"
+                  : "Invalid username or password",
               attemptsRemaining,
               failedAttempts,
               ...(lockedUntil && { lockedUntil, waitSeconds }),
@@ -234,11 +236,15 @@ export const login = async (formData: FormData) => {
           }
         }
 
-        await logAuthEvent("login", username, false, "Invalid username or password");
+        await logAuthEvent(
+          "login",
+          username,
+          false,
+          "Invalid username or password",
+        );
         return { error: "Invalid username or password" };
       }
 
-      // LDAP success — release lock before ensureUser to avoid deadlock
       lockReleased = true;
       await unlock(usersFile);
 
@@ -419,7 +425,7 @@ export const logout = async () => {
 
   await logAuthEvent("logout", username || "unknown", true);
 
-  if (process.env.SSO_MODE === "oidc") {
+  if (getAuthMode() === "oidc") {
     redirect("/api/oidc/logout");
   } else {
     redirect("/auth/login");

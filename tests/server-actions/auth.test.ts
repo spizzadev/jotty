@@ -252,7 +252,7 @@ describe('Auth Actions', () => {
     })
   })
 
-  describe('login() with SSO_MODE=ldap', () => {
+  describe('login() with AUTH_MODE=ldap', () => {
     const ldapUser = {
       username: 'alice',
       passwordHash: '',
@@ -261,13 +261,13 @@ describe('Auth Actions', () => {
     }
 
     beforeEach(() => {
-      process.env.SSO_MODE = 'ldap'
+      process.env.AUTH_MODE = 'ldap'
       process.env.DISABLE_BRUTEFORCE_PROTECTION = 'true'
       mockReadJsonFile.mockResolvedValue([ldapUser])
     })
 
     afterEach(() => {
-      delete process.env.SSO_MODE
+      delete process.env.AUTH_MODE
       delete process.env.DISABLE_BRUTEFORCE_PROTECTION
     })
 

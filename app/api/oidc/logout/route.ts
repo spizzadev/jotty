@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isDebugFlag } from "@/app/_utils/env-utils";
+import { isDebugFlag, getAuthMode } from "@/app/_utils/env-utils";
 
 const debugProxy = isDebugFlag("proxy");
 
@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
     console.log("OIDC LOGOUT - appUrl:", appUrl);
   }
 
-  if (process.env.SSO_MODE && process.env.SSO_MODE?.toLowerCase() !== "oidc") {
+  const authMode = getAuthMode();
+  if (authMode && authMode?.toLowerCase() !== "oidc") {
     if (debugProxy) {
       console.log("SSO LOGOUT - ssoMode is not oidc, redirecting to login");
     }

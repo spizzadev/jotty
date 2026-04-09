@@ -4,17 +4,18 @@ import LoginForm from "@/app/_components/GlobalComponents/Auth/LoginForm";
 import { AuthShell } from "@/app/_components/GlobalComponents/Auth/AuthShell";
 import { getTranslations } from "next-intl/server";
 import { SsoOnlyLogin } from "@/app/_components/GlobalComponents/Auth/SsoOnlyLogin";
-import { isEnvEnabled } from "@/app/_utils/env-utils";
+import { isEnvEnabled, getAuthMode } from "@/app/_utils/env-utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   const t = await getTranslations("auth");
-  const ssoIsOidc = process.env.SSO_MODE === "oidc";
+  const authMode = getAuthMode();
+  const ssoIsOidc = authMode === "oidc";
   const allowLocal = isEnvEnabled(process.env.SSO_FALLBACK_LOCAL);
 
   const hasExistingUsers = await hasUsers();
-  if (!hasExistingUsers && (!process.env.SSO_MODE || allowLocal)) {
+  if (!hasExistingUsers && (!authMode || allowLocal)) {
     redirect("/auth/setup");
   }
 
