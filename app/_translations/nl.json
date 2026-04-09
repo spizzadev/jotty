@@ -239,7 +239,8 @@
     "copiedToClipboard": "Gekopieerd naar klembord",
     "offline": "Offline",
     "connected": "Aangesloten",
-    "reconnecting": "Opnieuw verbinding maken..."
+    "reconnecting": "Opnieuw verbinding maken...",
+    "hide": "Verbergen"
   },
   "auth": {
     "loginTitle": "Inloggen",
@@ -374,7 +375,12 @@
     "tags": "Tags",
     "noTagsFound": "Geen tags gevonden",
     "searchTags": "Tags zoeken...",
-    "copyRawContent": "Kopieer markdown"
+    "copyRawContent": "Kopieer markdown",
+    "printSaveAsPdf": "Afdrukken / Opslaan als PDF",
+    "tableOfContents": "Inhoudsopgave",
+    "wordCount": "{count, plural, one {# woord} other {# woorden}}",
+    "charCount": "{count, plural, one {# teken} other {# tekens}}",
+    "readingTime": "{count, plural, one {# minuut leestijd} other {# minuten leestijd}}"
   },
   "checklists": {
     "title": "Checklists",

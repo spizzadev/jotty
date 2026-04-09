@@ -239,7 +239,8 @@
     "retry": "다시 시도",
     "offline": "오프라인",
     "connected": "연결됨",
-    "reconnecting": "다시 연결하는 중..."
+    "reconnecting": "다시 연결하는 중...",
+    "hide": "숨기기"
   },
   "history": {
     "noteHistory": "노트 기록",
@@ -395,7 +396,12 @@
     "noteNotFound": "노트를 찾을 수 없습니다",
     "unarchiveNote": "노트 보관 해제",
     "enterNoteName": "노트 이름 입력...",
-    "updateNote": "노트 업데이트"
+    "updateNote": "노트 업데이트",
+    "printSaveAsPdf": "인쇄 / PDF로 저장",
+    "tableOfContents": "목차",
+    "wordCount": "{count, plural, one {# 단어} other {# 단어}}",
+    "charCount": "{count, plural, one {# 글자} other {# 글자}}",
+    "readingTime": "{count, plural, one {# 분 읽기} other {# 분 읽기}}"
   },
   "checklists": {
     "title": "체크리스트",

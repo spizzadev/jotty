@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 interface NoteFooterStatsProps {
   content: string;
 }
 
 export const NoteFooterStats = ({ content }: NoteFooterStatsProps) => {
+  const t = useTranslations();
   const stats = useMemo(() => {
     let contentWithoutMetadata = content.replace(/^---\n[\s\S]*?\n---\n/, "");
 
@@ -70,22 +72,9 @@ export const NoteFooterStats = ({ content }: NoteFooterStatsProps) => {
   return (
     <div className="mt-8 pt-4 border-t border-border no-print">
       <div className="flex flex-wrap gap-4 text-md lg:text-sm text-muted-foreground">
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium">
-            {stats.wordCount.toLocaleString()}
-          </span>
-          <span>{stats.wordCount === 1 ? "word" : "words"}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium">
-            {stats.charCount.toLocaleString()}
-          </span>
-          <span>{stats.charCount === 1 ? "character" : "characters"}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium">{stats.readingTime}</span>
-          <span>{stats.readingTime === 1 ? "minute" : "minutes"} read</span>
-        </div>
+        <span>{t("notes.wordCount", { count: stats.wordCount })}</span>
+        <span>{t("notes.charCount", { count: stats.charCount })}</span>
+        <span>{t("notes.readingTime", { count: stats.readingTime })}</span>
       </div>
     </div>
   );

@@ -243,7 +243,8 @@
     "copiedToClipboard": "De' lI'lu'pu'",
     "offline": "Offline",
     "connected": "Connected",
-    "reconnecting": "Reconnecting..."
+    "reconnecting": "Reconnecting...",
+    "hide": "So'"
   },
   "history": {
     "noteHistory": "ghItlh Qu' tetlh",
@@ -403,7 +404,12 @@
     "updateNote": "ghItlh yIchoH",
     "tags": "meq",
     "noTagsFound": "meqmey tu'be'lu'",
-    "searchTags": "meqmey yInej..."
+    "searchTags": "meqmey yInej...",
+    "printSaveAsPdf": "nagh / PDF rur pol",
+    "tableOfContents": "De'wI' tetlh",
+    "wordCount": "{count, plural, one {# mu'} other {# mu'mey}}",
+    "charCount": "{count, plural, one {# Degh} other {# Deghmey}}",
+    "readingTime": "{count, plural, one {# tup laD} other {# tupmey laD}}"
   },
   "checklists": {
     "title": "tetlhmey",
