@@ -95,7 +95,7 @@ export const DropdownMenu = ({
       {isOpen && (
         <div
           className={cn(
-            "absolute w-56 bg-background border border-border rounded-jotty shadow-lg z-50 py-1",
+            "absolute min-w-56 w-fit bg-background border border-border rounded-jotty shadow-lg z-50 py-1",
             openUpward ? "bottom-full mb-1" : "top-full mt-1",
             align === "right" ? "right-0" : "left-0"
           )}

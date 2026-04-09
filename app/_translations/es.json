@@ -240,7 +240,12 @@
     "copiedToClipboard": "Copiado al portapapeles",
     "offline": "Desconectado",
     "connected": "Conectado",
-    "reconnecting": "Reconectando..."
+    "reconnecting": "Reconectando...",
+    "hide": "Ocultar",
+    "disable": "Desactivar",
+    "history": "Historial",
+    "items": "Elementos",
+    "noResults": "Sin resultados"
   },
   "auth": {
     "loginTitle": "Iniciar sesión",
@@ -274,7 +279,8 @@
     "version": "Versión {version}",
     "createUser": "Crear usuario",
     "attemptsRemaining": "Advertencia: {count, plural, one {# intento} other {# intentos}} restantes antes del bloqueo de cuenta",
-    "accountLocked": "Demasiados intentos fallidos. Por favor, inténtelo de nuevo en {seconds} {seconds, plural, one {segundo} other {segundos}}"
+    "accountLocked": "Demasiados intentos fallidos. Por favor, inténtelo de nuevo en {seconds} {seconds, plural, one {segundo} other {segundos}}",
+    "notAuthorized": "No estás autorizado para acceder a esta aplicación. Ponte en contacto con tu administrador."
   },
   "mfa": {
     "title": "Autenticación de dos factores",
@@ -374,7 +380,12 @@
     "tags": "Etiquetas",
     "noTagsFound": "No se encontraron etiquetas",
     "searchTags": "Buscar etiquetas...",
-    "copyRawContent": "Copiar markdown"
+    "copyRawContent": "Copiar markdown",
+    "printSaveAsPdf": "Imprimir / Guardar como PDF",
+    "tableOfContents": "Tabla de contenidos",
+    "wordCount": "{count, plural, one {# palabra} other {# palabras}}",
+    "charCount": "{count, plural, one {# carácter} other {# caracteres}}",
+    "readingTime": "{count, plural, one {# minuto de lectura} other {# minutos de lectura}}"
   },
   "checklists": {
     "title": "Listas",
@@ -485,7 +496,9 @@
     "noTasks": "Sin tareas",
     "noSubtasksYet": "Aún no hay subtareas. Agregue una abajo para comenzar.",
     "addTime": "Agregar hora",
-    "enterTimeInMinutes": "Ingresa tu tiempo en minutos"
+    "enterTimeInMinutes": "Ingresa tu tiempo en minutos",
+    "convertToKanbanBoard": "Convertir en tablero Kanban",
+    "kanbanBoard": "Tablero Kanban"
   },
   "tasks": {
     "title": "Tareas",
@@ -527,6 +540,66 @@
     "customizeStatuses": "Personalice los estados para este tablero Kanban. Agregue, elimine o reordene estados.",
     "addStatus": "Agregar estado",
     "autoComplete": "Autocompletar"
+  },
+  "kanban": {
+    "priority": "Prioridad",
+    "score": "Puntuación",
+    "assignee": "Asignado a",
+    "reminder": "Recordatorio",
+    "usernamePlaceholder": "nombre de usuario",
+    "scoreLabel": "Puntuación: {score}",
+    "today": "Hoy",
+    "exportIcs": "Exportar .ics",
+    "unscheduled": "Sin programar ({count})",
+    "moreEvents": "+{count} más",
+    "critical": "Crítico",
+    "high": "Alto",
+    "medium": "Medio",
+    "low": "Bajo",
+    "none": "Ninguno",
+    "weekdaysSun": "Dom",
+    "weekdaysMon": "Lun",
+    "weekdaysTue": "Mar",
+    "weekdaysWed": "Mié",
+    "weekdaysThu": "Jue",
+    "weekdaysFri": "Vie",
+    "weekdaysSat": "Sáb",
+    "title": "Kanban",
+    "calendar": "Calendario",
+    "boards": "Tableros",
+    "addItem": "Añadir elemento",
+    "itemTitle": "Título del elemento",
+    "manageStatuses": "Gestionar estados",
+    "viewArchived": "Ver archivados",
+    "noBoards": "No se encontraron tableros",
+    "noBoardsYet": "Aún no hay tableros Kanban",
+    "createFirstBoard": "Cree su primer tablero Kanban para empezar a gestionar sus proyectos.",
+    "newBoard": "Nuevo tablero",
+    "tryAdjustingFilters": "Pruebe a ajustar los filtros o crear un nuevo tablero.",
+    "completed": "Completado",
+    "todo": "Por hacer",
+    "inProgress": "En progreso",
+    "recentBoards": "Tableros recientes",
+    "showAllBoards": "Mostrar todos los tableros",
+    "unassigned": "Sin asignar",
+    "targetDate": "Fecha objetivo",
+    "statusUpdated": "Estado actualizado",
+    "itemArchived": "Elemento archivado",
+    "itemDeleted": "Elemento eliminado",
+    "estimatedTime": "Tiempo estimado (horas)",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "Tempo",
+    "noItemsFound": "Ningún elemento coincide con los filtros actuales",
+    "searchPlaceholder": "Buscar elementos...",
+    "allPriorities": "Todas las prioridades",
+    "allAssignees": "Todos los asignados",
+    "timeEntries": "Registros de tiempo",
+    "noTimeEntries": "Aún no hay registros de tiempo",
+    "editSessions": "Editar sesiones",
+    "session": "sesión",
+    "sessions": "sesiones",
+    "startTime": "Inicio",
+    "endTime": "Fin"
   },
   "profile": {
     "userProfile": "Usuario",
@@ -936,7 +1009,13 @@
     "updatingTags": "Actualizando...",
     "updateTagsTitle": "Escanear notas en busca de hashtags y actualizar frontmatter",
     "tagsUpdated": "{processed} archivos procesados, {updated} actualizados con nuevas etiquetas",
-    "failedToUpdateTags": "Error al actualizar las etiquetas"
+    "failedToUpdateTags": "Error al actualizar las etiquetas",
+    "historyEnabled": "Historial de notas",
+    "historyDescription": "Registra el historial de versiones de las notas. Permite restaurar versiones anteriores. Solo los guardados manuales crean puntos de historial (no el autoguardado).",
+    "disableHistory": "Desactivar historial",
+    "disableHistoryWarning": "Al desactivar el historial se borrarán permanentemente todas las versiones guardadas de todos los usuarios. No se puede deshacer.",
+    "historyDisabled": "El historial de notas se desactivó y se eliminaron todos los datos de historial.",
+    "failedToDisableHistory": "No se pudo desactivar el historial"
   },
   "errors": {
     "notFound": "No encontrado",
@@ -1133,7 +1212,14 @@
     "excalidrawDescription": "Editor de diagramas tipo boceto",
     "noLanguagesFound": "No se encontraron idiomas",
     "ruler": "Gobernante",
-    "lineNumbers": "Números de línea"
+    "lineNumbers": "Números de línea",
+    "callout": "Aviso",
+    "createCallout": "Crear un bloque de aviso",
+    "changeCalloutType": "Cambiar tipo de aviso",
+    "calloutInfo": "Información",
+    "calloutWarning": "Advertencia",
+    "calloutSuccess": "Éxito",
+    "calloutDanger": "Peligro"
   },
   "sharing": {
     "share": "Compartir",
@@ -1319,7 +1405,8 @@
     "invalidPrivateKeyFormat": "Formato de clave privada inválido. Debe ser una clave PGP ASCII-armada.",
     "keysImportedSuccessfully": "Claves importadas exitosamente",
     "failedToImportKeys": "Error al importar claves",
-    "created": "Cifrado creado"
+    "created": "Cifrado creado",
+    "decrypted": "Descifrado"
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Estas opciones solo se aplican a la sesión actual del navegador. Para configuraciones permanentes, por favor revise sus",
@@ -1505,5 +1592,18 @@
     "actionDelete": "Eliminado",
     "actionInit": "Inicializado",
     "actionUnknown": "Cambiado"
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "markAllRead": "Marcar todo como leído",
+    "clearAll": "Borrar todo",
+    "empty": "Sin notificaciones",
+    "assignmentTitle": "Tarea asignada a ti",
+    "assignmentMessage": "\"{task}\" en \"{board}\"",
+    "reminderTitle": "Tarea vencida",
+    "reminderMessage": "\"{task}\" en \"{board}\" ya pasó su recordatorio",
+    "unread": "sin leer",
+    "sharingTitle": "{user} compartió un {type} contigo",
+    "sharingMessage": "Abre para ver el {type} compartido"
   }
 }

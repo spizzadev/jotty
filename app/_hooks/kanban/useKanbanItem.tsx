@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { Item, Checklist } from "@/app/_types";
+import { Item, Checklist, KanbanPriority, KanbanReminder } from "@/app/_types";
 import {
   updateItem,
   deleteItem,
@@ -10,6 +10,10 @@ import {
   archiveItem,
 } from "@/app/_server/actions/checklist-item";
 import { ConfirmModal } from "@/app/_components/GlobalComponents/Modals/ConfirmationModals/ConfirmModal";
+import { useToast } from "@/app/_providers/ToastProvider";
+
+const TIMER_STORAGE_KEY = (checklistId: string, itemId: string) =>
+  `jotty-timer-${checklistId}-${itemId}`;
 
 interface UseKanbanItemProps {
   item: Item;
@@ -27,6 +31,7 @@ export const useKanbanItem = ({
   onUpdate,
 }: UseKanbanItemProps) => {
   const t = useTranslations();
+  const { showToast } = useToast();
   const [isRunning, setIsRunning] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
@@ -50,6 +55,33 @@ export const useKanbanItem = ({
   }, [item.timeEntries]);
 
   useEffect(() => {
+    const storageKey = TIMER_STORAGE_KEY(checklistId, item.id);
+    try {
+      const stored = localStorage.getItem(storageKey);
+      if (stored) {
+        const { startTime: storedStart, isRunning: storedRunning } = JSON.parse(stored);
+        if (storedRunning && storedStart) {
+          setStartTime(new Date(storedStart));
+          setIsRunning(true);
+          setCurrentTime(Math.floor((Date.now() - new Date(storedStart).getTime()) / 1000));
+        }
+      }
+    } catch {}
+  }, [checklistId, item.id]);
+
+  useEffect(() => {
+    const storageKey = TIMER_STORAGE_KEY(checklistId, item.id);
+    if (isRunning && startTime) {
+      localStorage.setItem(storageKey, JSON.stringify({
+        startTime: startTime.toISOString(),
+        isRunning: true,
+      }));
+    } else {
+      localStorage.removeItem(storageKey);
+    }
+  }, [isRunning, startTime, checklistId, item.id]);
+
+  useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isRunning && startTime) {
       interval = setInterval(() => {
@@ -66,7 +98,7 @@ export const useKanbanItem = ({
     }
   }, [isEditing]);
 
-  const saveTimerEntry = async (start: Date, end: Date) => {
+  const _saveTimerEntry = async (start: Date, end: Date) => {
     const newTimeEntry = {
       id: Date.now().toString(),
       startTime: start.toISOString(),
@@ -93,12 +125,12 @@ export const useKanbanItem = ({
     return result;
   };
 
-  const handleTimerToggle = async () => {
+  function handleTimerToggle() {
     if (isRunning) {
       setIsRunning(false);
       if (startTime) {
         const endTime = new Date();
-        await saveTimerEntry(startTime, endTime);
+        _saveTimerEntry(startTime, endTime);
       }
       setStartTime(null);
       setCurrentTime(0);
@@ -107,20 +139,7 @@ export const useKanbanItem = ({
       setStartTime(new Date());
       setCurrentTime(0);
     }
-  };
-
-  const handleResetTimer = async () => {
-    const formData = new FormData();
-    formData.append("listId", checklistId);
-    formData.append("itemId", item.id);
-    formData.append("timeEntries", JSON.stringify([]));
-    formData.append("category", category || "Uncategorized");
-    const result = await updateItemStatus(formData);
-    setTotalTime(0);
-    if (result.success && result.data) {
-      onUpdate(result.data as Checklist);
-    }
-  };
+  }
 
   const handleAddManualTime = async (minutes: number) => {
     const now = new Date();
@@ -148,17 +167,17 @@ export const useKanbanItem = ({
   const stopTimerOnDrag = async () => {
     if (isRunning && startTime) {
       const endTime = new Date();
-      await saveTimerEntry(startTime, endTime);
+      await _saveTimerEntry(startTime, endTime);
       setIsRunning(false);
       setStartTime(null);
       setCurrentTime(0);
     }
   };
 
-  const handleEdit = () => {
+  function handleEdit() {
     setIsEditing(true);
     setEditText(item.text);
-  };
+  }
 
   const handleSave = async () => {
     setIsEditing(false);
@@ -176,12 +195,12 @@ export const useKanbanItem = ({
     }
   };
 
-  const handleCancel = () => {
+  function handleCancel() {
     setEditText(item.text);
     setIsEditing(false);
-  };
+  }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter") {
       e.preventDefault();
       e.stopPropagation();
@@ -191,7 +210,7 @@ export const useKanbanItem = ({
       e.stopPropagation();
       handleCancel();
     }
-  };
+  }
 
   const handleStatusChange = async (newStatus: string) => {
     const formData = new FormData();
@@ -202,10 +221,59 @@ export const useKanbanItem = ({
     const result = await updateItemStatus(formData);
     if (result.success && result.data) {
       onUpdate(result.data as Checklist);
+      showToast({ type: "success", title: t("common.success"), message: t("kanban.statusUpdated") });
     }
   };
 
-  const confirmDelete = async () => {
+  const handlePriorityChange = async (priority: KanbanPriority) => {
+    const formData = new FormData();
+    formData.append("listId", checklistId);
+    formData.append("itemId", item.id);
+    formData.append("priority", priority);
+    formData.append("category", category || "Uncategorized");
+    const result = await updateItem(checklist, formData);
+    if (result.success && result.data) {
+      onUpdate(result.data as Checklist);
+    }
+  };
+
+  const handleScoreChange = async (score: number) => {
+    const formData = new FormData();
+    formData.append("listId", checklistId);
+    formData.append("itemId", item.id);
+    formData.append("score", score.toString());
+    formData.append("category", category || "Uncategorized");
+    const result = await updateItem(checklist, formData);
+    if (result.success && result.data) {
+      onUpdate(result.data as Checklist);
+    }
+  };
+
+  const handleAssigneeChange = async (assignee: string) => {
+    const formData = new FormData();
+    formData.append("listId", checklistId);
+    formData.append("itemId", item.id);
+    formData.append("assignee", assignee);
+    formData.append("category", category || "Uncategorized");
+    const result = await updateItem(checklist, formData);
+    if (result.success && result.data) {
+      onUpdate(result.data as Checklist);
+    }
+  };
+
+  const handleReminderSet = async (reminder: KanbanReminder | null) => {
+    const formData = new FormData();
+    formData.append("listId", checklistId);
+    formData.append("itemId", item.id);
+    formData.append("reminder", reminder ? JSON.stringify(reminder) : "");
+    formData.append("category", category || "Uncategorized");
+    const result = await updateItem(checklist, formData);
+    if (result.success && result.data) {
+      onUpdate(result.data as Checklist);
+    }
+  };
+
+  const _confirmDelete = async () => {
     const formData = new FormData();
     formData.append("listId", checklistId);
     formData.append("itemId", item.id);
@@ -213,10 +281,11 @@ export const useKanbanItem = ({
 
     const result = await deleteItem(formData);
     if (result.success) {
+      showToast({ type: "success", title: t("common.success"), message: t("kanban.itemDeleted") });
       onUpdate({
         id: checklistId,
         title: "",
-        type: "task",
+        type: "kanban",
         items: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -236,6 +305,7 @@ export const useKanbanItem = ({
     const result = await archiveItem(formData);
     if (result.success && result.data) {
       onUpdate(result.data as Checklist);
+      showToast({ type: "success", title: t("common.success"), message: t("kanban.itemArchived") });
     }
   };
 
@@ -244,7 +314,6 @@ export const useKanbanItem = ({
     currentTime,
     totalTime,
     handleTimerToggle,
-    handleResetTimer,
     handleAddManualTime,
     stopTimerOnDrag,
     isEditing,
@@ -256,13 +325,17 @@ export const useKanbanItem = ({
     handleCancel,
     handleKeyDown,
     handleStatusChange,
+    handlePriorityChange,
+    handleScoreChange,
+    handleAssigneeChange,
+    handleReminderSet,
     handleDelete: () => setShowDeleteModal(true),
     handleArchive,
     DeleteModal: () => (
       <ConfirmModal
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
+        onConfirm={_confirmDelete}
         title={t("common.delete")}
         message={t("common.confirmDeleteItem", { itemTitle: item.text })}
         confirmText={t("common.delete")}
