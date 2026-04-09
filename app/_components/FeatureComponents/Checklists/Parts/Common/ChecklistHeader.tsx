@@ -194,7 +194,7 @@ export const ChecklistHeader = ({
                     ? [
                       {
                         type: "item" as const,
-                        label: "Clone",
+                        label: t("common.clone"),
                         icon: <Copy02Icon className="h-4 w-4" />,
                         onClick: onClone,
                       },

@@ -243,7 +243,8 @@
     "copiedToClipboard": "Scribed to hook",
     "offline": "Offline",
     "connected": "Connected",
-    "reconnecting": "Reconnecting..."
+    "reconnecting": "Reconnecting...",
+    "hide": "Stow away"
   },
   "history": {
     "noteHistory": "Log History",
@@ -403,7 +404,12 @@
     "updateNote": "Overhaul Log",
     "tags": "Flags",
     "noTagsFound": "No flags hoist",
-    "searchTags": "Spy for flags..."
+    "searchTags": "Spy for flags...",
+    "printSaveAsPdf": "Print / Save as treasure map",
+    "tableOfContents": "Ship's manifest",
+    "wordCount": "{count, plural, one {# word} other {# words}}",
+    "charCount": "{count, plural, one {# character} other {# characters}}",
+    "readingTime": "{count, plural, one {# minute o' readin'} other {# minutes o' readin'}}"
   },
   "checklists": {
     "title": "Manifests",

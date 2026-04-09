@@ -532,7 +532,7 @@ export const NoteEditorHeader = ({
                         ? [
                           {
                             type: "item" as const,
-                            label: "Clone",
+                            label: t("common.clone"),
                             icon: <Copy02Icon className="h-4 w-4" />,
                             onClick: onClone,
                           },
@@ -544,7 +544,7 @@ export const NoteEditorHeader = ({
                             type: "item" as const,
                             label: !isInViewMode
                               ? t("settings.view")
-                              : "Hide",
+                              : t("common.hide"),
                             icon: !isInViewMode ? (
                               <ViewIcon className="h-4 w-4" />
                             ) : (
@@ -604,7 +604,7 @@ export const NoteEditorHeader = ({
                       },
                       {
                         type: "item" as const,
-                        label: "Print / Save as PDF",
+                        label: t("notes.printSaveAsPdf"),
                         icon: isPrinting ? (
                           <Orbit01Icon className="h-4 w-4 animate-spin" />
                         ) : (
@@ -624,7 +624,7 @@ export const NoteEditorHeader = ({
                         : []),
                       {
                         type: "item" as const,
-                        label: "Table of Contents",
+                        label: t("notes.tableOfContents"),
                         icon: <SidebarRightIcon className="h-4 w-4" />,
                         onClick: () => setShowTOC(!showTOC),
                         className: "hidden lg:flex",

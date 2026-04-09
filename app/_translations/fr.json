@@ -240,7 +240,8 @@
     "copiedToClipboard": "Copié dans le presse-papiers",
     "offline": "Hors ligne",
     "connected": "Connecté",
-    "reconnecting": "Reconnexion..."
+    "reconnecting": "Reconnexion...",
+    "hide": "Masquer"
   },
   "auth": {
     "loginTitle": "Connexion",
@@ -374,7 +375,12 @@
     "tags": "Tags",
     "noTagsFound": "Aucun tag trouvé",
     "searchTags": "Rechercher des tags...",
-    "copyRawContent": "Copier markdown"
+    "copyRawContent": "Copier markdown",
+    "printSaveAsPdf": "Imprimer / Enregistrer en PDF",
+    "tableOfContents": "Table des matières",
+    "wordCount": "{count, plural, one {# mot} other {# mots}}",
+    "charCount": "{count, plural, one {# caractère} other {# caractères}}",
+    "readingTime": "{count, plural, one {# minute de lecture} other {# minutes de lecture}}"
   },
   "checklists": {
     "title": "Listes",

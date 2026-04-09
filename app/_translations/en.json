@@ -244,7 +244,8 @@
     "copiedToClipboard": "Copied to clipboard",
     "offline": "Offline",
     "connected": "Connected",
-    "reconnecting": "Reconnecting..."
+    "reconnecting": "Reconnecting...",
+    "hide": "Hide"
   },
   "history": {
     "noteHistory": "Note History",
@@ -402,6 +403,11 @@
     "unarchiveNote": "Unarchive Note",
     "enterNoteName": "Enter note name...",
     "updateNote": "Update Note",
+    "printSaveAsPdf": "Print / Save as PDF",
+    "tableOfContents": "Table of Contents",
+    "wordCount": "{count, plural, one {# word} other {# words}}",
+    "charCount": "{count, plural, one {# character} other {# characters}}",
+    "readingTime": "{count, plural, one {# minute read} other {# minutes read}}",
     "tags": "Tags",
     "noTagsFound": "No tags found",
     "searchTags": "Search tags..."

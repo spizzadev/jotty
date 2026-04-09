@@ -243,7 +243,8 @@
     "copiedToClipboard": "已复制到剪贴板",
     "offline": "离线",
     "connected": "已连接",
-    "reconnecting": "正在重新连接..."
+    "reconnecting": "正在重新连接...",
+    "hide": "隐藏"
   },
   "history": {
     "noteHistory": "笔记历史",
@@ -403,7 +404,12 @@
     "tags": "标签",
     "noTagsFound": "未找到标签",
     "searchTags": "搜索标签...",
-    "copyRawContent": "复制降价"
+    "copyRawContent": "复制降价",
+    "printSaveAsPdf": "打印 / 另存为PDF",
+    "tableOfContents": "目录",
+    "wordCount": "{count, plural, one {# 个字} other {# 个字}}",
+    "charCount": "{count, plural, one {# 个字符} other {# 个字符}}",
+    "readingTime": "{count, plural, one {# 分钟阅读} other {# 分钟阅读}}"
   },
   "checklists": {
     "title": "清单",

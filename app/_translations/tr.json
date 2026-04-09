@@ -240,7 +240,8 @@
     "disable": "Devre Dışı Bırak",
     "restoring": "Geri yükleniyor...",
     "retry": "Tekrar Dene",
-    "copiedToClipboard": "Panoya kopyalandı"
+    "copiedToClipboard": "Panoya kopyalandı",
+    "hide": "Gizle"
   },
   "history": {
     "noteHistory": "Not Geçmişi",
@@ -400,7 +401,12 @@
     "updateNote": "Notu Güncelle",
     "tags": "Etiketler",
     "noTagsFound": "Etiket bulunamadı",
-    "searchTags": "Etiketlerde ara..."
+    "searchTags": "Etiketlerde ara...",
+    "printSaveAsPdf": "Yazdır / PDF olarak kaydet",
+    "tableOfContents": "İçindekiler",
+    "wordCount": "{count, plural, one {# kelime} other {# kelime}}",
+    "charCount": "{count, plural, one {# karakter} other {# karakter}}",
+    "readingTime": "{count, plural, one {# dakika okuma} other {# dakika okuma}}"
   },
   "checklists": {
     "title": "Listeleri",
