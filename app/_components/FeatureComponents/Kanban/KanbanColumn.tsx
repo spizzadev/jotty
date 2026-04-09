@@ -7,10 +7,11 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Item, Checklist, KanbanStatus } from "@/app/_types";
-import { KanbanItem } from "./KanbanItem";
+import { KanbanCard } from "./KanbanCard";
 import { cn } from "@/app/_utils/global-utils";
 import { TaskStatus } from "@/app/_types/enums";
 import { useTranslations } from "next-intl";
+import { TaskDaily01Icon } from "hugeicons-react";
 
 interface KanbanColumnProps {
   checklist: Checklist;
@@ -57,7 +58,7 @@ const KanbanColumnComponent = ({
   const color = statusColor || defaultColors[status] || "#6b7280";
 
   const { borderColor, bgColor } = useMemo(() => {
-    const hexToRgb = (hex: string) => {
+    const _hexToRgb = (hex: string) => {
       const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
       return result
         ? {
@@ -68,7 +69,7 @@ const KanbanColumnComponent = ({
         : null;
     };
 
-    const rgb = hexToRgb(color);
+    const rgb = _hexToRgb(color);
     return {
       borderColor: rgb ? `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.3)` : color,
       bgColor: rgb ? `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)` : color,
@@ -76,25 +77,26 @@ const KanbanColumnComponent = ({
   }, [color]);
 
   return (
-    <div className="flex flex-col h-full my-4 lg:my-0">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
+    <div className="flex flex-col h-full my-4 lg:my-0 min-w-0">
+      <div className="flex items-center justify-between mb-3 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 overflow-hidden">
           <div
-            className="w-3 h-3 rounded-full"
+            className="w-3 h-3 rounded-full shrink-0"
             style={{ backgroundColor: color }}
           />
-          <h3 className="font-medium text-md lg:text-sm text-foreground">{title}</h3>
+          <h3 className="font-medium text-md lg:text-sm text-foreground truncate">{title}</h3>
         </div>
-        <span className="text-md lg:text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+        <span className="text-md lg:text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full shrink-0">
           {items.length}
         </span>
       </div>
 
       <div
         ref={setNodeRef}
+        aria-label={`${title} column`}
         className={cn(
-          "flex-1 rounded-jotty border-2 border-dashed p-3 min-h-[200px] transition-colors",
-          isOver && "border-primary bg-primary/5"
+          "flex-1 min-w-0 rounded-jotty border-2 border-dashed p-3 min-h-[200px] transition-colors duration-200",
+          isOver && "border-primary/70 bg-primary/10 shadow-md"
         )}
         style={{
           borderColor: isOver ? undefined : borderColor,
@@ -107,7 +109,7 @@ const KanbanColumnComponent = ({
         >
           <div className="space-y-2">
             {items.map((item) => (
-              <KanbanItem
+              <KanbanCard
                 checklist={checklist}
                 key={item.id}
                 item={item}
@@ -116,11 +118,13 @@ const KanbanColumnComponent = ({
                 onUpdate={onUpdate}
                 isShared={isShared}
                 statuses={statuses}
+                statusColor={statusColor}
               />
             ))}
             {items.length === 0 && (
-              <div className="text-center text-muted-foreground text-md lg:text-sm py-8">
-                {t('checklists.noTasks')}
+              <div className="flex flex-col items-center justify-center text-muted-foreground/50 py-8 gap-2">
+                <TaskDaily01Icon className="h-8 w-8" />
+                <span className="text-md lg:text-sm">{t('checklists.noTasks')}</span>
               </div>
             )}
           </div>
