@@ -245,7 +245,8 @@
     "connected": "Connected",
     "reconnecting": "Reconnecting...",
     "hide": "So'",
-    "items": "chelmey"
+    "items": "chelmey",
+    "thisEntry": "this entry"
   },
   "history": {
     "noteHistory": "ghItlh Qu' tetlh",

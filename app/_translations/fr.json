@@ -245,7 +245,8 @@
     "disable": "Désactiver",
     "history": "Historique",
     "items": "Éléments",
-    "noResults": "Aucun résultat"
+    "noResults": "Aucun résultat",
+    "thisEntry": "cette entrée"
   },
   "auth": {
     "loginTitle": "Connexion",

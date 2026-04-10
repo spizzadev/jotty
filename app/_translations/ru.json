@@ -245,7 +245,8 @@
     "offline": "Не в сети",
     "connected": "Подключено",
     "reconnecting": "Переподключение...",
-    "items": "Элементы"
+    "items": "Элементы",
+    "thisEntry": "эта запись"
   },
   "history": {
     "noteHistory": "История заметки",

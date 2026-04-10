@@ -245,7 +245,8 @@
     "connected": "Connected",
     "reconnecting": "Reconnecting...",
     "hide": "Stow away",
-    "items": "Cargo bits"
+    "items": "Cargo bits",
+    "thisEntry": "this entry"
   },
   "history": {
     "noteHistory": "Log History",

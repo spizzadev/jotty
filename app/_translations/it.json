@@ -245,7 +245,8 @@
     "disable": "Disattiva",
     "history": "Cronologia",
     "items": "Elementi",
-    "noResults": "Nessun risultato"
+    "noResults": "Nessun risultato",
+    "thisEntry": "questa voce"
   },
   "auth": {
     "loginTitle": "Accedi",

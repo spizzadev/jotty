@@ -29,7 +29,7 @@ export async function PUT(
       }
 
       const formData = new FormData();
-      formData.append("listId", board.id);
+      formData.append("listId", board.uuid || board.id);
       formData.append("itemId", params.itemId);
       formData.append("assignee", assignee || "");
       formData.append("category", board.category || "Uncategorized");

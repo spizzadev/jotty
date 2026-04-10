@@ -38,9 +38,16 @@ const _formatDuration = (seconds: number): string => {
   return `${pad(h)}:${pad(m)}:${pad(s)}`;
 };
 
-const _getUserAvatarUrl = (username: string, usersPublicData?: { username?: string; avatarUrl?: string }[]): string => {
+const _getUserAvatarUrl = (
+  username: string,
+  usersPublicData?: { username?: string; avatarUrl?: string }[],
+): string => {
   if (!usersPublicData) return "";
-  return usersPublicData.find((u) => u.username?.toLowerCase() === username?.toLowerCase())?.avatarUrl || "";
+  return (
+    usersPublicData.find(
+      (u) => u.username?.toLowerCase() === username?.toLowerCase(),
+    )?.avatarUrl || ""
+  );
 };
 
 interface EditingState {
@@ -64,7 +71,10 @@ const TimeEntriesModalComponent = ({
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const totalSeconds = timeEntries.reduce((sum, e) => sum + (e.duration || 0), 0);
+  const totalSeconds = timeEntries.reduce(
+    (sum, e) => sum + (e.duration || 0),
+    0,
+  );
 
   const handleStartEdit = (entry: TimeEntry) => {
     setEditing({
@@ -82,12 +92,17 @@ const TimeEntriesModalComponent = ({
     formData.append("itemId", itemId);
     formData.append("entryId", editing.entryId);
     formData.append("category", category);
-    if (editing.startTime) formData.append("startTime", new Date(editing.startTime).toISOString());
+    if (editing.startTime)
+      formData.append("startTime", new Date(editing.startTime).toISOString());
     if (editing.endTime) {
       formData.append("endTime", new Date(editing.endTime).toISOString());
       const start = new Date(editing.startTime).getTime();
       const end = new Date(editing.endTime).getTime();
-      if (end > start) formData.append("duration", Math.floor((end - start) / 1000).toString());
+      if (end > start)
+        formData.append(
+          "duration",
+          Math.floor((end - start) / 1000).toString(),
+        );
     }
     const result = await editTimeEntry(formData);
     if (result.success && result.data) {
@@ -114,7 +129,7 @@ const TimeEntriesModalComponent = ({
   };
 
   const sorted = [...timeEntries].sort(
-    (a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+    (a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime(),
   );
 
   return (
@@ -127,8 +142,13 @@ const TimeEntriesModalComponent = ({
       >
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm text-muted-foreground border-b border-border pb-3">
-            <span>{sorted.length} {sorted.length === 1 ? t("kanban.session") : t("kanban.sessions")}</span>
-            <span className="font-semibold text-foreground">{_formatDuration(totalSeconds)}</span>
+            <span>
+              {sorted.length}{" "}
+              {sorted.length === 1 ? t("kanban.session") : t("kanban.sessions")}
+            </span>
+            <span className="font-semibold text-foreground">
+              {_formatDuration(totalSeconds)}
+            </span>
           </div>
 
           <div className="space-y-2 max-h-[55vh] overflow-y-auto">
@@ -149,7 +169,9 @@ const TimeEntriesModalComponent = ({
                           </label>
                           <DateTimePicker
                             value={editing.startTime}
-                            onChange={(v) => setEditing({ ...editing, startTime: v })}
+                            onChange={(v) =>
+                              setEditing({ ...editing, startTime: v })
+                            }
                           />
                         </div>
                         <div>
@@ -158,14 +180,23 @@ const TimeEntriesModalComponent = ({
                           </label>
                           <DateTimePicker
                             value={editing.endTime}
-                            onChange={(v) => setEditing({ ...editing, endTime: v })}
+                            onChange={(v) =>
+                              setEditing({ ...editing, endTime: v })
+                            }
                           />
                         </div>
                       </div>
                       {editing.startTime && editing.endTime && (
                         <div className="text-xs text-muted-foreground">
                           {_formatDuration(
-                            Math.max(0, Math.floor((new Date(editing.endTime).getTime() - new Date(editing.startTime).getTime()) / 1000))
+                            Math.max(
+                              0,
+                              Math.floor(
+                                (new Date(editing.endTime).getTime() -
+                                  new Date(editing.startTime).getTime()) /
+                                  1000,
+                              ),
+                            ),
                           )}
                         </div>
                       )}
@@ -198,7 +229,10 @@ const TimeEntriesModalComponent = ({
                         <UserAvatar
                           username={entry.user}
                           size="xs"
-                          avatarUrl={_getUserAvatarUrl(entry.user, usersPublicData)}
+                          avatarUrl={_getUserAvatarUrl(
+                            entry.user,
+                            usersPublicData,
+                          )}
                         />
                       )}
                       <div className="flex-1 min-w-0">
@@ -207,35 +241,48 @@ const TimeEntriesModalComponent = ({
                             {_formatDuration(entry.duration || 0)}
                           </span>
                           {entry.user && (
-                            <span className="text-xs text-muted-foreground">{entry.user}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {entry.user}
+                            </span>
                           )}
                         </div>
                         <div className="text-xs text-muted-foreground mt-0.5">
-                          {new Date(entry.startTime).toLocaleDateString(undefined, {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                          {" "}
-                          {new Date(entry.startTime).toLocaleTimeString(undefined, {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                          })}
+                          {new Date(entry.startTime).toLocaleDateString(
+                            undefined,
+                            {
+                              weekday: "short",
+                              month: "short",
+                              day: "numeric",
+                            },
+                          )}{" "}
+                          {new Date(entry.startTime).toLocaleTimeString(
+                            undefined,
+                            {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                              second: "2-digit",
+                            },
+                          )}
                           {entry.endTime && (
                             <>
                               {" → "}
-                              {new Date(entry.endTime).toLocaleTimeString(undefined, {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                second: "2-digit",
-                              })}
+                              {new Date(entry.endTime).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                  second: "2-digit",
+                                },
+                              )}
                             </>
                           )}
                         </div>
                       </div>
                       <button
-                        onClick={(e) => { e.stopPropagation(); setDeleteTarget(entry.id); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteTarget(entry.id);
+                        }}
                         className="p-1.5 rounded-jotty hover:bg-destructive/10 transition-colors shrink-0"
                       >
                         <Delete03Icon className="h-4 w-4 text-muted-foreground hover:text-destructive" />
@@ -260,7 +307,9 @@ const TimeEntriesModalComponent = ({
         onClose={() => setDeleteTarget(null)}
         onConfirm={handleDelete}
         title={t("common.delete")}
-        message={t("common.confirmDelete")}
+        message={t("common.confirmDeleteItem", {
+          itemTitle: t("common.thisEntry"),
+        })}
         confirmText={t("common.delete")}
         variant="destructive"
       />

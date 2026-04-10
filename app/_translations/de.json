@@ -245,7 +245,8 @@
     "continue": "Weiter",
     "history": "Verlauf",
     "disable": "Deaktivieren",
-    "items": "Elemente"
+    "items": "Elemente",
+    "thisEntry": "diesen Eintrag"
   },
   "auth": {
     "loginTitle": "Anmelden",

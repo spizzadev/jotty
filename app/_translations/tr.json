@@ -245,7 +245,8 @@
     "items": "Öğeler",
     "connected": "Bağlı",
     "offline": "Çevrimdışı",
-    "reconnecting": "Yeniden bağlanıyor..."
+    "reconnecting": "Yeniden bağlanıyor...",
+    "thisEntry": "bu giriş"
   },
   "history": {
     "noteHistory": "Not Geçmişi",

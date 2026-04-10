@@ -245,7 +245,8 @@
     "disable": "Desactivar",
     "history": "Historial",
     "items": "Elementos",
-    "noResults": "Sin resultados"
+    "noResults": "Sin resultados",
+    "thisEntry": "esta entrada"
   },
   "auth": {
     "loginTitle": "Iniciar sesión",

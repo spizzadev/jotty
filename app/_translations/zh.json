@@ -245,7 +245,8 @@
     "connected": "已连接",
     "reconnecting": "正在重新连接...",
     "hide": "隐藏",
-    "items": "项目"
+    "items": "项目",
+    "thisEntry": "这个条目"
   },
   "history": {
     "noteHistory": "笔记历史",

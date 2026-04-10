@@ -245,7 +245,8 @@
     "clone": "복제",
     "cloneItem": "{item} 복제",
     "selectCategoryForClone": "이 항목을 복사할 카테고리를 선택하세요:",
-    "copiedToClipboard": "클립보드에 복사됨"
+    "copiedToClipboard": "클립보드에 복사됨",
+    "thisEntry": "이 항목"
   },
   "history": {
     "noteHistory": "노트 기록",

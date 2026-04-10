@@ -245,7 +245,8 @@
     "hide": "Ukryj",
     "disable": "Wyłącz",
     "history": "Historia",
-    "items": "Elementy"
+    "items": "Elementy",
+    "thisEntry": "ten wpis"
   },
   "auth": {
     "loginTitle": "Logowanie",

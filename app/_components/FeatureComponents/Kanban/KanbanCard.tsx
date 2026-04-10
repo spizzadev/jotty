@@ -122,7 +122,7 @@ const KanbanCardComponent = ({
           isOpen={showTimeEntriesModal}
           onClose={() => setShowTimeEntriesModal(false)}
           timeEntries={item.timeEntries}
-          checklistId={checklistId}
+          checklistId={checklist.uuid || checklistId}
           itemId={item.id}
           category={category}
           onUpdate={onUpdate}

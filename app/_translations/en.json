@@ -245,7 +245,8 @@
     "offline": "Offline",
     "connected": "Connected",
     "reconnecting": "Reconnecting...",
-    "hide": "Hide"
+    "hide": "Hide",
+    "thisEntry": "this entry"
   },
   "history": {
     "noteHistory": "Note History",

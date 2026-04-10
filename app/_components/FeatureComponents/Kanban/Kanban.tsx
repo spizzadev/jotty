@@ -85,7 +85,7 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
 
   useKanbanReminders({
     checklist: localChecklist,
-    checklistId: localChecklist.id,
+    checklistId: localChecklist.uuid || localChecklist.id,
     category: localChecklist.category || "Uncategorized",
     onUpdate: handleItemUpdate,
   });

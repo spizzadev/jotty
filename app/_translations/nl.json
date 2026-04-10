@@ -245,7 +245,8 @@
     "history": "Geschiedenis",
     "items": "Items",
     "restoring": "Herstellen...",
-    "retry": "Opnieuw proberen"
+    "retry": "Opnieuw proberen",
+    "thisEntry": "deze invoer"
   },
   "auth": {
     "loginTitle": "Inloggen",
