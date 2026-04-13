@@ -325,9 +325,8 @@ export const getListById = async (
       await import("@/app/_server/actions/sharing");
     const sharedData = await getAllSharedItemsForUser(username);
     for (const sharedItem of sharedData.checklists) {
-      const itemIdentifier = sharedItem.uuid || sharedItem.id;
-      if (!itemIdentifier) continue;
-      if (itemIdentifier !== id) continue;
+      if (!sharedItem.uuid && !sharedItem.id) continue;
+      if (sharedItem.uuid !== id && sharedItem.id !== id) continue;
 
       const sharerDir = path.join(
         process.cwd(),
