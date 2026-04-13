@@ -8,13 +8,14 @@ import {
   UserMultipleIcon,
   File02Icon,
   CheckmarkSquare04Icon,
+  TaskDaily01Icon,
 } from "hugeicons-react";
 import { cn, buildCategoryPath } from "@/app/_utils/global-utils";
 import { AppMode, Checklist, Note } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { capitalize } from "lodash";
 import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
-import { ItemTypes, Modes } from "@/app/_types/enums";
+import { isKanbanType, ItemTypes, Modes } from "@/app/_types/enums";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { useRouter } from "next/navigation";
 
@@ -178,7 +179,11 @@ export const SharedItemsList = ({
                           )}
                         >
                           {mode === "checklists" ? (
-                            <CheckmarkSquare04Icon className="h-4 w-4" />
+                            "type" in fullItem && isKanbanType(fullItem.type) ? (
+                              <TaskDaily01Icon className="h-4 w-4" />
+                            ) : (
+                              <CheckmarkSquare04Icon className="h-4 w-4" />
+                            )
                           ) : (
                             <File02Icon className="h-4 w-4" />
                           )}
