@@ -8,4 +8,5 @@ export interface WsEvent {
 
 declare global {
   var __jottyBroadcast: ((event: WsEvent) => void) | undefined;
+  var __jottyHasConnectedClients: (() => boolean) | undefined;
 }

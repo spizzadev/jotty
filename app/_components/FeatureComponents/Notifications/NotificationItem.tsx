@@ -8,6 +8,7 @@ import {
   Tick02Icon,
 } from "hugeicons-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { AppNotification, NotificationType } from "@/app/_types";
 
 import { cn } from "@/app/_utils/global-utils";
@@ -53,6 +54,14 @@ export const NotificationItem = ({
   onClose,
 }: NotificationItemProps) => {
   const router = useRouter();
+  const t = useTranslations("notifications");
+
+  const title = notification.titleKey
+    ? t(notification.titleKey)
+    : notification.title;
+  const message = notification.messageKey
+    ? t(notification.messageKey, notification.messageVars)
+    : notification.message;
 
   const handleClick = () => {
     if (notification.link) {
@@ -76,10 +85,10 @@ export const NotificationItem = ({
         <span className="mt-0.5">{_getTypeIcon(notification.type)}</span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-foreground leading-snug">
-            {notification.title}
+            {title}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
-            {notification.message}
+            {message}
           </p>
           <div className="flex items-center gap-2 mt-1">
             <span className="text-[10px] text-muted-foreground/60">

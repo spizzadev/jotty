@@ -22,14 +22,19 @@ import { BulkPasteModal } from "@/app/_components/GlobalComponents/Modals/BulkPa
 import { StatusManager } from "./StatusManager";
 import { ArchivedItems } from "./ArchivedItems";
 import { useKanbanBoard } from "@/app/_hooks/kanban/useKanban";
-import { useKanbanReminders } from "@/app/_hooks/kanban/useKanbanReminders";
 import { ItemTypes, TaskStatus, TaskStatusLabels } from "@/app/_types/enums";
 import { ReferencedBySection } from "../Notes/Parts/ReferencedBySection";
 import { getReferences } from "@/app/_utils/indexes-utils";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { encodeCategoryPath } from "@/app/_utils/global-utils";
 import { usePermissions } from "@/app/_providers/PermissionsProvider";
-import { Settings01Icon, Archive02Icon, Calendar03Icon, TaskDaily01Icon, Search01Icon } from "hugeicons-react";
+import {
+  Settings01Icon,
+  Archive02Icon,
+  Calendar03Icon,
+  TaskDaily01Icon,
+  Search01Icon,
+} from "hugeicons-react";
 import { CalendarView } from "./CalendarView";
 import { KanbanCardDetail } from "./KanbanCardDetail";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
@@ -52,17 +57,19 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
   const [assigneeFilter, setAssigneeFilter] = useState("");
-  const [calendarSelectedItem, setCalendarSelectedItem] = useState<import("@/app/_types").Item | null>(null);
+  const [calendarSelectedItem, setCalendarSelectedItem] = useState<
+    import("@/app/_types").Item | null
+  >(null);
   const { linkIndex, notes, checklists, appSettings, allSharedItems } =
     useAppMode();
   const encodedCategory = encodeCategoryPath(
-    checklist.category || "Uncategorized"
+    checklist.category || "Uncategorized",
   );
   const isShared =
     allSharedItems?.checklists.some(
       (sharedChecklist) =>
         sharedChecklist.id === checklist.id &&
-        sharedChecklist.category === encodedCategory
+        sharedChecklist.category === encodedCategory,
     ) || false;
   const { permissions } = usePermissions();
   const {
@@ -83,17 +90,13 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
     activeItem,
   } = useKanbanBoard({ checklist, onUpdate });
 
-  useKanbanReminders({
-    checklist: localChecklist,
-    checklistId: localChecklist.uuid || localChecklist.id,
-    category: localChecklist.category || "Uncategorized",
-    onUpdate: handleItemUpdate,
-  });
-
   const statuses = useMemo(() => {
     const currentStatuses = localChecklist.statuses || DEFAULT_KANBAN_STATUSES;
-    return currentStatuses.map(status => {
-      if (status.id === TaskStatus.COMPLETED && status.autoComplete === undefined) {
+    return currentStatuses.map((status) => {
+      if (
+        status.id === TaskStatus.COMPLETED &&
+        status.autoComplete === undefined
+      ) {
         return { ...status, autoComplete: true };
       }
       return status;
@@ -120,12 +123,15 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
     }
   };
 
-  const itemsByStatus = statuses.reduce((acc, status) => {
-    acc[status.id] = localChecklist.items.filter(
-      (item) => item.status === status.id && !item.isArchived
-    ).length;
-    return acc;
-  }, {} as Record<string, number>);
+  const itemsByStatus = statuses.reduce(
+    (acc, status) => {
+      acc[status.id] = localChecklist.items.filter(
+        (item) => item.status === status.id && !item.isArchived,
+      ).length;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   const archivedItems = localChecklist.items.filter((item) => item.isArchived);
 
@@ -142,22 +148,32 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
     }
   };
 
-  const handleToggleItem = useCallback(async (itemId: string, completed: boolean) => {
-    const newStatus = completed ? TaskStatus.COMPLETED : TaskStatus.TODO;
-    await handleItemStatusUpdate(itemId, newStatus);
-  }, [handleItemStatusUpdate]);
+  const handleToggleItem = useCallback(
+    async (itemId: string, completed: boolean) => {
+      const newStatus = completed ? TaskStatus.COMPLETED : TaskStatus.TODO;
+      await handleItemStatusUpdate(itemId, newStatus);
+    },
+    [handleItemStatusUpdate],
+  );
 
   const _hasFilters = searchQuery || priorityFilter || assigneeFilter;
 
-  const _filterItems = useCallback((items: import("@/app/_types").Item[]) => {
-    if (!_hasFilters) return items;
-    return items.filter((item) => {
-      if (searchQuery && !item.text.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-      if (priorityFilter && item.priority !== priorityFilter) return false;
-      if (assigneeFilter && item.assignee !== assigneeFilter) return false;
-      return true;
-    });
-  }, [searchQuery, priorityFilter, assigneeFilter, _hasFilters]);
+  const _filterItems = useCallback(
+    (items: import("@/app/_types").Item[]) => {
+      if (!_hasFilters) return items;
+      return items.filter((item) => {
+        if (
+          searchQuery &&
+          !item.text.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+          return false;
+        if (priorityFilter && item.priority !== priorityFilter) return false;
+        if (assigneeFilter && item.assignee !== assigneeFilter) return false;
+        return true;
+      });
+    },
+    [searchQuery, priorityFilter, assigneeFilter, _hasFilters],
+  );
 
   const _uniqueAssignees = useMemo(() => {
     const assignees = new Set<string>();
@@ -167,45 +183,58 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
     return Array.from(assignees);
   }, [localChecklist.items]);
 
-  const _renderColumns = useCallback(() => (
-    <div
-      className={
-        columns.length <= 6
-          ? "h-full min-w-0 kanban-grid gap-4 p-2 sm:p-4"
-          : "h-full min-w-0 flex gap-4 p-2 sm:p-4"
-      }
-      style={columns.length <= 6 ? {
-        "--kanban-col-count": columns.length,
-      } as React.CSSProperties : undefined}
-    >
-      {columns.map((column) => {
-        const items = _filterItems(getItemsByStatus(column.status));
-        return (
-          <div
-            key={column.id}
-            className={columns.length > 6 ? "flex-shrink-0" : "min-w-0"}
-            style={columns.length > 6 ? { width: "280px" } : undefined}
-          >
-            <KanbanColumn
-              checklist={localChecklist}
-              id={column.id}
-              title={column.title}
-              items={items}
-              status={column.status}
-              checklistId={localChecklist.id}
-              category={localChecklist.category || "Uncategorized"}
-              onUpdate={handleItemUpdate}
-              isShared={isShared}
-              statusColor={
-                statuses.find((s) => s.id === column.id)?.color
-              }
-              statuses={statuses}
-            />
-          </div>
-        );
-      })}
-    </div>
-  ), [columns, getItemsByStatus, _filterItems, localChecklist, handleItemUpdate, isShared, statuses]);
+  const _renderColumns = useCallback(
+    () => (
+      <div
+        className={
+          columns.length <= 6
+            ? "h-full min-w-0 kanban-grid gap-4 p-2 sm:p-4"
+            : "h-full min-w-0 flex gap-4 p-2 sm:p-4"
+        }
+        style={
+          columns.length <= 6
+            ? ({
+                "--kanban-col-count": columns.length,
+              } as React.CSSProperties)
+            : undefined
+        }
+      >
+        {columns.map((column) => {
+          const items = _filterItems(getItemsByStatus(column.status));
+          return (
+            <div
+              key={column.id}
+              className={columns.length > 6 ? "flex-shrink-0" : "min-w-0"}
+              style={columns.length > 6 ? { width: "280px" } : undefined}
+            >
+              <KanbanColumn
+                checklist={localChecklist}
+                id={column.id}
+                title={column.title}
+                items={items}
+                status={column.status}
+                checklistId={localChecklist.id}
+                category={localChecklist.category || "Uncategorized"}
+                onUpdate={handleItemUpdate}
+                isShared={isShared}
+                statusColor={statuses.find((s) => s.id === column.id)?.color}
+                statuses={statuses}
+              />
+            </div>
+          );
+        })}
+      </div>
+    ),
+    [
+      columns,
+      getItemsByStatus,
+      _filterItems,
+      localChecklist,
+      handleItemUpdate,
+      isShared,
+      statuses,
+    ],
+  );
 
   const _collisionDetection: CollisionDetection = useCallback((args) => {
     const pointerCollisions = pointerWithin(args);
@@ -217,7 +246,7 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
-        delay: 100,
+        delay: 30,
         tolerance: 5,
       },
     }),
@@ -227,7 +256,7 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
         tolerance: 5,
       },
     }),
-    useSensor(KeyboardSensor)
+    useSensor(KeyboardSensor),
   );
 
   useEffect(() => {
@@ -241,7 +270,7 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
       localChecklist.category,
       ItemTypes.CHECKLIST,
       notes,
-      checklists
+      checklists,
     );
   }, [
     linkIndex,
@@ -298,7 +327,9 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
               aria-label={t("kanban.manageStatuses")}
             >
               <Settings01Icon className="h-3 w-3 mr-1 shrink-0" />
-              <span className="hidden sm:inline">{t("kanban.manageStatuses")}</span>
+              <span className="hidden sm:inline">
+                {t("kanban.manageStatuses")}
+              </span>
             </Button>
           )}
           {viewMode === "board" && (
@@ -310,7 +341,9 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
               aria-label={t("kanban.viewArchived")}
             >
               <Archive02Icon className="h-3 w-3 mr-1 shrink-0" />
-              <span className="hidden sm:inline">{t("kanban.viewArchived")}</span>
+              <span className="hidden sm:inline">
+                {t("kanban.viewArchived")}
+              </span>
             </Button>
           )}
         </div>
@@ -346,7 +379,9 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
             >
               <option value="">{t("kanban.allAssignees")}</option>
               {_uniqueAssignees.map((assignee) => (
-                <option key={assignee} value={assignee}>{assignee}</option>
+                <option key={assignee} value={assignee}>
+                  {assignee}
+                </option>
               ))}
             </select>
           )}

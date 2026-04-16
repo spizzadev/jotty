@@ -11,6 +11,9 @@ export interface AppNotification {
   type: NotificationType;
   title: string;
   message: string;
+  titleKey?: string;
+  messageKey?: string;
+  messageVars?: Record<string, string>;
   createdAt: string;
   readAt?: string;
   link?: string;

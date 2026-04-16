@@ -3,7 +3,6 @@ export {
   updateKanbanItemScore,
   assignKanbanItem,
   setKanbanItemReminder,
-  markReminderNotified,
 } from "./items";
 
 export {

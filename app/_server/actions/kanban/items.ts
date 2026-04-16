@@ -217,30 +217,3 @@ export const setKanbanItemReminder = async (formData: FormData) => {
   }
 };
 
-export const markReminderNotified = async (formData: FormData) => {
-  try {
-    const { listId, itemId, category } = getFormData(formData, [
-      "listId", "itemId", "category",
-    ]);
-
-    const list = await getListById(listId, undefined, category);
-    if (!list) return { error: "List not found" };
-
-    const updatedList: Checklist = {
-      ...list,
-      items: updateItem(list.items, itemId, (item) => ({
-        ...item,
-        reminder: item.reminder
-          ? { ...item.reminder, notified: true }
-          : undefined,
-      })),
-      updatedAt: new Date().toISOString(),
-    };
-
-    await _saveAndBroadcast(updatedList, list.owner || "");
-    return { success: true, data: updatedList };
-  } catch (error) {
-    console.error("Error marking reminder:", error);
-    return { error: "Failed to mark reminder" };
-  }
-};

@@ -113,6 +113,8 @@ globalThis.__jottyBroadcast = (event) => {
   });
 };
 
+globalThis.__jottyHasConnectedClients = () => connectedClients.size > 0;
+
 const nextConfigStr = fs.readFileSync(
   path.join(nextDir, "required-server-files.json"),
   "utf-8"
@@ -154,6 +156,17 @@ app.prepare().then(() => {
   }
 
   server.listen(currentPort, hostname, () => {
+  console.log(`
+   jjjj               .       .              
+    jjj             .tt     .tt              
+    jjj  .ooooo.  .tttttt .ttttt  yyyy    yyy
+    jjj ooo' 'ooo   ttt     ttt    'yy.  .y' 
+    jjj ooo   ooo   ttt     ttt     'yy..y'  
+    jjj ooo   ooo   ttt .   ttt .    'yyY'   
+.J. jjj 'OoooooO'   'ttt'   'ttt'     'y'    
+'JJJJJ                            'y..y'     
+                                  'YyY'      
+  `);
     console.log(`> Ready on http://${hostname}:${currentPort}`);
   });
 });
