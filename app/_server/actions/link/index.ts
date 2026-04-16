@@ -39,7 +39,7 @@ export const writeLinkIndex = async (
 };
 
 export const parseInternalLinks = async (
-  content: string
+  content: string,
 ): Promise<LinkTarget[]> => {
   const links: LinkTarget[] = [];
 
@@ -321,7 +321,8 @@ export const rebuildLinkIndex = async (username: string): Promise<void> => {
     for (const [sourceUuid, itemLinks] of Object.entries(items)) {
       for (const targetUuid of itemLinks.isLinkedTo.notes) {
         if (newIndex.notes[targetUuid]) {
-          const refType = sourceType === "notes" ? "notes" : "checklists";
+          const refType =
+            sourceType === Modes.NOTES ? Modes.NOTES : Modes.CHECKLISTS;
           if (
             !newIndex.notes[targetUuid].isReferencedIn[refType].includes(
               sourceUuid,
@@ -334,7 +335,8 @@ export const rebuildLinkIndex = async (username: string): Promise<void> => {
 
       for (const targetUuid of itemLinks.isLinkedTo.checklists) {
         if (newIndex.checklists[targetUuid]) {
-          const refType = sourceType === "notes" ? "notes" : "checklists";
+          const refType =
+            sourceType === Modes.NOTES ? Modes.NOTES : Modes.CHECKLISTS;
           if (
             !newIndex.checklists[targetUuid].isReferencedIn[refType].includes(
               sourceUuid,

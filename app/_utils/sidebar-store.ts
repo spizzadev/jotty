@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { AppMode } from "@/app/_types";
+import { Modes } from "../_types/enums";
 
 interface SidebarState {
   mode: AppMode | null;
@@ -12,7 +13,11 @@ interface SidebarState {
   collapsedCategories: Record<string, string[]>;
   toggleCategory: (mode: string, path: string) => void;
   expandCategoryPath: (mode: string, categoryPath: string) => void;
-  setAllCategoriesCollapsed: (mode: string, paths: string[], collapsed: boolean) => void;
+  setAllCategoriesCollapsed: (
+    mode: string,
+    paths: string[],
+    collapsed: boolean,
+  ) => void;
   isCollapsed: (mode: string, path: string) => boolean;
 
   sharedItemsCollapsed: boolean;
@@ -47,18 +52,26 @@ const migrateOldLocalStorage = (): Partial<SidebarState> => {
       localStorage.removeItem("sidebar-width");
     }
 
-    const oldChecklistsCollapsed = localStorage.getItem("sidebar-collapsed-categories-checklists");
-    const oldNotesCollapsed = localStorage.getItem("sidebar-collapsed-categories-notes");
+    const oldChecklistsCollapsed = localStorage.getItem(
+      "sidebar-collapsed-categories-checklists",
+    );
+    const oldNotesCollapsed = localStorage.getItem(
+      "sidebar-collapsed-categories-notes",
+    );
     if (oldChecklistsCollapsed || oldNotesCollapsed) {
       migrated.collapsedCategories = {
-        checklists: oldChecklistsCollapsed ? JSON.parse(oldChecklistsCollapsed) : [],
+        checklists: oldChecklistsCollapsed
+          ? JSON.parse(oldChecklistsCollapsed)
+          : [],
         notes: oldNotesCollapsed ? JSON.parse(oldNotesCollapsed) : [],
       };
       localStorage.removeItem("sidebar-collapsed-categories-checklists");
       localStorage.removeItem("sidebar-collapsed-categories-notes");
     }
 
-    const oldSharedCollapsed = localStorage.getItem("sidebar-shared-items-collapsed");
+    const oldSharedCollapsed = localStorage.getItem(
+      "sidebar-shared-items-collapsed",
+    );
     if (oldSharedCollapsed) {
       migrated.sharedItemsCollapsed = JSON.parse(oldSharedCollapsed);
       localStorage.removeItem("sidebar-shared-items-collapsed");
@@ -70,9 +83,13 @@ const migrateOldLocalStorage = (): Partial<SidebarState> => {
       localStorage.removeItem("sidebar-tags-collapsed");
     }
 
-    const oldCategoriesSectionCollapsed = localStorage.getItem("sidebar-categories-section-collapsed");
+    const oldCategoriesSectionCollapsed = localStorage.getItem(
+      "sidebar-categories-section-collapsed",
+    );
     if (oldCategoriesSectionCollapsed) {
-      migrated.categoriesSectionCollapsed = JSON.parse(oldCategoriesSectionCollapsed);
+      migrated.categoriesSectionCollapsed = JSON.parse(
+        oldCategoriesSectionCollapsed,
+      );
       localStorage.removeItem("sidebar-categories-section-collapsed");
     }
 
@@ -83,7 +100,7 @@ const migrateOldLocalStorage = (): Partial<SidebarState> => {
     }
 
     const oldMode = localStorage.getItem("app-mode");
-    if (oldMode && (oldMode === "checklists" || oldMode === "notes")) {
+    if (oldMode && (oldMode === Modes.CHECKLISTS || oldMode === Modes.NOTES)) {
       migrated.mode = oldMode as AppMode;
       localStorage.removeItem("app-mode");
     }
@@ -101,7 +118,8 @@ export const useSidebarStore = create<SidebarState>()(
       setMode: (mode) => set({ mode }),
 
       sidebarWidth: 320,
-      setSidebarWidth: (width) => set({ sidebarWidth: Math.max(320, Math.min(800, width)) }),
+      setSidebarWidth: (width) =>
+        set({ sidebarWidth: Math.max(320, Math.min(800, width)) }),
 
       collapsedCategories: {
         checklists: [],
@@ -151,13 +169,15 @@ export const useSidebarStore = create<SidebarState>()(
       },
 
       sharedItemsCollapsed: false,
-      setSharedItemsCollapsed: (collapsed) => set({ sharedItemsCollapsed: collapsed }),
+      setSharedItemsCollapsed: (collapsed) =>
+        set({ sharedItemsCollapsed: collapsed }),
 
       tagsCollapsed: true,
       setTagsCollapsed: (collapsed) => set({ tagsCollapsed: collapsed }),
 
       categoriesSectionCollapsed: false,
-      setCategoriesSectionCollapsed: (collapsed) => set({ categoriesSectionCollapsed: collapsed }),
+      setCategoriesSectionCollapsed: (collapsed) =>
+        set({ categoriesSectionCollapsed: collapsed }),
 
       collapsedTags: [],
       toggleTag: (tagPath) =>
@@ -188,6 +208,6 @@ export const useSidebarStore = create<SidebarState>()(
           Object.assign(state, migrated);
         }
       },
-    }
-  )
+    },
+  ),
 );

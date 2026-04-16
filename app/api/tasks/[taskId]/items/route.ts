@@ -6,8 +6,7 @@ import { listToMarkdown } from "@/app/_utils/checklist-utils";
 import { serverWriteFile } from "@/app/_server/actions/file";
 import { isKanbanType, TaskStatus } from "@/app/_types/enums";
 import path from "path";
-
-const CHECKLISTS_FOLDER = "checklists";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 export const dynamic = "force-dynamic";
 

@@ -13,6 +13,7 @@ import {
   getTimestamp,
   getUniqueId,
 } from "./utils";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 resetSeed();
 faker.seed(SEED);
@@ -42,7 +43,7 @@ const _generateMetadata = (
     status: string;
     timestamp: string;
     user: string;
-  }>
+  }>,
 ): string => {
   const createdAt = getTimestamp();
   const meta: {
@@ -67,7 +68,7 @@ const _generateMetadata = (
 
 const _generateSimpleChecklistContent = (
   title: string,
-  tags?: string[]
+  tags?: string[],
 ): string => {
   const fileUuid = getUniqueId();
   const now = getTimestamp();
@@ -114,10 +115,7 @@ const _generateSimpleChecklistContent = (
   return content.join("\n");
 };
 
-const _generateTaskListContent = (
-  title: string,
-  tags?: string[]
-): string => {
+const _generateTaskListContent = (title: string, tags?: string[]): string => {
   const fileUuid = getUniqueId();
 
   const statusTodo = getUniqueId();
@@ -180,15 +178,13 @@ const _generateTaskListContent = (
     const metaJson = _generateMetadata(itemId, history);
 
     content.push(
-      `- [${isChecked}] ${text} | status:${currentStatus} | time:0 | metadata:${metaJson}`
+      `- [${isChecked}] ${text} | status:${currentStatus} | time:0 | metadata:${metaJson}`,
     );
 
     if (random() < 0.2) {
       const subId = getUniqueId();
       const subMeta = _generateMetadata(subId);
-      content.push(
-        `  - [ ] ${getPhrase(2, 3)} | time:0 | metadata:${subMeta}`
-      );
+      content.push(`  - [ ] ${getPhrase(2, 3)} | time:0 | metadata:${subMeta}`);
     }
   }
 
@@ -202,12 +198,11 @@ const main = async () => {
     process.exit(1);
   }
 
-  const outputDir = path.join("data", "checklists", username);
+  const outputDir = path.join("data", CHECKLISTS_FOLDER, username);
 
   try {
     await fs.rm(outputDir, { recursive: true, force: true });
-  } catch {
-  }
+  } catch {}
 
   for (const cat of CHECKLIST_CATEGORIES) {
     await fs.mkdir(path.join(outputDir, cat), { recursive: true });

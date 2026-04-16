@@ -5,12 +5,14 @@ import { getListById } from "@/app/_server/actions/checklist";
 import { listToMarkdown } from "@/app/_utils/checklist-utils";
 import { serverWriteFile } from "@/app/_server/actions/file";
 import path from "path";
-
-const CHECKLISTS_FOLDER = "checklists";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: NextRequest, props: { params: Promise<{ listId: string }> }) {
+export async function POST(
+  request: NextRequest,
+  props: { params: Promise<{ listId: string }> },
+) {
   const params = await props.params;
   return withApiAuth(request, async (user) => {
     try {
@@ -20,7 +22,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ list
       if (!text) {
         return NextResponse.json(
           { error: "Text is required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -35,7 +37,10 @@ export async function POST(request: NextRequest, props: { params: Promise<{ list
       formData.append("category", list.category || "Uncategorized");
 
       if (parentIndex !== undefined) {
-        const indexPath = parentIndex.toString().split('.').map((i: string) => parseInt(i));
+        const indexPath = parentIndex
+          .toString()
+          .split(".")
+          .map((i: string) => parseInt(i));
         let parentItem: any = null;
         let currentItems = list.items;
 
@@ -43,7 +48,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ list
           if (idx >= currentItems.length) {
             return NextResponse.json(
               { error: "Parent item not found" },
-              { status: 404 }
+              { status: 404 },
             );
           }
           parentItem = currentItems[idx];
@@ -53,7 +58,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ list
         if (!parentItem) {
           return NextResponse.json(
             { error: "Parent item not found" },
-            { status: 404 }
+            { status: 404 },
           );
         }
 
@@ -64,7 +69,10 @@ export async function POST(request: NextRequest, props: { params: Promise<{ list
           order: 0,
         };
 
-        const addSubItemToParent = (items: any[], parentId: string): boolean => {
+        const addSubItemToParent = (
+          items: any[],
+          parentId: string,
+        ): boolean => {
           for (let item of items) {
             if (item.id === parentId) {
               if (!item.children) {
@@ -84,7 +92,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ list
         if (!addSubItemToParent(updatedItems, parentItem.id)) {
           return NextResponse.json(
             { error: "Failed to add sub-item" },
-            { status: 500 }
+            { status: 500 },
           );
         }
 
@@ -98,12 +106,12 @@ export async function POST(request: NextRequest, props: { params: Promise<{ list
           process.cwd(),
           "data",
           CHECKLISTS_FOLDER,
-          list.owner!
+          list.owner!,
         );
         const filePath = path.join(
           ownerDir,
           list.category || "Uncategorized",
-          `${list.id}.md`
+          `${list.id}.md`,
         );
 
         await serverWriteFile(filePath, listToMarkdown(updatedList as any));
@@ -116,7 +124,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ list
       if (time !== undefined) {
         formData.append(
           "time",
-          typeof time === "string" ? time : JSON.stringify(time)
+          typeof time === "string" ? time : JSON.stringify(time),
         );
       }
 
@@ -125,16 +133,19 @@ export async function POST(request: NextRequest, props: { params: Promise<{ list
       if (!result.success) {
         return NextResponse.json(
           { error: result.error || "Failed to create item" },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
-      return NextResponse.json({ success: true, data: { id: result.data?.id } });
+      return NextResponse.json({
+        success: true,
+        data: { id: result.data?.id },
+      });
     } catch (error) {
       console.error("API Error:", error);
       return NextResponse.json(
         { error: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });

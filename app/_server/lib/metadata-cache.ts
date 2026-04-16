@@ -1,3 +1,4 @@
+import { Modes } from "@/app/_types/enums";
 import fs from "fs";
 import path from "path";
 
@@ -68,7 +69,7 @@ export function invalidateCached(key: string) {
   store.delete(key);
 }
 
-export function metaCacheKey(type: "notes" | "lists", dir: string) {
+export function metaCacheKey(type: Modes, dir: string) {
   const abs = path.isAbsolute(dir) ? dir : path.join(process.cwd(), dir);
   return `${type}-meta:${abs}`;
 }

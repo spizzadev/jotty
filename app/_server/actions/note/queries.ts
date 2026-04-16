@@ -245,7 +245,9 @@ export const getUserNotes = async (options: GetNotesOptions = {}) => {
 
     const canCache = metadataOnly && !allowArchived && !isRaw && !excerptLength;
 
-    const ownCacheKey = canCache ? metaCacheKey("notes", resolvedDir) : null;
+    const ownCacheKey = canCache
+      ? metaCacheKey(Modes.NOTES, resolvedDir)
+      : null;
 
     const notes: Note[] = ownCacheKey
       ? await getOrCompute(ownCacheKey, resolvedDir, () =>
@@ -301,7 +303,7 @@ export const getUserNotes = async (options: GetNotesOptions = {}) => {
           ? sharerDir
           : path.join(process.cwd(), sharerDir);
         const sharerCacheKey = canCache
-          ? metaCacheKey("notes", sharerAbsDir)
+          ? metaCacheKey(Modes.NOTES, sharerAbsDir)
           : null;
 
         const sharerNotes = sharerCacheKey
