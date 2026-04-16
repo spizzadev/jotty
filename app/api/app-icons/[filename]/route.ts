@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withCacheControl } from "@/app/_middleware/caching";
+import { resolvePath } from "@/app/_utils/path-utils";
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -12,16 +13,14 @@ export const GET = withCacheControl(async function GET(
   try {
     const params = await props.params;
     const filename = params.filename;
-    const filepath = path.join(
-      process.cwd(),
-      "data",
-      "uploads",
-      "app-icons",
-      filename,
-    );
+    const baseDir = path.resolve(process.cwd(), "data", "uploads", "app-icons");
+    const resolved = resolvePath(baseDir, filename);
+    if (!resolved.ok) {
+      return NextResponse.json({ error: "File not found" }, { status: 404 });
+    }
 
     try {
-      const file = await fs.readFile(filepath);
+      const file = await fs.readFile(resolved.absolutePath);
 
       const ext = path.extname(filename).toLowerCase();
       let contentType = "application/octet-stream";
@@ -45,7 +44,7 @@ export const GET = withCacheControl(async function GET(
           break;
       }
 
-      return new NextResponse(file as any, {
+      return new NextResponse(file, {
         headers: {
           "Content-Type": contentType,
         },
