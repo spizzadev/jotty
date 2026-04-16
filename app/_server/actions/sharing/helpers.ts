@@ -9,13 +9,14 @@ import { ItemTypes, Modes } from "@/app/_types/enums";
 
 export const getItemUuid = async (
   user: string,
-  itemType: "note" | "checklist",
+  itemType: ItemType,
   itemId: string,
-  category: string
+  category: string,
 ): Promise<string | undefined> => {
   try {
     const dataDir = path.join(process.cwd(), "data");
-    const modeDir = itemType === "checklist" ? "checklists" : "notes";
+    const modeDir =
+      itemType === ItemTypes.CHECKLIST ? Modes.CHECKLISTS : Modes.NOTES;
     const userDir = path.join(dataDir, modeDir, user);
     const categoryDir = path.join(userDir, category || "Uncategorized");
     const filePath = path.join(categoryDir, `${itemId}.md`);
@@ -28,7 +29,9 @@ export const getItemUuid = async (
   }
 };
 
-export const getSharingFilePath = async (itemType: ItemType): Promise<string> => {
+export const getSharingFilePath = async (
+  itemType: ItemType,
+): Promise<string> => {
   const folderName =
     itemType === ItemTypes.CHECKLIST ? Modes.CHECKLISTS : Modes.NOTES;
   return path.join(DATA_DIR, folderName, ".sharing.json");
@@ -36,7 +39,7 @@ export const getSharingFilePath = async (itemType: ItemType): Promise<string> =>
 
 export const hasSharedContentFrom = async (
   ownerUsername: string,
-  viewerUsername: string
+  viewerUsername: string,
 ): Promise<boolean> => {
   const { readShareFile } = await import("./io");
   const notesSharing = await readShareFile(ItemTypes.NOTE);

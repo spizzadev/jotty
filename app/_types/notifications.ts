@@ -1,0 +1,21 @@
+export type NotificationType = "reminder" | "assignment" | "sharing" | "system";
+
+export interface AppNotificationData {
+  itemId: string;
+  itemType: "checklist" | "note";
+  taskId?: string;
+}
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  titleKey?: string;
+  messageKey?: string;
+  messageVars?: Record<string, string>;
+  createdAt: string;
+  readAt?: string;
+  link?: string;
+  data?: AppNotificationData;
+}

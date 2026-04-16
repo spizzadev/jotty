@@ -10,7 +10,13 @@ import { Orbit01Icon } from "hugeicons-react";
 import { Logo } from "@/app/_components/GlobalComponents/Layout/Logo/Logo";
 import { useTranslations } from "next-intl";
 
-export default function LoginForm({ ssoEnabled }: { ssoEnabled: boolean }) {
+export default function LoginForm({
+  ssoEnabled,
+  showRegisterLink = false,
+}: {
+  ssoEnabled: boolean;
+  showRegisterLink?: boolean;
+}) {
   const t = useTranslations('auth');
   const searchParams = useSearchParams();
   const [error, setError] = useState<string>("");
@@ -132,7 +138,7 @@ export default function LoginForm({ ssoEnabled }: { ssoEnabled: boolean }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} method="POST" className="space-y-4">
         {error && (
           <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-jotty">
             <span className="text-md lg:text-sm text-destructive">{error}</span>
@@ -199,6 +205,14 @@ export default function LoginForm({ ssoEnabled }: { ssoEnabled: boolean }) {
           )}
         </Button>
       </form>
+
+      {showRegisterLink && (
+        <div className="text-center">
+          <a href="/auth/setup" className="text-sm lg:text-xs text-muted-foreground hover:text-foreground underline">
+            {t('createAccount')}
+          </a>
+        </div>
+      )}
 
       {appVersion && (
         <div className="text-center text-sm lg:text-xs text-muted-foreground">

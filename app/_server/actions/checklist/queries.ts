@@ -58,7 +58,9 @@ export const getUserChecklists = async (options: GetChecklistsOptions = {}) => {
     const absUserDir = path.isAbsolute(userDir)
       ? userDir
       : path.join(process.cwd(), userDir);
-    const ownCacheKey = canCache ? metaCacheKey("lists", absUserDir) : null;
+    const ownCacheKey = canCache
+      ? metaCacheKey(Modes.CHECKLISTS, absUserDir)
+      : null;
 
     let lists: ChecklistReadResult[] = ownCacheKey
       ? await getOrCompute(ownCacheKey, absUserDir, () =>
@@ -114,7 +116,7 @@ export const getUserChecklists = async (options: GetChecklistsOptions = {}) => {
         await ensureDir(sharerDir);
 
         const sharerCacheKey = canCache
-          ? metaCacheKey("lists", sharerDir)
+          ? metaCacheKey(Modes.CHECKLISTS, sharerDir)
           : null;
 
         const sharerLists = sharerCacheKey
@@ -325,8 +327,8 @@ export const getListById = async (
       await import("@/app/_server/actions/sharing");
     const sharedData = await getAllSharedItemsForUser(username);
     for (const sharedItem of sharedData.checklists) {
-      const itemIdentifier = sharedItem.uuid || sharedItem.id;
-      if (!itemIdentifier) continue;
+      if (!sharedItem.uuid && !sharedItem.id) continue;
+      if (sharedItem.uuid !== id && sharedItem.id !== id) continue;
 
       const sharerDir = path.join(
         process.cwd(),

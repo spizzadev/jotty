@@ -8,6 +8,7 @@ const mockGetUsername = vi.fn();
 const mockGetCurrentUser = vi.fn();
 const mockIsAdmin = vi.fn();
 const mockCheckUserPermission = vi.fn();
+const mockGetUsersWithAccess = vi.fn();
 const mockGetUserChecklists = vi.fn();
 const mockGetListById = vi.fn();
 const mockGetAllLists = vi.fn();
@@ -27,6 +28,7 @@ vi.mock("@/app/_server/actions/users", () => ({
 
 vi.mock("@/app/_server/actions/sharing", () => ({
   checkUserPermission: (...args: any[]) => mockCheckUserPermission(...args),
+  getUsersWithAccess: (...args: any[]) => mockGetUsersWithAccess(...args),
 }));
 
 vi.mock("@/app/_server/actions/checklist", () => ({
@@ -111,6 +113,7 @@ describe("Checklist Item Actions - Comprehensive Tests", () => {
     mockGetCurrentUser.mockResolvedValue({ username: "testuser" });
     mockIsAdmin.mockResolvedValue(false);
     mockCheckUserPermission.mockResolvedValue(true);
+    mockGetUsersWithAccess.mockResolvedValue([]);
     mockGetUserChecklists.mockResolvedValue({
       success: true,
       data: [structuredClone(mockChecklist)],

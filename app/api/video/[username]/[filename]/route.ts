@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentUser, canAccessAllContent } from "@/app/_server/actions/users";
+import {
+  getCurrentUser,
+  canAccessAllContent,
+} from "@/app/_server/actions/users";
 import path from "path";
 import fs from "fs/promises";
 import { NOTES_FOLDER } from "@/app/_consts/notes";
 import { isEnvEnabled } from "@/app/_utils/env-utils";
 import { hasSharedContentFrom } from "@/app/_server/actions/sharing";
+import { resolvePath } from "@/app/_utils/path-utils";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(
   request: NextRequest,
-  props: { params: Promise<{ username: string; filename: string }> }
+  props: { params: Promise<{ username: string; filename: string }> },
 ) {
   const params = await props.params;
   try {
@@ -22,39 +26,49 @@ export async function GET(
     const { username } = params;
     const filename = decodeURIComponent(params.filename);
 
-    if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
+    if (
+      filename.includes("..") ||
+      filename.includes("/") ||
+      filename.includes("\\")
+    ) {
       return new NextResponse("Invalid filename", { status: 400 });
     }
 
     if (user && username !== user.username) {
       const hasAdminAccess = await canAccessAllContent();
-      const hasSharedAccess = await hasSharedContentFrom(username, user.username);
+      const hasSharedAccess = await hasSharedContentFrom(
+        username,
+        user.username,
+      );
 
       if (!hasAdminAccess && !hasSharedAccess) {
         return new NextResponse("Forbidden", { status: 403 });
       }
     }
 
-    const filePath = path.join(
+    const baseDir = path.resolve(
       process.cwd(),
       "data",
       NOTES_FOLDER,
       username,
       "videos",
-      filename
     );
+    const resolved = resolvePath(baseDir, filename);
+    if (!resolved.ok) {
+      return new NextResponse("Invalid filename", { status: 400 });
+    }
 
     try {
-      const fileBuffer = await fs.readFile(filePath);
-      const fileStats = await fs.stat(filePath);
+      const fileBuffer = await fs.readFile(resolved.absolutePath);
+      const fileStats = await fs.stat(resolved.absolutePath);
 
-      const response = new NextResponse(fileBuffer as BodyInit);
+      const response = new NextResponse(fileBuffer);
       response.headers.set("Content-Type", "video/mp4");
       response.headers.set("Content-Length", fileStats.size.toString());
       response.headers.set("Accept-Ranges", "bytes");
       response.headers.set(
         "Cache-Control",
-        "private, no-cache, no-store, max-age=0, must-revalidate"
+        "private, no-cache, no-store, max-age=0, must-revalidate",
       );
 
       const range = request.headers.get("range");

@@ -104,7 +104,25 @@ export async function register() {
         });
       };
 
+      globalThis.__jottyHasConnectedClients = () => connectedClients.size > 0;
+
       console.log(`> WebSocket dev server running on ws://0.0.0.0:${WS_PORT}`);
     }
+
+    if ((globalThis as any).__jottyReminderScanStarted) return;
+    (globalThis as any).__jottyReminderScanStarted = true;
+
+    const REMINDER_SCAN_INTERVAL = 60_000;
+    setInterval(async () => {
+      if (!globalThis.__jottyHasConnectedClients?.()) return;
+      try {
+        const { scanReminders } = await import(
+          "./app/_server/reminders/scanner"
+        );
+        await scanReminders();
+      } catch (err) {
+        console.error("[reminders] scan failed:", err);
+      }
+    }, REMINDER_SCAN_INTERVAL);
   }
 }

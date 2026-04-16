@@ -4,28 +4,31 @@ import LoginForm from "@/app/_components/GlobalComponents/Auth/LoginForm";
 import { AuthShell } from "@/app/_components/GlobalComponents/Auth/AuthShell";
 import { getTranslations } from "next-intl/server";
 import { SsoOnlyLogin } from "@/app/_components/GlobalComponents/Auth/SsoOnlyLogin";
-import { isEnvEnabled } from "@/app/_utils/env-utils";
+import { isEnvEnabled, getAuthMode } from "@/app/_utils/env-utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   const t = await getTranslations("auth");
-  const ssoEnabled = process.env.SSO_MODE === "oidc";
+  const authMode = getAuthMode();
+  const ssoIsOidc = authMode === "oidc";
   const allowLocal = isEnvEnabled(process.env.SSO_FALLBACK_LOCAL);
 
   const hasExistingUsers = await hasUsers();
-  if ((!hasExistingUsers && !ssoEnabled) || (!hasExistingUsers && allowLocal)) {
+  if (!hasExistingUsers && !authMode) {
     redirect("/auth/setup");
   }
 
-  if (ssoEnabled && !allowLocal) {
+  if (ssoIsOidc && !allowLocal) {
     return <SsoOnlyLogin />;
   }
+
+  const showRegisterLink = allowLocal && !hasExistingUsers;
 
   return (
     <AuthShell>
       <div className="space-y-6">
-        <LoginForm ssoEnabled={ssoEnabled} />
+        <LoginForm ssoEnabled={ssoIsOidc} showRegisterLink={showRegisterLink} />
       </div>
     </AuthShell>
   );

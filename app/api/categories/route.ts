@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       const notesResult = await getCategories(Modes.NOTES, user.username);
       const checklistsResult = await getCategories(
         Modes.CHECKLISTS,
-        user.username
+        user.username,
       );
 
       if (!notesResult.success || !checklistsResult.success) {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
               checklistsResult.error ||
               "Failed to fetch categories",
           },
-          { status: 500 }
+          { status: 500 },
         );
       }
 
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
       console.error("API Error:", error);
       return NextResponse.json(
         { error: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });

@@ -7,6 +7,7 @@ import {
   ArrowRight01Icon,
 } from "hugeicons-react";
 import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
+import { useTranslations } from "next-intl";
 
 interface TimeEntriesAccordionProps {
   timeEntries: any[];
@@ -15,6 +16,7 @@ interface TimeEntriesAccordionProps {
   usersPublicData?: any[];
   formatDateString: (dateString: string) => string;
   formatTimeString: (dateString: string) => string;
+  onOpenTimeEntries?: () => void;
 }
 
 const TimeEntriesAccordionComponent = ({
@@ -24,7 +26,9 @@ const TimeEntriesAccordionComponent = ({
   usersPublicData,
   formatDateString,
   formatTimeString,
+  onOpenTimeEntries,
 }: TimeEntriesAccordionProps) => {
+  const t = useTranslations();
 
   const getUserAvatarUrl = (username: string) => {
     if (!usersPublicData) return "";
@@ -62,7 +66,7 @@ const TimeEntriesAccordionComponent = ({
       </button>
 
       {isOpen && (
-        <div className="border-t border-border/30 py-2 space-y-1.5 max-h-32 overflow-y-auto">
+        <div className="border-t border-border/30 py-2 space-y-1.5 max-h-64 overflow-y-auto">
           {timeEntries.map((entry, index) => (
             <div
               key={entry.id || index}
@@ -93,6 +97,14 @@ const TimeEntriesAccordionComponent = ({
               )}
             </div>
           ))}
+          {onOpenTimeEntries && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpenTimeEntries(); }}
+              className="w-full text-center text-xs text-primary hover:text-primary/80 font-medium py-1.5 transition-colors"
+            >
+              {t("kanban.editSessions")}
+            </button>
+          )}
         </div>
       )}
     </div>

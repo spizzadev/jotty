@@ -240,7 +240,13 @@
     "copiedToClipboard": "Copiato negli appunti",
     "offline": "Non in linea",
     "connected": "Collegato",
-    "reconnecting": "Riconnessione..."
+    "reconnecting": "Riconnessione...",
+    "hide": "Nascondi",
+    "disable": "Disattiva",
+    "history": "Cronologia",
+    "items": "Elementi",
+    "noResults": "Nessun risultato",
+    "thisEntry": "questa voce"
   },
   "auth": {
     "loginTitle": "Accedi",
@@ -274,7 +280,8 @@
     "version": "Versione {version}",
     "createUser": "Crea Utente",
     "attemptsRemaining": "Attenzione: {count, plural, one {# tentativo} other {# tentativi}} rimanenti prima del blocco dell'account",
-    "accountLocked": "Troppi tentativi falliti. Riprova tra {seconds} {seconds, plural, one {secondo} other {secondi}}"
+    "accountLocked": "Troppi tentativi falliti. Riprova tra {seconds} {seconds, plural, one {secondo} other {secondi}}",
+    "notAuthorized": "Non sei autorizzato ad accedere a questa applicazione. Contatta l’amministratore."
   },
   "mfa": {
     "title": "Autenticazione a Due Fattori",
@@ -374,7 +381,12 @@
     "tags": "Tag",
     "noTagsFound": "Nessun tag trovato",
     "searchTags": "Cerca tag...",
-    "copyRawContent": "Copia il markdown"
+    "copyRawContent": "Copia il markdown",
+    "printSaveAsPdf": "Stampa / Salva come PDF",
+    "tableOfContents": "Indice",
+    "wordCount": "{count, plural, one {# parola} other {# parole}}",
+    "charCount": "{count, plural, one {# carattere} other {# caratteri}}",
+    "readingTime": "{count, plural, one {# minuto di lettura} other {# minuti di lettura}}"
   },
   "checklists": {
     "title": "Checklist",
@@ -485,7 +497,9 @@
     "noTasks": "Nessun task",
     "noSubtasksYet": "Nessuna attività secondaria. Aggiungine una qui sotto per iniziare.",
     "addTime": "Aggiungi tempo",
-    "enterTimeInMinutes": "Inserisci il tuo tempo in minuti"
+    "enterTimeInMinutes": "Inserisci il tuo tempo in minuti",
+    "convertToKanbanBoard": "Converti in bacheca Kanban",
+    "kanbanBoard": "Bacheca Kanban"
   },
   "tasks": {
     "title": "Attività",
@@ -527,6 +541,66 @@
     "customizeStatuses": "Personalizza gli stati per questa kanban board. Aggiungi, rimuovi o riordina gli stati.",
     "addStatus": "Aggiungi stato",
     "autoComplete": "Complete automaticamente"
+  },
+  "kanban": {
+    "priority": "Priorità",
+    "score": "Punteggio",
+    "assignee": "Assegnato a",
+    "reminder": "Promemoria",
+    "usernamePlaceholder": "nome utente",
+    "scoreLabel": "Punteggio: {score}",
+    "today": "Oggi",
+    "exportIcs": "Esporta .ics",
+    "unscheduled": "Non programmato ({count})",
+    "moreEvents": "+{count} altri",
+    "critical": "Critico",
+    "high": "Alto",
+    "medium": "Medio",
+    "low": "Basso",
+    "none": "Nessuno",
+    "weekdaysSun": "Dom",
+    "weekdaysMon": "Lun",
+    "weekdaysTue": "Mar",
+    "weekdaysWed": "Mer",
+    "weekdaysThu": "Gio",
+    "weekdaysFri": "Ven",
+    "weekdaysSat": "Sab",
+    "title": "Kanban",
+    "calendar": "Calendario",
+    "boards": "Board",
+    "addItem": "Aggiungi elemento",
+    "itemTitle": "Titolo elemento",
+    "manageStatuses": "Gestisci stati",
+    "viewArchived": "Visualizza archiviati",
+    "noBoards": "Nessuna board trovata",
+    "noBoardsYet": "Nessuna board Kanban ancora",
+    "createFirstBoard": "Crea la tua prima board Kanban per gestire i tuoi progetti.",
+    "newBoard": "Nuova board",
+    "tryAdjustingFilters": "Prova a modificare i filtri o crea una nuova board.",
+    "completed": "Completato",
+    "todo": "Da fare",
+    "inProgress": "In corso",
+    "recentBoards": "Board recenti",
+    "showAllBoards": "Mostra tutte le board",
+    "unassigned": "Non assegnato",
+    "targetDate": "Data obiettivo",
+    "statusUpdated": "Stato aggiornato",
+    "itemArchived": "Elemento archiviato",
+    "itemDeleted": "Elemento eliminato",
+    "estimatedTime": "Tempo stimato (ore)",
+    "actualVsEstimated": "{actual} / {estimated}",
+    "tempo": "Tempo",
+    "noItemsFound": "Nessun elemento corrisponde ai filtri attuali",
+    "searchPlaceholder": "Cerca elementi...",
+    "allPriorities": "Tutte le priorità",
+    "allAssignees": "Tutti gli assegnatari",
+    "timeEntries": "Registrazioni tempo",
+    "noTimeEntries": "Nessuna registrazione tempo",
+    "editSessions": "Modifica sessioni",
+    "session": "sessione",
+    "sessions": "sessioni",
+    "startTime": "Inizio",
+    "endTime": "Fine"
   },
   "profile": {
     "userProfile": "Utente",
@@ -936,7 +1010,13 @@
     "updatingTags": "Aggiornamento...",
     "updateTagsTitle": "Scansiona le note per hashtag e aggiorna frontmatter",
     "tagsUpdated": "{processed} file elaborati, {updated} aggiornati con nuovi tag",
-    "failedToUpdateTags": "Impossibile aggiornare i tag"
+    "failedToUpdateTags": "Impossibile aggiornare i tag",
+    "historyEnabled": "Cronologia note",
+    "historyDescription": "Tiene traccia della cronologia delle versioni delle note. Consente di ripristinare versioni precedenti. Solo i salvataggi manuali creano punti nella cronologia (non il salvataggio automatico).",
+    "disableHistory": "Disattiva cronologia",
+    "disableHistoryWarning": "La disattivazione elimina in modo permanente tutte le versioni salvate per tutti gli utenti. Operazione irreversibile.",
+    "historyDisabled": "La cronologia delle note è stata disattivata e tutti i dati di cronologia sono stati eliminati.",
+    "failedToDisableHistory": "Impossibile disattivare la cronologia"
   },
   "errors": {
     "notFound": "Non Trovato",
@@ -1133,7 +1213,14 @@
     "excalidrawDescription": "Editor di diagrammi in stile schizzo",
     "noLanguagesFound": "Nessun linguaggio trovato",
     "ruler": "Righello",
-    "lineNumbers": "Numeri di riga"
+    "lineNumbers": "Numeri di riga",
+    "callout": "Riquadro",
+    "createCallout": "Crea un riquadro informativo",
+    "changeCalloutType": "Cambia tipo di riquadro",
+    "calloutInfo": "Info",
+    "calloutWarning": "Avviso",
+    "calloutSuccess": "Successo",
+    "calloutDanger": "Pericolo"
   },
   "sharing": {
     "share": "Condividi",
@@ -1506,5 +1593,18 @@
     "actionDelete": "Eliminato",
     "actionInit": "Inizializzato",
     "actionUnknown": "Modificato"
+  },
+  "notifications": {
+    "title": "Notifiche",
+    "markAllRead": "Segna tutto letto",
+    "clearAll": "Cancella tutto",
+    "empty": "Nessuna notifica",
+    "assignmentTitle": "Compito assegnato a te",
+    "assignmentMessage": "\"{task}\" in \"{board}\"",
+    "reminderTitle": "Compito in ritardo",
+    "reminderMessage": "\"{task}\" in \"{board}\" ha superato il promemoria",
+    "unread": "non letto",
+    "sharingTitle": "{user} ha condiviso un {type} con te",
+    "sharingMessage": "Apri per vedere il {type} condiviso"
   }
 }

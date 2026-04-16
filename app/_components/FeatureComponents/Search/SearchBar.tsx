@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/app/_utils/global-utils";
-import { Checklist, Note, AppMode } from "@/app/_types";
+import { AppMode } from "@/app/_types";
 import { SearchInput } from "./Parts/SearchInput";
 import { SearchResults } from "./Parts/SearchResults";
 import { useSearch } from "@/app/_hooks/useSearch";
@@ -44,8 +44,6 @@ export const SearchBar = ({
     }
   }, [autoFocus, inputRef]);
 
-  const translatedMode = mode === "notes" ? t('notes.title') : t('checklists.title')
-
   return (
     <div
       ref={containerRef}
@@ -57,7 +55,7 @@ export const SearchBar = ({
         onQueryChange={setQuery}
         onClear={() => setQuery("")}
         onFocus={() => setIsOpen(true)}
-        placeholder={t('common.searchPlaceholder')}
+        placeholder={t("common.searchPlaceholder")}
         inputRef={inputRef}
         className={cn("transition-all")}
       />

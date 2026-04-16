@@ -102,7 +102,7 @@ environment:
   - SERVE_PUBLIC_IMAGES=yes
   - SERVE_PUBLIC_FILES=yes
   - STOP_CHECK_UPDATES=no
-  - SSO_MODE=oidc
+  - AUTH_MODE=oidc
   - OIDC_ISSUER=<YOUR_SSO_ISSUER>
   - OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>
   - APP_URL=https://your-jotty-domain.com
@@ -124,7 +124,7 @@ environment:
 
 ### SSO Configuration (Optional)
 
-- `- SSO_MODE=oidc` Enables OIDC (OpenID Connect) single sign-on authentication.
+- `- AUTH_MODE=oidc` Enables OIDC (OpenID Connect) single sign-on authentication. (Previously `SSO_MODE`, which still works as a fallback.)
 - `- OIDC_ISSUER=<YOUR_SSO_ISSUER>` URL of your OIDC provider (e.g., Authentik, Auth0, Keycloak).
 - `- OIDC_CLIENT_ID=<YOUR_SSO_CLIENT_ID>` Client ID from your OIDC provider configuration.
 - `- OIDC_CLIENT_SECRET=your_client_secret` Optional. Client secret for confidential OIDC client authentication.

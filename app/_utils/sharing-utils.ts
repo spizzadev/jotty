@@ -1,3 +1,5 @@
+import { Modes } from "../_types/enums";
+
 interface ItemDetails {
   exists: boolean;
   isPublic: boolean;
@@ -7,7 +9,7 @@ interface ItemDetails {
 export const sharingInfo = (
   data: any,
   targetId: string,
-  targetCategory: string
+  targetCategory: string,
 ) => {
   let result: ItemDetails = {
     exists: false,
@@ -16,7 +18,9 @@ export const sharingInfo = (
   };
 
   const isMatch = (item: { id?: string; uuid?: string; category?: string }) =>
-    item.uuid === targetId || (item.id === targetId && item.category?.toLowerCase() === targetCategory?.toLowerCase());
+    item.uuid === targetId ||
+    (item.id === targetId &&
+      item.category?.toLowerCase() === targetCategory?.toLowerCase());
 
   for (const categoryKey in data) {
     const categoryObject = data[categoryKey];
@@ -48,15 +52,17 @@ export const getPermissions = (
   username: string,
   targetId: string,
   targetCategory: string,
-  itemType?: "checklists" | "notes"
+  itemType?: Modes,
 ) => {
   const isMatch = (item: { id?: string; uuid?: string; category?: string }) =>
-    item.uuid === targetId || (item.id === targetId && (!targetCategory || !item.category || item.category?.toLowerCase() === targetCategory?.toLowerCase()));
+    item.uuid === targetId ||
+    (item.id === targetId &&
+      (!targetCategory ||
+        !item.category ||
+        item.category?.toLowerCase() === targetCategory?.toLowerCase()));
 
   const categoriesToSearch =
-    itemType !== undefined
-      ? [itemType]
-      : (Object.keys(data || {}) as string[]);
+    itemType !== undefined ? [itemType] : (Object.keys(data || {}) as string[]);
 
   for (const categoryKey of categoriesToSearch) {
     const categoryObject = data?.[categoryKey];

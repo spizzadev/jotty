@@ -1,5 +1,5 @@
 export interface WsEvent {
-  type: "checklist" | "note" | "category" | "settings" | "sharing";
+  type: "checklist" | "note" | "category" | "settings" | "sharing" | "notification";
   action: "created" | "updated" | "deleted";
   entityId?: string;
   username: string;
@@ -8,4 +8,5 @@ export interface WsEvent {
 
 declare global {
   var __jottyBroadcast: ((event: WsEvent) => void) | undefined;
+  var __jottyHasConnectedClients: (() => boolean) | undefined;
 }

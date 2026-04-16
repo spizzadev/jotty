@@ -83,7 +83,7 @@ export interface Session {
   ipAddress: string;
   lastActivity: string;
   isCurrent: boolean;
-  loginType?: "local" | "sso" | "pending-mfa";
+  loginType?: "local" | "sso" | "pending-mfa" | "ldap";
 }
 
 export type SanitisedUser = Omit<

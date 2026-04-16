@@ -7,6 +7,9 @@ import fs from "fs/promises";
 import { SHARED_ITEMS_FILE } from "@/app/_consts/files";
 import { encodeCategoryPath } from "@/app/_utils/global-utils";
 import { extractYamlMetadata } from "@/app/_utils/yaml-metadata-utils";
+import { Modes } from "@/app/_types/enums";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
+import { NOTES_FOLDER } from "@/app/_consts/notes";
 
 interface OldSharedItem {
   id: string;
@@ -165,39 +168,43 @@ export const migrateToNewSharingFormat = async (): Promise<
     const notesSharingPath = join(
       process.cwd(),
       "data",
-      "notes",
-      ".sharing.json"
+      NOTES_FOLDER,
+      ".sharing.json",
     );
     const checklistsSharingPath = join(
       process.cwd(),
       "data",
-      "checklists",
-      ".sharing.json"
+      CHECKLISTS_FOLDER,
+      ".sharing.json",
     );
 
     if (Object.keys(notesSharingData).length > 0) {
-      await fs.mkdir(join(process.cwd(), "data", "notes"), { recursive: true });
+      await fs.mkdir(join(process.cwd(), "data", NOTES_FOLDER), {
+        recursive: true,
+      });
       await fs.writeFile(
         notesSharingPath,
-        JSON.stringify(notesSharingData, null, 2)
+        JSON.stringify(notesSharingData, null, 2),
       );
       changes.push(
-        `Created notes sharing file with ${Object.keys(notesSharingData).length
-        } user entries`
+        `Created notes sharing file with ${
+          Object.keys(notesSharingData).length
+        } user entries`,
       );
     }
 
     if (Object.keys(checklistsSharingData).length > 0) {
-      await fs.mkdir(join(process.cwd(), "data", "checklists"), {
+      await fs.mkdir(join(process.cwd(), "data", CHECKLISTS_FOLDER), {
         recursive: true,
       });
       await fs.writeFile(
         checklistsSharingPath,
-        JSON.stringify(checklistsSharingData, null, 2)
+        JSON.stringify(checklistsSharingData, null, 2),
       );
       changes.push(
-        `Created checklists sharing file with ${Object.keys(checklistsSharingData).length
-        } user entries`
+        `Created checklists sharing file with ${
+          Object.keys(checklistsSharingData).length
+        } user entries`,
       );
     }
 
@@ -316,7 +323,7 @@ export const findSharingFiles = async (dataDir: string): Promise<string[]> => {
 };
 
 export const migrateSharingFile = async (
-  sharingPath: string
+  sharingPath: string,
 ): Promise<Result<boolean>> => {
   try {
     const sharingContent = await fs.readFile(sharingPath, "utf-8");
@@ -343,10 +350,10 @@ export const migrateSharingFile = async (
       itemId: string,
       category: string,
       sharer: string,
-      isChecklist: boolean
+      isChecklist: boolean,
     ): Promise<string | null> => {
       const dataDir = join(process.cwd(), "data");
-      const modeDir = isChecklist ? "checklists" : "notes";
+      const modeDir = isChecklist ? Modes.CHECKLISTS : Modes.NOTES;
       const userDir = join(dataDir, modeDir, sharer);
       const decodedCategory = decodeURIComponent(category.replace(/%20/g, " "));
       const categoryDir = join(userDir, decodedCategory);
@@ -358,7 +365,7 @@ export const migrateSharingFile = async (
         return metadata.uuid || null;
       } catch (error) {
         console.warn(
-          `Could not read file for sharing entry ${itemId} in ${category} (sharer: ${sharer}): ${filePath}`
+          `Could not read file for sharing entry ${itemId} in ${category} (sharer: ${sharer}): ${filePath}`,
         );
         return null;
       }
@@ -373,12 +380,12 @@ export const migrateSharingFile = async (
           continue;
         }
 
-        const isChecklist = sharingPath.includes("checklists");
+        const isChecklist = sharingPath.includes(Modes.CHECKLISTS);
         const uuid = await getUuidForItem(
           entry.id,
           entry.category,
           entry.sharer,
-          isChecklist
+          isChecklist,
         );
 
         if (uuid) {
@@ -391,7 +398,7 @@ export const migrateSharingFile = async (
           });
         } else {
           console.warn(
-            `Skipping sharing entry for missing file: ${entry.id} in ${entry.category}`
+            `Skipping sharing entry for missing file: ${entry.id} in ${entry.category}`,
           );
         }
       }
@@ -404,7 +411,7 @@ export const migrateSharingFile = async (
     await fs.writeFile(
       sharingPath,
       JSON.stringify(newSharingData, null, 2),
-      "utf-8"
+      "utf-8",
     );
 
     return { success: true, data: true };
