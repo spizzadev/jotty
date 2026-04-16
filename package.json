@@ -3,8 +3,8 @@
   "version": "1.22.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build && node scripts/postbuild.js",
+    "dev": "node scripts/next-runner.js dev",
+    "build": "node scripts/next-runner.js build && node scripts/postbuild.js",
     "start": "next start",
     "lint": "eslint .",
     "test": "vitest",
@@ -14,7 +14,8 @@
     "mock:data:notes": "tsx tests/mock-data/note-generator.ts",
     "docker:test": "docker compose -f docker-compose.test.yml down && docker compose -f docker-compose.test.yml build && docker compose -f docker-compose.test.yml up -d",
     "docker:test:logs": "docker compose -f docker-compose.test.yml logs -f",
-    "docker:test:restart": "docker compose -f docker-compose.test.yml down && docker compose -f docker-compose.test.yml up -d"
+    "docker:test:restart": "docker compose -f docker-compose.test.yml down && docker compose -f docker-compose.test.yml up -d",
+    "postinstall": "node scripts/postinstall.js"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",
