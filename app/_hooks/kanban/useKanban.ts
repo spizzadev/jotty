@@ -1,13 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  DragEndEvent,
-  DragOverEvent,
-  DragStartEvent,
-} from "@dnd-kit/core";
-import { arrayMove } from "@dnd-kit/sortable";
-import { Checklist, KanbanStatus, RecurrenceRule, Result } from "@/app/_types";
+import { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
+import { Checklist, RecurrenceRule } from "@/app/_types";
 import {
   createItem,
   updateItemStatus,
@@ -16,7 +11,10 @@ import {
 } from "@/app/_server/actions/checklist-item";
 import { getListById } from "@/app/_server/actions/checklist";
 import { TaskStatus } from "@/app/_types/enums";
-import { getCurrentUser, getUserByChecklist } from "@/app/_server/actions/users";
+import {
+  getCurrentUser,
+  getUserByChecklist,
+} from "@/app/_server/actions/users";
 import { DEFAULT_KANBAN_STATUSES } from "@/app/_consts/kanban";
 
 interface UseKanbanBoardProps {
@@ -37,26 +35,34 @@ export const useKanbanBoard = ({
 
   const dragOriginalStatusRef = useRef<string | null>(null);
 
-  const validStatusIds = (localChecklist.statuses || DEFAULT_KANBAN_STATUSES).map(
-    (s) => s.id
-  );
+  const validStatusIds = (
+    localChecklist.statuses || DEFAULT_KANBAN_STATUSES
+  ).map((s) => s.id);
 
   useEffect(() => {
-    if (checklist.id !== localChecklist.id || checklist.updatedAt !== localChecklist.updatedAt) {
+    if (
+      checklist.id !== localChecklist.id ||
+      checklist.updatedAt !== localChecklist.updatedAt
+    ) {
       setLocalChecklist(checklist);
       setFocusKey((prev) => prev + 1);
     }
-  }, [checklist.id, checklist.updatedAt, localChecklist.id, localChecklist.updatedAt]);
+  }, [
+    checklist.id,
+    checklist.updatedAt,
+    localChecklist.id,
+    localChecklist.updatedAt,
+  ]);
 
   const refreshChecklist = useCallback(async () => {
     const checklistOwner = await getUserByChecklist(
       localChecklist.id,
-      localChecklist.category || "Uncategorized"
+      localChecklist.category || "Uncategorized",
     );
     const updatedChecklist = await getListById(
       localChecklist.id,
       checklistOwner?.data?.username,
-      localChecklist.category
+      localChecklist.category,
     );
     if (updatedChecklist) {
       setLocalChecklist(updatedChecklist);
@@ -64,173 +70,214 @@ export const useKanbanBoard = ({
     }
   }, [localChecklist.id, localChecklist.category, onUpdate]);
 
-  const getItemsByStatus = useCallback((status: string) => {
-    const firstStatus = (localChecklist.statuses || DEFAULT_KANBAN_STATUSES)
-      .sort((a, b) => a.order - b.order)[0]?.id || TaskStatus.TODO;
-    return localChecklist.items.filter((item) => {
-      if (item.isArchived) return false;
-      if (item.status === status) return true;
-      if (status === firstStatus) {
-        const hasValidStatus = validStatusIds.includes(item.status || "");
-        return !hasValidStatus;
+  const getItemsByStatus = useCallback(
+    (status: string) => {
+      const firstStatus =
+        (localChecklist.statuses || DEFAULT_KANBAN_STATUSES).sort(
+          (a, b) => a.order - b.order,
+        )[0]?.id || TaskStatus.TODO;
+      return localChecklist.items.filter((item) => {
+        if (item.isArchived) return false;
+        if (item.status === status) return true;
+        if (status === firstStatus) {
+          const hasValidStatus = validStatusIds.includes(item.status || "");
+          return !hasValidStatus;
+        }
+        return false;
+      });
+    },
+    [localChecklist.items, localChecklist.statuses, validStatusIds],
+  );
+
+  const handleDragStart = useCallback(
+    (event: DragStartEvent) => {
+      const id = event.active.id as string;
+      setActiveId(id);
+
+      const item = localChecklist.items.find((i) => i.id === id);
+      dragOriginalStatusRef.current = item?.status || TaskStatus.TODO;
+    },
+    [localChecklist.items],
+  );
+
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { over } = event;
+      setOverId(over ? (over.id as string) : null);
+
+      if (!over || !activeId) return;
+
+      const activeItem = localChecklist.items.find(
+        (item) => item.id === activeId,
+      );
+      if (!activeItem) return;
+
+      const overIdStr = over.id as string;
+
+      let targetStatus: string | null = null;
+      if (validStatusIds.includes(overIdStr)) {
+        targetStatus = overIdStr;
+      } else {
+        const overItem = localChecklist.items.find(
+          (item) => item.id === overIdStr,
+        );
+        if (overItem) targetStatus = overItem.status || TaskStatus.TODO;
       }
-      return false;
-    });
-  }, [localChecklist.items, localChecklist.statuses, validStatusIds]);
 
-  const handleDragStart = useCallback((event: DragStartEvent) => {
-    const id = event.active.id as string;
-    setActiveId(id);
-
-    const item = localChecklist.items.find((i) => i.id === id);
-    dragOriginalStatusRef.current = item?.status || TaskStatus.TODO;
-  }, [localChecklist.items]);
-
-  const handleDragOver = useCallback((event: DragOverEvent) => {
-    const { over } = event;
-    setOverId(over ? (over.id as string) : null);
-
-    if (!over || !activeId) return;
-
-    const activeItem = localChecklist.items.find((item) => item.id === activeId);
-    if (!activeItem) return;
-
-    const overIdStr = over.id as string;
-
-    let targetStatus: string | null = null;
-    if (validStatusIds.includes(overIdStr)) {
-      targetStatus = overIdStr;
-    } else {
-      const overItem = localChecklist.items.find((item) => item.id === overIdStr);
-      if (overItem) targetStatus = overItem.status || TaskStatus.TODO;
-    }
-
-    if (targetStatus && activeItem.status !== targetStatus) {
-      setLocalChecklist((prev) => ({
-        ...prev,
-        items: prev.items.map((item) =>
-          item.id === activeId ? { ...item, status: targetStatus } : item
-        ),
-      }));
-    }
-  }, [activeId, localChecklist.items, validStatusIds]);
-
-  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
-    const { active, over } = event;
-    const origStatus = dragOriginalStatusRef.current;
-    setActiveId(null);
-    setOverId(null);
-    dragOriginalStatusRef.current = null;
-
-    if (!over) {
-      if (origStatus) {
+      if (targetStatus && activeItem.status !== targetStatus) {
         setLocalChecklist((prev) => ({
           ...prev,
           items: prev.items.map((item) =>
-            item.id === (active.id as string) ? { ...item, status: origStatus } : item
+            item.id === activeId ? { ...item, status: targetStatus } : item,
           ),
         }));
       }
-      return;
-    }
+    },
+    [activeId, localChecklist.items, validStatusIds],
+  );
 
-    const activeIdStr = active.id as string;
-    const overIdStr = over.id as string;
+  const handleDragEnd = useCallback(
+    async (event: DragEndEvent) => {
+      const { active, over } = event;
+      const origStatus = dragOriginalStatusRef.current;
+      setActiveId(null);
+      setOverId(null);
+      dragOriginalStatusRef.current = null;
 
-    const droppedOnColumn = validStatusIds.includes(overIdStr);
-    const targetStatus = droppedOnColumn
-      ? overIdStr
-      : (localChecklist.items.find((item) => item.id === overIdStr)?.status || TaskStatus.TODO);
-
-    const isCrossColumn = origStatus !== targetStatus;
-
-    const columnItems = localChecklist.items.filter(
-      (item) => item.status === targetStatus && !item.isArchived && item.id !== activeIdStr
-    );
-
-    const isDraggingDown = (() => {
-      if (isCrossColumn) return false;
-      const allColumnItems = localChecklist.items.filter(
-        (item) => item.status === targetStatus && !item.isArchived
-      );
-      const activeOrigIdx = allColumnItems.findIndex((item) => item.id === activeIdStr);
-      const overOrigIdx = allColumnItems.findIndex((item) => item.id === overIdStr);
-      return activeOrigIdx < overOrigIdx;
-    })();
-
-    let insertIndex: number;
-    if (droppedOnColumn) {
-      insertIndex = columnItems.length;
-    } else {
-      const overIndex = columnItems.findIndex((item) => item.id === overIdStr);
-      if (overIndex === -1) {
-        insertIndex = columnItems.length;
-      } else if (isCrossColumn) {
-        const overRect = over.rect;
-        const dragY = event.activatorEvent && "clientY" in event.activatorEvent
-          ? (event.activatorEvent as PointerEvent).clientY + (event.delta?.y || 0)
-          : 0;
-        const overMidY = overRect ? overRect.top + overRect.height / 2 : 0;
-        insertIndex = dragY > overMidY ? overIndex + 1 : overIndex;
-      } else {
-        insertIndex = isDraggingDown ? overIndex + 1 : overIndex;
+      if (!over) {
+        if (origStatus) {
+          setLocalChecklist((prev) => ({
+            ...prev,
+            items: prev.items.map((item) =>
+              item.id === (active.id as string)
+                ? { ...item, status: origStatus }
+                : item,
+            ),
+          }));
+        }
+        return;
       }
-    }
 
-    const activeItem = localChecklist.items.find((item) => item.id === activeIdStr);
-    if (!activeItem) return;
+      const activeIdStr = active.id as string;
+      const overIdStr = over.id as string;
 
-    const updatedActiveItem = { ...activeItem, status: targetStatus };
-    const newColumnItems = [...columnItems];
-    newColumnItems.splice(insertIndex, 0, updatedActiveItem);
+      const droppedOnColumn = validStatusIds.includes(overIdStr);
+      const targetStatus = droppedOnColumn
+        ? overIdStr
+        : localChecklist.items.find((item) => item.id === overIdStr)?.status ||
+          TaskStatus.TODO;
 
-    const otherItems = localChecklist.items.filter(
-      (item) => (item.status !== targetStatus || item.isArchived) && item.id !== activeIdStr
-    );
-    const allItems = [...otherItems, ...newColumnItems];
+      const isCrossColumn = origStatus !== targetStatus;
 
-    setLocalChecklist((prev) => ({
-      ...prev,
-      items: allItems,
-      updatedAt: new Date().toISOString(),
-    }));
+      const columnItems = localChecklist.items.filter(
+        (item) =>
+          item.status === targetStatus &&
+          !item.isArchived &&
+          item.id !== activeIdStr,
+      );
 
-    if (isCrossColumn) {
-      await _handleItemStatusUpdate(activeIdStr, targetStatus);
+      const isDraggingDown = (() => {
+        if (isCrossColumn) return false;
+        const allColumnItems = localChecklist.items.filter(
+          (item) => item.status === targetStatus && !item.isArchived,
+        );
+        const activeOrigIdx = allColumnItems.findIndex(
+          (item) => item.id === activeIdStr,
+        );
+        const overOrigIdx = allColumnItems.findIndex(
+          (item) => item.id === overIdStr,
+        );
+        return activeOrigIdx < overOrigIdx;
+      })();
 
-      if (!droppedOnColumn) {
-        const reorderFormData = new FormData();
-        reorderFormData.append("listId", localChecklist.id);
-        reorderFormData.append("activeItemId", activeIdStr);
-        reorderFormData.append("overItemId", overIdStr);
-        reorderFormData.append("category", localChecklist.category || "Uncategorized");
-        const overIdx = columnItems.findIndex((item) => item.id === overIdStr);
-        if (insertIndex > overIdx) {
-          reorderFormData.append("position", "after");
+      let insertIndex: number;
+      if (droppedOnColumn) {
+        insertIndex = columnItems.length;
+      } else {
+        const overIndex = columnItems.findIndex(
+          (item) => item.id === overIdStr,
+        );
+        if (overIndex === -1) {
+          insertIndex = columnItems.length;
+        } else if (isCrossColumn) {
+          const overRect = over.rect;
+          const dragY =
+            event.activatorEvent && "clientY" in event.activatorEvent
+              ? (event.activatorEvent as PointerEvent).clientY +
+                (event.delta?.y || 0)
+              : 0;
+          const overMidY = overRect ? overRect.top + overRect.height / 2 : 0;
+          insertIndex = dragY > overMidY ? overIndex + 1 : overIndex;
+        } else {
+          insertIndex = isDraggingDown ? overIndex + 1 : overIndex;
+        }
+      }
+
+      const activeItem = localChecklist.items.find(
+        (item) => item.id === activeIdStr,
+      );
+      if (!activeItem) return;
+
+      const updatedActiveItem = { ...activeItem, status: targetStatus };
+      const newColumnItems = [...columnItems];
+      newColumnItems.splice(insertIndex, 0, updatedActiveItem);
+
+      const otherItems = localChecklist.items.filter(
+        (item) =>
+          (item.status !== targetStatus || item.isArchived) &&
+          item.id !== activeIdStr,
+      );
+      const allItems = [...otherItems, ...newColumnItems];
+
+      setLocalChecklist((prev) => ({
+        ...prev,
+        items: allItems,
+        updatedAt: new Date().toISOString(),
+      }));
+
+      if (isCrossColumn) {
+        await _handleItemStatusUpdate(activeIdStr, targetStatus);
+
+        if (!droppedOnColumn) {
+          const reorderFormData = new FormData();
+          reorderFormData.append("listId", localChecklist.id);
+          reorderFormData.append("activeItemId", activeIdStr);
+          reorderFormData.append("overItemId", overIdStr);
+          reorderFormData.append(
+            "category",
+            localChecklist.category || "Uncategorized",
+          );
+          const overIdx = columnItems.findIndex(
+            (item) => item.id === overIdStr,
+          );
+          if (insertIndex > overIdx) {
+            reorderFormData.append("position", "after");
+          }
+
+          await reorderItems(reorderFormData);
         }
 
-        await reorderItems(reorderFormData);
-      }
-
-      await refreshChecklist();
-    } else {
-      if (droppedOnColumn || activeIdStr === overIdStr) return;
-
-      const formData = new FormData();
-      formData.append("listId", localChecklist.id);
-      formData.append("activeItemId", activeIdStr);
-      formData.append("overItemId", overIdStr);
-      formData.append("category", localChecklist.category || "Uncategorized");
-      if (isDraggingDown) {
-        formData.append("position", "after");
-      }
-
-      const result = await reorderItems(formData);
-      if (result.success) {
         await refreshChecklist();
+      } else {
+        if (droppedOnColumn || activeIdStr === overIdStr) return;
+
+        const formData = new FormData();
+        formData.append("listId", localChecklist.id);
+        formData.append("activeItemId", activeIdStr);
+        formData.append("overItemId", overIdStr);
+        formData.append("category", localChecklist.category || "Uncategorized");
+        if (isDraggingDown) {
+          formData.append("position", "after");
+        }
+
+        const result = await reorderItems(formData);
+        if (result.success) {
+          await refreshChecklist();
+        }
       }
-    }
-  }, [localChecklist, validStatusIds, refreshChecklist]);
+    },
+    [localChecklist, validStatusIds, refreshChecklist],
+  );
 
   const _handleItemStatusUpdate = async (itemId: string, newStatus: string) => {
     const formData = new FormData();
@@ -265,18 +312,18 @@ export const useKanbanBoard = ({
     const result = await createItem(
       localChecklist,
       formData,
-      currentUser?.username
+      currentUser?.username,
     );
 
     const checklistOwner = await getUserByChecklist(
       localChecklist.id,
-      localChecklist.category || "Uncategorized"
+      localChecklist.category || "Uncategorized",
     );
 
     const updatedList = await getListById(
       localChecklist.id,
       checklistOwner?.data?.username,
-      localChecklist.category
+      localChecklist.category,
     );
     if (updatedList) {
       setLocalChecklist(updatedList);
@@ -304,11 +351,14 @@ export const useKanbanBoard = ({
     }
   };
 
-  const handleItemUpdate = useCallback((updatedChecklist: Checklist) => {
-    setLocalChecklist(updatedChecklist);
-    onUpdate(updatedChecklist);
-    refreshChecklist();
-  }, [onUpdate, refreshChecklist]);
+  const handleItemUpdate = useCallback(
+    (updatedChecklist: Checklist) => {
+      setLocalChecklist(updatedChecklist);
+      onUpdate(updatedChecklist);
+      refreshChecklist();
+    },
+    [onUpdate, refreshChecklist],
+  );
 
   const activeItem = activeId
     ? localChecklist.items.find((item) => item.id === activeId)
