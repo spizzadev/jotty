@@ -47,8 +47,8 @@ export const NoteEditor = ({
         onOpenViewModal={viewModalRef}
       />
 
-      <div className="flex h-full w-full relative">
-        <div className="flex-1 overflow-y-auto jotty-scrollable-content max-h-[95vh]">
+      <div className="flex flex-1 w-full relative min-h-0">
+        <div className="flex-1 overflow-y-auto jotty-scrollable-content min-h-0">
           <NoteEditorContent
             isEditing={viewModel.isEditing}
             noteContent={note.content}
