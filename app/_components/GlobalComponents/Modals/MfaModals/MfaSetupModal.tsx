@@ -276,7 +276,7 @@ export const MfaSetupModal = ({
 
                     {isVerifying && (
                         <div className="flex items-center justify-center gap-2 text-md lg:text-sm text-muted-foreground">
-                            <DynamicLogo className="h-4 w-4 animate-pulse" size="32x32" />
+                            <DynamicLogo className="h-4 w-4 animate-pulse" />
                             {t("mfa.verifying")}
                         </div>
                     )}
