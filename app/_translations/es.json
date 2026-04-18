@@ -831,7 +831,12 @@
     "codeBlockChoice": "Elija el estilo del bloque de código",
     "themedCodeBlock": "Bloque de código temático",
     "defaultCodeBlock": "Codepen (predeterminado)",
-    "codeBlockChoiceDescription": "Elija entre el estilo de bloque de código predeterminado similar a un codepen o un estilo de bloque de código temático."
+    "codeBlockChoiceDescription": "Elija entre el estilo de bloque de código predeterminado similar a un codepen o un estilo de bloque de código temático.",
+    "checklistItemClickAction": "Acción de hacer clic en un elemento de la lista de verificación",
+    "selectChecklistItemClickAction": "Seleccionar elemento de la lista de verificación hacer clic en acción",
+    "checklistItemClickActionDescription": "Elija qué sucede cuando hace clic en el texto de una tarea. \n\"Marcar como completo\" activa la casilla de verificación (predeterminada); \n\"Editar nombre de la tarea\" abre la tarea para su edición en línea; aún deberá hacer clic en la casilla de verificación para completarla.",
+    "checklistItemClickActionToggle": "Marcar como completo/incompleto",
+    "checklistItemClickActionEdit": "Editar elemento de la lista"
   },
   "admin": {
     "title": "Administrador",

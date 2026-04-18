@@ -95,7 +95,6 @@ export const SwipeNavigationWrapper = ({
       <div
         ref={currentRef}
         className="relative z-10 w-full h-full"
-        style={{ willChange: "transform, opacity" }}
       >
         {children}
       </div>
@@ -104,7 +103,7 @@ export const SwipeNavigationWrapper = ({
         <div
           ref={prevRef}
           className="absolute inset-0 z-20 bg-background pointer-events-none"
-          style={{ opacity: 0, willChange: "transform, opacity" }}
+          style={{ opacity: 0 }}
         >
           <iframe
             src={prevUrl}
@@ -119,7 +118,7 @@ export const SwipeNavigationWrapper = ({
         <div
           ref={nextRef}
           className="absolute inset-0 z-20 bg-background pointer-events-none"
-          style={{ opacity: 0, willChange: "transform, opacity" }}
+          style={{ opacity: 0 }}
         >
           <iframe
             src={nextUrl}

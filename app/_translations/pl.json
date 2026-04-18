@@ -831,7 +831,12 @@
     "codeBlockChoice": "Wybierz styl bloku kodu",
     "themedCodeBlock": "Tematyczny blok kodu",
     "defaultCodeBlock": "Codepen (domyślnie)",
-    "codeBlockChoiceDescription": "Wybierz pomiędzy domyślnym stylem bloków kodu podobnym do codepen lub tematycznym stylem bloków kodu."
+    "codeBlockChoiceDescription": "Wybierz pomiędzy domyślnym stylem bloków kodu podobnym do codepen lub tematycznym stylem bloków kodu.",
+    "checklistItemClickAction": "Akcja kliknięcia elementu listy kontrolnej",
+    "selectChecklistItemClickAction": "Wybierz czynność kliknięcia elementu listy kontrolnej",
+    "checklistItemClickActionDescription": "Wybierz, co się stanie, gdy klikniesz tekst zadania. \n„Oznacz jako ukończone” przełącza pole wyboru (domyślnie); \n„Edytuj nazwę zadania” otwiera zadanie do edycji bezpośredniej — nadal będziesz musiał kliknąć samo pole wyboru, aby je ukończyć.",
+    "checklistItemClickActionToggle": "Oznacz jako ukończone/niekompletne",
+    "checklistItemClickActionEdit": "Edytuj element listy"
   },
   "admin": {
     "title": "Admin",

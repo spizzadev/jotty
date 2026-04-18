@@ -327,13 +327,13 @@ const NestedChecklistItemComponent = ({
           className={cn(
             "relative my-1",
             hasChildren &&
-              !isChild &&
-              "border-l-2 bg-muted/30 border-l-primary/70 rounded-jotty border-dashed border-t",
+            !isChild &&
+            "border-l-2 bg-muted/30 border-l-primary/70 rounded-jotty border-dashed border-t",
             !hasChildren &&
-              !isChild &&
-              "border-l-2 bg-muted/30 border-l-primary/70 rounded-jotty border-dashed border-t",
+            !isChild &&
+            "border-l-2 bg-muted/30 border-l-primary/70 rounded-jotty border-dashed border-t",
             isChild &&
-              "ml-4 rounded-jotty border-dashed border-l border-border border-l-primary/70",
+            "ml-4 rounded-jotty border-dashed border-l border-border border-l-primary/70",
             "first:mt-0 transition-colors duration-150",
             isActive && "bg-muted/20",
             isDragging && "opacity-50 z-50",
@@ -352,7 +352,7 @@ const NestedChecklistItemComponent = ({
               isChild ? "px-2.5 py-1.5 lg:py-2" : "p-1.5 lg:p-2",
               completed && "opacity-80",
               !permissions?.canEdit &&
-                "opacity-50 cursor-not-allowed pointer-events-none",
+              "opacity-50 cursor-not-allowed pointer-events-none",
             )}
           >
             {!isPublicView && !isDragDisabled && permissions?.canEdit && (
@@ -434,7 +434,7 @@ const NestedChecklistItemComponent = ({
                 )}
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-between gap-2 max-w-[85%] lg:max-w-full">
+              <div className="flex-1 flex items-center justify-between gap-2 min-w-0">
                 <div className="flex-1 flex gap-1.5 max-w-full">
                   <label
                     htmlFor={item.id}
@@ -459,10 +459,47 @@ const NestedChecklistItemComponent = ({
                       <RecurrenceIndicator recurrence={item.recurrence} />
                     )}
 
-                    <span className="break-words max-w-[85%] lg:max-w-full">
-                      {tagsEnabled ? renderTextWithHashtags(displayText) : displayText}
-                    </span>
+                    {!(
+                      user?.checklistItemClickAction === "edit" &&
+                      permissions?.canEdit &&
+                      onEdit &&
+                      !isPublicView
+                    ) && (
+                      <span className="break-words min-w-0">
+                        {tagsEnabled ? renderTextWithHashtags(displayText) : displayText}
+                      </span>
+                    )}
                   </label>
+                  {user?.checklistItemClickAction === "edit" &&
+                    permissions?.canEdit &&
+                    onEdit &&
+                    !isPublicView && (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          if (e.metaKey || e.ctrlKey) {
+                            onToggle(item.id, !(item.completed || completed));
+                            return;
+                          }
+                          handleEdit();
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleEdit();
+                          }
+                        }}
+                        className={cn(
+                          "text-md lg:text-sm transition-all duration-200 cursor-text break-words min-w-0 flex items-center select-text",
+                          item.completed || completed
+                            ? "line-through text-muted-foreground"
+                            : "text-foreground",
+                        )}
+                      >
+                        {tagsEnabled ? renderTextWithHashtags(displayText) : displayText}
+                      </span>
+                    )}
                 </div>
 
                 <LastModifiedCreatedInfo
@@ -651,9 +688,8 @@ const NestedChecklistItemComponent = ({
             <div className={cn("pt-1")}>
               {draggedItemId !== item.id && (
                 <DropIndicator
-                  id={`drop-before-child::${
-                    item.children![0]?.id || `${item.id}-start`
-                  }`}
+                  id={`drop-before-child::${item.children![0]?.id || `${item.id}-start`
+                    }`}
                   data={{
                     type: "drop-indicator",
                     position: "before",

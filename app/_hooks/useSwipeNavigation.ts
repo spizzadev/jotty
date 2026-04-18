@@ -43,6 +43,11 @@ const applyStyles = (
   el.style.opacity = String(opacity);
 };
 
+const _setWillChange = (el: HTMLElement | null, active: boolean) => {
+  if (!el) return;
+  el.style.willChange = active ? "transform, opacity" : "";
+};
+
 export const useSwipeNavigation = ({
   enabled,
   onNavigateLeft,
@@ -77,6 +82,16 @@ export const useSwipeNavigation = ({
     applyStyles(prevRef.current, `translateX(-${sw}px) scale(${INCOMING_START_SCALE})`, 0, transition);
     applyStyles(nextRef.current, `translateX(${sw}px) scale(${INCOMING_START_SCALE})`, 0, transition);
     swipingRef.current = false;
+    const clearWillChange = () => {
+      _setWillChange(currentRef.current, false);
+      _setWillChange(prevRef.current, false);
+      _setWillChange(nextRef.current, false);
+    };
+    if (transition) {
+      setTimeout(clearWillChange, SNAP_DURATION);
+    } else {
+      clearWillChange();
+    }
   }, [currentRef, prevRef, nextRef]);
 
   const applyProgress = useCallback((
@@ -133,6 +148,9 @@ export const useSwipeNavigation = ({
       }
       directionLockedRef.current = "horizontal";
       swipingRef.current = true;
+      _setWillChange(currentRef.current, true);
+      _setWillChange(prevRef.current, true);
+      _setWillChange(nextRef.current, true);
     }
 
     if (directionLockedRef.current !== "horizontal") return;

@@ -831,7 +831,12 @@
     "codeBlockChoice": "Choisissez le style de bloc de code",
     "themedCodeBlock": "Bloc de code thématique",
     "defaultCodeBlock": "Codepen (par défaut)",
-    "codeBlockChoiceDescription": "Choisissez entre le style de bloc de code par défaut de type codepen ou un style de bloc de code thématique."
+    "codeBlockChoiceDescription": "Choisissez entre le style de bloc de code par défaut de type codepen ou un style de bloc de code thématique.",
+    "checklistItemClickAction": "Action de clic sur un élément de la liste de contrôle",
+    "selectChecklistItemClickAction": "Sélectionnez l'élément de la liste de contrôle, cliquez sur l'action",
+    "checklistItemClickActionDescription": "Choisissez ce qui se passe lorsque vous cliquez sur le texte d'une tâche. \n« Marquer comme terminé » coche la case (par défaut) ; \n« Modifier le nom de la tâche » ouvre la tâche pour une modification en ligne ; vous devrez toujours cliquer sur la case à cocher elle-même pour la terminer.",
+    "checklistItemClickActionToggle": "Marquer comme complet/incomplet",
+    "checklistItemClickActionEdit": "Modifier un élément de liste"
   },
   "admin": {
     "title": "Admin",

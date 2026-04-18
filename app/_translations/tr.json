@@ -856,7 +856,12 @@
     "selectConnectionIndicator": "Bağlantı göstergesi durumunu seçin",
     "showIndicator": "Göstergeyi göster",
     "hideIndicator": "Göstergeyi gizle",
-    "hideConnectionIndicator": "Logodaki bağlantı göstergesini gizle"
+    "hideConnectionIndicator": "Logodaki bağlantı göstergesini gizle",
+    "checklistItemClickAction": "Kontrol listesi öğesi tıklama eylemi",
+    "selectChecklistItemClickAction": "Kontrol listesi öğesini seçin tıklama eylemi",
+    "checklistItemClickActionDescription": "Bir görevin metnini tıklattığınızda ne olacağını seçin. \n\"Tamamlandı olarak işaretle\" onay kutusunu değiştirir (varsayılan); \n\"Görev adını düzenle\", görevi satır içi düzenleme için açar; bunu tamamlamak için yine de onay kutusunu tıklamanız gerekir.",
+    "checklistItemClickActionToggle": "Tamamlandı/tamamlanmadı olarak işaretle",
+    "checklistItemClickActionEdit": "Liste öğesini düzenle"
   },
   "admin": {
     "title": "Yönetici",

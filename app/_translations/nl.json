@@ -831,7 +831,12 @@
     "codeBlockChoice": "Kies de codeblokstijl",
     "themedCodeBlock": "Thema-codeblok",
     "defaultCodeBlock": "Codepen (standaard)",
-    "codeBlockChoiceDescription": "Kies tussen de codepen-achtige standaardcodeblokstijl of een thematische codeblokstijl."
+    "codeBlockChoiceDescription": "Kies tussen de codepen-achtige standaardcodeblokstijl of een thematische codeblokstijl.",
+    "checklistItemClickAction": "Klikactie op checklistitem",
+    "selectChecklistItemClickAction": "Selecteer de klikactie voor het checklistitem",
+    "checklistItemClickActionDescription": "Kies wat er gebeurt als u op de tekst van een taak klikt. \n\"Markeren als voltooid\" schakelt het selectievakje in (standaard); \nMet 'Taaknaam bewerken' wordt de taak geopend voor inline bewerken. U moet nog steeds op het selectievakje zelf klikken om deze te voltooien.",
+    "checklistItemClickActionToggle": "Markeer als compleet/onvolledig",
+    "checklistItemClickActionEdit": "Lijstitem bewerken"
   },
   "admin": {
     "title": "Beheer",

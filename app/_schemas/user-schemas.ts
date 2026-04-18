@@ -68,6 +68,9 @@ export const checklistSettingsSchema = z.object({
         "Default checklist filter must be 'all', 'completed', 'incomplete', 'pinned', 'kanban', or 'simple'",
     },
   ),
+  checklistItemClickAction: z.enum(["toggle", "edit"], {
+    message: "Checklist item click action must be either 'toggle' or 'edit'",
+  }),
 });
 
 export const fileSettingsSchema = z.object({

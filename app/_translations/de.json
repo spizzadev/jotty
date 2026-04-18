@@ -831,7 +831,12 @@
     "codeBlockChoice": "Wählen Sie den Codeblockstil",
     "themedCodeBlock": "Themenbezogener Codeblock",
     "defaultCodeBlock": "Codepen (Standard)",
-    "codeBlockChoiceDescription": "Wählen Sie zwischen dem Codepen-ähnlichen Standard-Codeblockstil oder einem thematischen Codeblockstil."
+    "codeBlockChoiceDescription": "Wählen Sie zwischen dem Codepen-ähnlichen Standard-Codeblockstil oder einem thematischen Codeblockstil.",
+    "checklistItemClickAction": "Klickaktion für Checklistenelement",
+    "selectChecklistItemClickAction": "Klicken Sie auf die Aktion „Checklistenelement auswählen“.",
+    "checklistItemClickActionDescription": "Wählen Sie aus, was passiert, wenn Sie auf den Text einer Aufgabe klicken. \n„Als abgeschlossen markieren“ schaltet das Kontrollkästchen ein (Standard); \n„Aufgabennamen bearbeiten“ öffnet die Aufgabe zur Inline-Bearbeitung – Sie müssen noch das Kontrollkästchen selbst anklicken, um sie abzuschließen.",
+    "checklistItemClickActionToggle": "Als vollständig/unvollständig markieren",
+    "checklistItemClickActionEdit": "Listenelement bearbeiten"
   },
   "admin": {
     "title": "Administration",
