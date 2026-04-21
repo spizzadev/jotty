@@ -91,7 +91,7 @@ export const SwipeNavigationWrapper = ({
   }
 
   return (
-    <div ref={wrapperRef} className="relative w-full h-full overflow-x-hidden" style={{ touchAction: "pan-y" }}>
+    <div ref={wrapperRef} className="relative w-full h-full overflow-x-hidden">
       <div
         ref={currentRef}
         className="relative z-10 w-full h-full"
@@ -103,7 +103,7 @@ export const SwipeNavigationWrapper = ({
         <div
           ref={prevRef}
           className="absolute inset-0 z-20 bg-background pointer-events-none"
-          style={{ opacity: 0 }}
+          style={{ opacity: 0, display: "none" }}
         >
           <iframe
             src={prevUrl}
@@ -118,7 +118,7 @@ export const SwipeNavigationWrapper = ({
         <div
           ref={nextRef}
           className="absolute inset-0 z-20 bg-background pointer-events-none"
-          style={{ opacity: 0 }}
+          style={{ opacity: 0, display: "none" }}
         >
           <iframe
             src={nextUrl}

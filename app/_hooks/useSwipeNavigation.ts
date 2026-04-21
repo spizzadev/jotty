@@ -6,6 +6,7 @@ interface UseSwipeNavigationProps {
   enabled: boolean;
   onNavigateLeft: () => void;
   onNavigateRight: () => void;
+  onSwipingChange?: (swiping: boolean) => void;
   wrapperRef: RefObject<HTMLDivElement | null>;
   currentRef: RefObject<HTMLDivElement | null>;
   prevRef: RefObject<HTMLDivElement | null>;
@@ -59,6 +60,7 @@ export const useSwipeNavigation = ({
   enabled,
   onNavigateLeft,
   onNavigateRight,
+  onSwipingChange,
   wrapperRef,
   currentRef,
   prevRef,
@@ -66,6 +68,12 @@ export const useSwipeNavigation = ({
   hasPrev,
   hasNext,
 }: UseSwipeNavigationProps) => {
+  const _setOverlaysVisible = (visible: boolean) => {
+    const display = visible ? "" : "none";
+    if (prevRef.current) prevRef.current.style.display = display;
+    if (nextRef.current) nextRef.current.style.display = display;
+  };
+
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const directionLockedRef = useRef<"horizontal" | "vertical" | null>(null);
   const navigatingRef = useRef(false);
@@ -96,6 +104,7 @@ export const useSwipeNavigation = ({
       _setWillChange(currentRef.current, false);
       _setWillChange(prevRef.current, false);
       _setWillChange(nextRef.current, false);
+      _setOverlaysVisible(false);
     };
 
     if (transition && wasSwiping) {
@@ -160,6 +169,7 @@ export const useSwipeNavigation = ({
       }
       directionLockedRef.current = "horizontal";
       swipingRef.current = true;
+      _setOverlaysVisible(true);
       _setWillChange(currentRef.current, true);
       _setWillChange(prevRef.current, true);
       _setWillChange(nextRef.current, true);

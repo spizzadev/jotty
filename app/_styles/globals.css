@@ -665,6 +665,11 @@ pre.text-foreground span,
     scrollbar-width: auto !important;
 }
 
+.jotty-scrollable-content {
+    transform: translateZ(0);
+    -webkit-overflow-scrolling: touch;
+}
+
 .overflow-x-auto::-webkit-scrollbar {
     height: 8px;
 }
