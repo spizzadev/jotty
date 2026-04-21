@@ -62,14 +62,19 @@ export const CreateNoteModal = ({
     return category;
   };
 
-  const _finalizeCreate = async (rawContent: string) => {
+  const _finalizeCreate = async (rawContent: string, isEncrypted = false) => {
     const finalCategoryPath = await _resolveCategoryPath();
     const formData = new FormData();
     formData.append("title", title.trim());
     formData.append("category", finalCategoryPath);
     formData.append("rawContent", rawContent);
     const result = await createNote(formData);
-    if (result.success) onCreated(result.data);
+    if (result.success) {
+      const doc = result.data && isEncrypted
+        ? { ...result.data, encrypted: true }
+        : result.data;
+      onCreated(doc);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -93,7 +98,7 @@ export const CreateNoteModal = ({
     setShowEncryptionModal(false);
     setIsCreating(true);
     try {
-      await _finalizeCreate(encryptedContent);
+      await _finalizeCreate(encryptedContent, true);
     } finally {
       setIsCreating(false);
     }
