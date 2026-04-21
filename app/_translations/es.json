@@ -1354,7 +1354,7 @@
     "noteWillBeRestoredAsUnencrypted": "El contenido de la nota se restaurará sin encriptar",
     "youWillBeAbleToEditAfterDecryption": "Podrá editar el contenido de la nota después de la desencriptación",
     "publicKeyRequired": "Se requiere clave pública. No tiene claves almacenadas.",
-    "keyRequired": "Se requiere clave {keyType}",
+    "keyRequired": "Se requiere {keyType}",
     "privateKeyRequiredForSigning": "Se requiere clave privada para firmar",
     "passphraseRequiredForSigning": "Se requiere frase de contraseña para firmar",
     "signatureVerified": "Firma verificada.",
@@ -1412,7 +1412,8 @@
     "keysImportedSuccessfully": "Claves importadas exitosamente",
     "failedToImportKeys": "Error al importar claves",
     "created": "Cifrado creado",
-    "decrypted": "Descifrado"
+    "decrypted": "Descifrado",
+    "notePlaceholder": "Soy un marcador de posición porque no puedes cifrar una nota vacía."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Estas opciones solo se aplican a la sesión actual del navegador. Para configuraciones permanentes, por favor revise sus",

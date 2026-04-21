@@ -1379,7 +1379,7 @@
     "noteWillBeRestoredAsUnencrypted": "Note content will be restored as unencrypted",
     "youWillBeAbleToEditAfterDecryption": "You will be able to edit the note content after decryption",
     "publicKeyRequired": "Public key is required. You don't have any stored keys.",
-    "keyRequired": "{keyType} key is required",
+    "keyRequired": "{keyType} is required",
     "privateKeyRequiredForSigning": "Private key is required for signing",
     "passphraseRequiredForSigning": "Passphrase is required for signing",
     "signatureVerified": "Signature verified.",
@@ -1436,7 +1436,8 @@
     "invalidPrivateKeyFormat": "Invalid private key format. Must be ASCII-armored PGP key.",
     "keysImportedSuccessfully": "Keys imported successfully",
     "failedToImportKeys": "Failed to import keys",
-    "created": "Encryption created"
+    "created": "Encryption created",
+    "notePlaceholder": "I am a placeholder because you can't encrypt an empty note."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "These options only apply to the current browser session. For permanent settings please check your",

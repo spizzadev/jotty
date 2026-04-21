@@ -1354,7 +1354,7 @@
     "noteWillBeRestoredAsUnencrypted": "Treść zostanie przywrócona jako niezaszyfrowana",
     "youWillBeAbleToEditAfterDecryption": "Będziesz mógł edytować treść po odszyfrowaniu",
     "publicKeyRequired": "Publiczny klucz jest wymagany. Nie masz żadnych przechowywanych kluczy.",
-    "keyRequired": "{keyType} klucz jest wymagany",
+    "keyRequired": "{keyType} jest wymagany",
     "privateKeyRequiredForSigning": "Prywatny klucz jest wymagany do podpisywania",
     "passphraseRequiredForSigning": "Hasło jest wymagane do podpisywania",
     "signatureVerified": "Podpis zweryfikowany.",
@@ -1411,7 +1411,8 @@
     "invalidPrivateKeyFormat": "Nieprawidłowy format klucza prywatnego. Musi być ASCII‑armoured PGP.",
     "keysImportedSuccessfully": "Klucze pomyślnie zaimportowane",
     "failedToImportKeys": "Nie udało się importować kluczy",
-    "created": "Szyfrowanie utworzone"
+    "created": "Szyfrowanie utworzone",
+    "notePlaceholder": "Jestem symbolem zastępczym, ponieważ nie można zaszyfrować pustej notatki."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Te opcje mają zastosowanie tylko w bieżącej sesji przeglądarki. Aby zapisać ustawienia na stałe, sprawdź swoje",

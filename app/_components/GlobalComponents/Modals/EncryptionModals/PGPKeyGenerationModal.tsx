@@ -63,7 +63,7 @@ export const PGPKeyGenerationModal = ({
       return;
     }
 
-    if (passphrase.length < 8) {
+    if (passphrase.length < 6) {
       showToast({
         type: "error",
         title: t("common.error"),

@@ -1381,7 +1381,7 @@
     "noteWillBeRestoredAsUnencrypted": "Not içeriği şifresiz olarak geri yüklenecektir",
     "youWillBeAbleToEditAfterDecryption": "Şifre çözüldükten sonra not içeriğini düzenleyebileceksiniz",
     "publicKeyRequired": "Genel anahtar gereklidir. Kayıtlı bir anahtarınız bulunmuyor.",
-    "keyRequired": "{keyType} anahtarı gereklidir",
+    "keyRequired": "{keyType} gereklidir",
     "privateKeyRequiredForSigning": "İmzalama için özel anahtar gereklidir",
     "passphraseRequiredForSigning": "İmzalama için parola gereklidir",
     "signatureVerified": "İmza doğrulandı.",
@@ -1438,7 +1438,8 @@
     "invalidPrivateKeyFormat": "Geçersiz özel anahtar formatı. ASCII-armored PGP anahtarı olmalıdır.",
     "keysImportedSuccessfully": "Anahtarlar başarıyla içe aktarıldı",
     "failedToImportKeys": "Anahtarlar içe aktarılamadı",
-    "created": "Şifreleme oluşturuldu"
+    "created": "Şifreleme oluşturuldu",
+    "notePlaceholder": "Ben yer tutucuyum çünkü boş bir notu şifreleyemezsiniz."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Bu seçenekler yalnızca geçerli tarayıcı oturumu için geçerlidir. Kalıcı ayarlar için lütfen şurayı kontrol edin:",

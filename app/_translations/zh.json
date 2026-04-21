@@ -1436,7 +1436,8 @@
     "invalidPrivateKeyFormat": "无效的私钥格式。必须是 ASCII-armored PGP 密钥。",
     "keysImportedSuccessfully": "密钥导入成功",
     "failedToImportKeys": "导入密钥失败",
-    "created": "加密已创建"
+    "created": "加密已创建",
+    "notePlaceholder": "我是一个占位符，因为你无法加密空笔记。"
   },
   "settingsModal": {
     "sessionOnlyPrefix": "这些选项仅适用于当前浏览器会话。如需永久设置，请检查您的",

@@ -1354,7 +1354,7 @@
     "noteWillBeRestoredAsUnencrypted": "La nota verrà ripristinata come non criptata",
     "youWillBeAbleToEditAfterDecryption": "Potrai modificare il contenuto della nota dopo la decrittazione",
     "publicKeyRequired": "La chiave pubblica è richiesta. Non hai chiavi salvate.",
-    "keyRequired": "Chiave {keyType} richiesta",
+    "keyRequired": "{keyType} richiesta",
     "privateKeyRequiredForSigning": "La chiave privata è richiesta per la firma",
     "passphraseRequiredForSigning": "La passphrase è richiesta per la firma",
     "signatureVerified": "Firma verificata.",
@@ -1411,7 +1411,8 @@
     "invalidPrivateKeyFormat": "Formato chiave privata non valido. Deve essere una chiave PGP ASCII-armored.",
     "keysImportedSuccessfully": "Chiavi importate con successo",
     "failedToImportKeys": "Impossibile importare le chiavi",
-    "created": "Crittografia creata"
+    "created": "Crittografia creata",
+    "notePlaceholder": "Sono un segnaposto perché non puoi crittografare una nota vuota."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Queste opzioni si applicano solo alla sessione corrente. Per modifiche permanenti vai su",

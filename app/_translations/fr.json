@@ -1354,7 +1354,7 @@
     "noteWillBeRestoredAsUnencrypted": "Le contenu de la note sera restauré en clair (non chiffré)",
     "youWillBeAbleToEditAfterDecryption": "Vous pourrez modifier la note après déchiffrement",
     "publicKeyRequired": "La clé publique est requise. Vous n’avez aucune clé stockée.",
-    "keyRequired": "La clé {keyType} est requise",
+    "keyRequired": "{keyType} est requise",
     "privateKeyRequiredForSigning": "La clé privée est requise pour la signature",
     "passphraseRequiredForSigning": "La phrase de passe est requise pour la signature",
     "signatureVerified": "Signature vérifiée.",
@@ -1411,7 +1411,8 @@
     "invalidPrivateKeyFormat": "Format de clé privée invalide. Doit être une clé PGP ASCII armored.",
     "keysImportedSuccessfully": "Clés importées avec succès",
     "failedToImportKeys": "Échec de l’import des clés",
-    "created": "Chiffrement créé"
+    "created": "Chiffrement créé",
+    "notePlaceholder": "Je suis un espace réservé car vous ne pouvez pas chiffrer une note vide."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Ces options ne s’appliquent qu’à la session du navigateur actuelle. Pour des paramètres permanents, veuillez consulter vos",

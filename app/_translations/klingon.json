@@ -1379,7 +1379,7 @@
     "noteWillBeRestoredAsUnencrypted": "ghItlh peghHa' 'ej Pol",
     "youWillBeAbleToEditAfterDecryption": "bIpeghHa'DI' bIchoHlaH",
     "publicKeyRequired": "Hoch pegh mI' poQ.",
-    "keyRequired": "{keyType} pegh mI' poQ",
+    "keyRequired": "{keyType} poQ",
     "privateKeyRequiredForSigning": "So' pegh mI' poQ",
     "passphraseRequiredForSigning": "mu'pe' poQ",
     "signatureVerified": "ngu' Qapla'.",
@@ -1436,7 +1436,8 @@
     "invalidPrivateKeyFormat": "So' pegh mI' lughbe'.",
     "keysImportedSuccessfully": "pegh mI'mey HIj Qapla'",
     "failedToImportKeys": "pegh mI'mey HIj Qapla'be'",
-    "created": "pegh chen"
+    "created": "pegh chen",
+    "notePlaceholder": "I am a placeholder because you can't encrypt an empty note."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "poHvam neH. bIPol DaneHchugh, ",

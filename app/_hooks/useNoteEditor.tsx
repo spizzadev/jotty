@@ -434,6 +434,7 @@ export const useNoteEditor = ({
     setEditorContent,
     isEditing,
     setIsEditing,
+    isEditMode: notesDefaultMode === "edit" || isEditing,
     status,
     hasUnsavedChanges,
     handleEdit,

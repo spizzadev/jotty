@@ -1379,7 +1379,7 @@
     "noteWillBeRestoredAsUnencrypted": "Log will stay dug up",
     "youWillBeAbleToEditAfterDecryption": "Ye can refit after digging",
     "publicKeyRequired": "Public key needed.",
-    "keyRequired": "{keyType} key needed",
+    "keyRequired": "{keyType} needed",
     "privateKeyRequiredForSigning": "Private key needed",
     "passphraseRequiredForSigning": "Code needed",
     "signatureVerified": "Seal verified.",
@@ -1436,7 +1436,8 @@
     "invalidPrivateKeyFormat": "Bad private key",
     "keysImportedSuccessfully": "Keys aboard",
     "failedToImportKeys": "Keys rejected",
-    "created": "Locker Built"
+    "created": "Locker Built",
+    "notePlaceholder": "I am a placeholder because you can't encrypt an empty note."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "These rules only last 'til ye leave port. For permanent rules check",

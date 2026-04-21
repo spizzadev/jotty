@@ -1354,7 +1354,7 @@
     "noteWillBeRestoredAsUnencrypted": "Notitie-inhoud wordt hersteld als onversleuteld",
     "youWillBeAbleToEditAfterDecryption": "U kunt de notitie-inhoud bewerken na ontsleuteling",
     "publicKeyRequired": "Publieke sleutel is vereist. U heeft geen opgeslagen sleutels.",
-    "keyRequired": "{keyType} sleutel is vereist",
+    "keyRequired": "{keyType} is vereist",
     "privateKeyRequiredForSigning": "Privésleutel is vereist voor ondertekening",
     "passphraseRequiredForSigning": "Wachtwoordzin is vereist voor ondertekening",
     "signatureVerified": "Handtekening geverifieerd.",
@@ -1411,7 +1411,8 @@
     "invalidPrivateKeyFormat": "Ongeldig formaat privésleutel. Moet een ASCII-armored PGP-sleutel zijn.",
     "keysImportedSuccessfully": "Sleutels succesvol geëmporteerd",
     "failedToImportKeys": "Sleutels importeren mislukt",
-    "created": "Versleuteling aangemaakt"
+    "created": "Versleuteling aangemaakt",
+    "notePlaceholder": "Ik ben een tijdelijke aanduiding omdat je een lege notitie niet kunt coderen."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Deze opties zijn alleen van toepassing op de huidige browsersessie. Voor permanente instellingen raadpleeg uw",
