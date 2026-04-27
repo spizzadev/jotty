@@ -1569,7 +1569,8 @@
     "encryption": "Szyfrowanie",
     "sso": "SSO",
     "translations": "Tłumaczenia",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Łatki"
   },
   "notFound": {
     "title": "Strona nie znaleziona",

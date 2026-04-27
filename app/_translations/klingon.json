@@ -1594,7 +1594,8 @@
     "encryption": "pegh",
     "sso": "SSO",
     "translations": "Hol",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patches"
   },
   "notFound": {
     "title": "tu'be'lu'",

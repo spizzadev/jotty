@@ -1566,7 +1566,8 @@
     "encryption": "Versleuteling",
     "sso": "SSO",
     "translations": "Vertalingen",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patches"
   },
   "notFound": {
     "title": "Pagina niet gevonden",

@@ -1566,7 +1566,8 @@
     "encryption": "Verschlüsselung",
     "sso": "SSO",
     "translations": "Übersetzungen",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patches"
   },
   "history": {
     "fetchError": "Der Verlauf konnte nicht geladen werden",

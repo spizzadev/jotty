@@ -1590,7 +1590,8 @@
     "encryption": "Encryption",
     "sso": "SSO",
     "translations": "Translations",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patches"
   },
   "notFound": {
     "title": "Page Not Found",

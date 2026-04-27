@@ -1566,7 +1566,8 @@
     "encryption": "Crittografia",
     "sso": "SSO",
     "translations": "Traduzioni",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patch"
   },
   "notFound": {
     "title": "Pagina non trovata",

@@ -8,6 +8,10 @@ PUID=${PUID:-1000}
 PGID=${PGID:-1000}
 UMASK=${UMASK:-002}
 
+if [ -f /app/scripts/apply-patches.js ]; then
+    node /app/scripts/apply-patches.js || echo "Patch runner reported errors (continuing)"
+fi
+
 if [ "$(id -u)" = "0" ]; then
     if [ "$PUID" != "1000" ] || [ "$PGID" != "1000" ]; then
         GROUP_NAME=$(getent group "$PGID" | cut -d: -f1)

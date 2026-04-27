@@ -1591,7 +1591,8 @@
     "encryption": "Locker",
     "sso": "SSO",
     "translations": "Lingos",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patches"
   },
   "notFound": {
     "title": "Chart Leads Nowhere",

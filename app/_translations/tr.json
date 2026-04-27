@@ -1592,7 +1592,8 @@
     "encryption": "Şifreleme",
     "sso": "SSO (Tekli Giriş)",
     "translations": "Çeviriler",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Yamalar"
   },
   "notFound": {
     "title": "Sayfa Bulunamadı",

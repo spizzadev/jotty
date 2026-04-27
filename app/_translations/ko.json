@@ -1594,7 +1594,8 @@
     "encryption": "암호화",
     "sso": "SSO",
     "translations": "번역",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "패치"
   },
   "notFound": {
     "title": "페이지를 찾을 수 없습니다",

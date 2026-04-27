@@ -1594,7 +1594,8 @@
     "encryption": "加密",
     "sso": "SSO",
     "translations": "翻译",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "补丁"
   },
   "notFound": {
     "title": "页面未找到",
