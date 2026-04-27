@@ -836,7 +836,8 @@
     "selectChecklistItemClickAction": "Sélectionnez l'élément de la liste de contrôle, cliquez sur l'action",
     "checklistItemClickActionDescription": "Choisissez ce qui se passe lorsque vous cliquez sur le texte d'une tâche. \n« Marquer comme terminé » coche la case (par défaut) ; \n« Modifier le nom de la tâche » ouvre la tâche pour une modification en ligne ; vous devrez toujours cliquer sur la case à cocher elle-même pour la terminer.",
     "checklistItemClickActionToggle": "Marquer comme complet/incomplet",
-    "checklistItemClickActionEdit": "Modifier un élément de liste"
+    "checklistItemClickActionEdit": "Modifier un élément de liste",
+    "useSystemDefault": "Utiliser les valeurs par défaut du système"
   },
   "admin": {
     "title": "Admin",
@@ -1021,7 +1022,11 @@
     "disableHistory": "Désactiver l’historique",
     "disableHistoryWarning": "Désactiver l’historique supprimera définitivement toutes les versions enregistrées pour tous les utilisateurs. Action irréversible.",
     "historyDisabled": "L’historique des notes a été désactivé et toutes les données d’historique ont été supprimées.",
-    "failedToDisableHistory": "Échec de la désactivation de l’historique"
+    "failedToDisableHistory": "Échec de la désactivation de l’historique",
+    "defaultDateFormat": "Format de date par défaut",
+    "defaultDateFormatDescription": "Utilisé lorsque la préférence de format de date d'un utilisateur est définie sur « Utiliser les paramètres par défaut du système ».",
+    "defaultTimeFormatDescription": "Utilisé lorsque la préférence de format d'heure d'un utilisateur est définie sur « Utiliser les paramètres par défaut du système ».",
+    "defaultTimeFormat": "Format d'heure par défaut"
   },
   "errors": {
     "notFound": "Introuvable",

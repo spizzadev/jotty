@@ -47,6 +47,8 @@ export interface AppSettings {
   adminContentAccess?: "yes" | "no";
   hideLanguageSelector?: "yes" | "no";
   maxLogAgeDays?: number;
+  defaultDateFormat?: "dd/mm/yyyy" | "mm/dd/yyyy" | "yyyy/mm/dd";
+  defaultTimeFormat?: "12-hours" | "24-hours";
   editor: {
     enableSlashCommands: boolean;
     enableBubbleMenu: boolean;

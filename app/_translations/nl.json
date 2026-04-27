@@ -836,7 +836,8 @@
     "selectChecklistItemClickAction": "Selecteer de klikactie voor het checklistitem",
     "checklistItemClickActionDescription": "Kies wat er gebeurt als u op de tekst van een taak klikt. \n\"Markeren als voltooid\" schakelt het selectievakje in (standaard); \nMet 'Taaknaam bewerken' wordt de taak geopend voor inline bewerken. U moet nog steeds op het selectievakje zelf klikken om deze te voltooien.",
     "checklistItemClickActionToggle": "Markeer als compleet/onvolledig",
-    "checklistItemClickActionEdit": "Lijstitem bewerken"
+    "checklistItemClickActionEdit": "Lijstitem bewerken",
+    "useSystemDefault": "Gebruik systeemstandaard"
   },
   "admin": {
     "title": "Beheer",
@@ -1021,7 +1022,11 @@
     "disableHistory": "Geschiedenis uitschakelen",
     "disableHistoryWarning": "Het uitschakelen van de geschiedenis verwijdert permanent alle opgeslagen versies voor alle gebruikers. Dit kan niet ongedaan worden gemaakt.",
     "historyDisabled": "De notitiegeschiedenis is uitgeschakeld en alle geschiedenisgegevens zijn verwijderd.",
-    "failedToDisableHistory": "Geschiedenis uitschakelen mislukt"
+    "failedToDisableHistory": "Geschiedenis uitschakelen mislukt",
+    "defaultDateFormat": "Standaard datumnotatie",
+    "defaultDateFormatDescription": "Wordt gebruikt wanneer de datumnotatievoorkeur van een gebruiker is ingesteld op \"Gebruik systeemstandaard\".",
+    "defaultTimeFormatDescription": "Wordt gebruikt wanneer de tijdnotatievoorkeur van een gebruiker is ingesteld op \"Gebruik systeemstandaard\".",
+    "defaultTimeFormat": "Standaard tijdformaat"
   },
   "errors": {
     "notFound": "Niet gevonden",

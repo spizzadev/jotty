@@ -836,7 +836,8 @@
     "selectChecklistItemClickAction": "Klicken Sie auf die Aktion „Checklistenelement auswählen“.",
     "checklistItemClickActionDescription": "Wählen Sie aus, was passiert, wenn Sie auf den Text einer Aufgabe klicken. \n„Als abgeschlossen markieren“ schaltet das Kontrollkästchen ein (Standard); \n„Aufgabennamen bearbeiten“ öffnet die Aufgabe zur Inline-Bearbeitung – Sie müssen noch das Kontrollkästchen selbst anklicken, um sie abzuschließen.",
     "checklistItemClickActionToggle": "Als vollständig/unvollständig markieren",
-    "checklistItemClickActionEdit": "Listenelement bearbeiten"
+    "checklistItemClickActionEdit": "Listenelement bearbeiten",
+    "useSystemDefault": "Systemstandard verwenden"
   },
   "admin": {
     "title": "Administration",
@@ -1021,7 +1022,11 @@
     "disableHistory": "Verlauf deaktivieren",
     "disableHistoryWarning": "Das Deaktivieren des Verlaufs löscht dauerhaft alle gespeicherten Versionen für alle Nutzer. Dies kann nicht rückgängig gemacht werden.",
     "historyDisabled": "Der Notizverlauf wurde deaktiviert und alle Verlaufsdaten gelöscht.",
-    "failedToDisableHistory": "Verlauf konnte nicht deaktiviert werden"
+    "failedToDisableHistory": "Verlauf konnte nicht deaktiviert werden",
+    "defaultDateFormat": "Standarddatumsformat",
+    "defaultDateFormatDescription": "Wird verwendet, wenn die Datumsformateinstellung eines Benutzers auf „Systemstandard verwenden“ eingestellt ist.",
+    "defaultTimeFormatDescription": "Wird verwendet, wenn die Zeitformateinstellung eines Benutzers auf „Systemstandard verwenden“ eingestellt ist.",
+    "defaultTimeFormat": "Standardzeitformat"
   },
   "errors": {
     "notFound": "Nicht gefunden",

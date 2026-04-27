@@ -145,8 +145,13 @@ const TimePickerComponent = ({
   disabled,
   placeholder = "Select time",
 }: TimePickerProps) => {
-  const { user } = useAppMode();
-  const timeFormat = user?.preferredTimeFormat === "24-hours" ? "24-hours" : "12-hours";
+  const { user, appSettings } = useAppMode();
+  const userTimeFormat = user?.preferredTimeFormat;
+  const resolvedTimeFormat =
+    !userTimeFormat || userTimeFormat === "system"
+      ? appSettings?.defaultTimeFormat || "12-hours"
+      : userTimeFormat;
+  const timeFormat = resolvedTimeFormat === "24-hours" ? "24-hours" : "12-hours";
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const hoursListRef = useRef<HTMLDivElement>(null);

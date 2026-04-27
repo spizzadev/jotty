@@ -861,7 +861,8 @@
     "selectChecklistItemClickAction": "Select checklist item click action",
     "checklistItemClickActionDescription": "Choose what happens when you click a task's text. \"Mark as complete\" toggles the checkbox  (default); \"Edit task name\" opens the task for inline editing — you'll still need to click the checkbox itself to complete it.",
     "checklistItemClickActionToggle": "Mark as complete/incomplete",
-    "checklistItemClickActionEdit": "Edit list item"
+    "checklistItemClickActionEdit": "Edit list item",
+    "useSystemDefault": "Use system default"
   },
   "admin": {
     "title": "ra'wI'",
@@ -1046,7 +1047,11 @@
     "updatingTags": "choHlI'...",
     "updateTagsTitle": "meqmey yInej 'ej frontmatter yIchoH",
     "tagsUpdated": "{processed} teywI'mey, {updated} meqmey chu'",
-    "failedToUpdateTags": "meqmey choH Qapla'be'"
+    "failedToUpdateTags": "meqmey choH Qapla'be'",
+    "defaultDateFormat": "Default Date Format",
+    "defaultDateFormatDescription": "Used when a user's date format preference is set to \"Use system default\".",
+    "defaultTimeFormatDescription": "Used when a user's time format preference is set to \"Use system default\".",
+    "defaultTimeFormat": "Default Time Format"
   },
   "errors": {
     "notFound": "tu'be'lu'",
