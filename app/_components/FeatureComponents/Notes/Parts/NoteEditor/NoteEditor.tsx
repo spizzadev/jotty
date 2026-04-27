@@ -10,6 +10,7 @@ import { TableOfContents } from "../TableOfContents";
 import { useSearchParams } from "next/navigation";
 import { usePermissions } from "@/app/_providers/PermissionsProvider";
 import { useNotesStore } from "@/app/_utils/notes-store";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 export interface NoteEditorProps {
   note: Note;
@@ -31,6 +32,12 @@ export const NoteEditor = ({
   const { showTOC, setShowTOC } = useNotesStore();
   const decryptModalRef = useRef<(() => void) | null>(null);
   const viewModalRef = useRef<(() => void) | null>(null);
+  const { user } = useAppMode();
+  const searchParams = useSearchParams();
+  const _isEditMode =
+    viewModel.isEditing ||
+    user?.notesDefaultMode === "edit" ||
+    searchParams?.get("editor") === "true";
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-background h-full">
@@ -67,11 +74,11 @@ export const NoteEditor = ({
           <div className="w-64 border-l border-border">
             <TableOfContents
               content={
-                viewModel.isEditing
+                _isEditMode
                   ? viewModel.derivedMarkdownContent
                   : note.content || ""
               }
-              isEditing={viewModel.isEditing}
+              isEditing={_isEditMode}
             />
           </div>
         )}
