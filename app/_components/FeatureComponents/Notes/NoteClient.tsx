@@ -119,7 +119,7 @@ export const NoteClient = ({ note, categories }: NoteClientProps) => {
       <SwipeNavigationWrapper
         noteId={localNote.id}
         noteCategory={localNote.category}
-        enabled={!viewModel.isEditing}
+        enabled={!viewModel.isEditMode}
       >
         <NoteEditor
           note={localNote}

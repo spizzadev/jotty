@@ -93,10 +93,20 @@ export const getHowtoGuides = (t: any): HowtoGuide[] => [
     filename: "TRANSLATIONS.md",
     icon: "translation",
     translationKey: "help.translations",
-  }
+  },
+  {
+    id: "patches",
+    name: t("help.patches"),
+    filename: "PATCHES.md",
+    icon: "patch",
+    translationKey: "help.patches",
+  },
 ];
 
-export const getHowtoGuideById = (id: string, t: any): HowtoGuide | undefined => {
+export const getHowtoGuideById = (
+  id: string,
+  t: any,
+): HowtoGuide | undefined => {
   return getHowtoGuides(t).find((guide) => guide.id === id);
 };
 

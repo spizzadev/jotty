@@ -831,7 +831,12 @@
     "codeBlockChoice": "Wybierz styl bloku kodu",
     "themedCodeBlock": "Tematyczny blok kodu",
     "defaultCodeBlock": "Codepen (domyślnie)",
-    "codeBlockChoiceDescription": "Wybierz pomiędzy domyślnym stylem bloków kodu podobnym do codepen lub tematycznym stylem bloków kodu."
+    "codeBlockChoiceDescription": "Wybierz pomiędzy domyślnym stylem bloków kodu podobnym do codepen lub tematycznym stylem bloków kodu.",
+    "checklistItemClickAction": "Akcja kliknięcia elementu listy kontrolnej",
+    "selectChecklistItemClickAction": "Wybierz czynność kliknięcia elementu listy kontrolnej",
+    "checklistItemClickActionDescription": "Wybierz, co się stanie, gdy klikniesz tekst zadania. \n„Oznacz jako ukończone” przełącza pole wyboru (domyślnie); \n„Edytuj nazwę zadania” otwiera zadanie do edycji bezpośredniej — nadal będziesz musiał kliknąć samo pole wyboru, aby je ukończyć.",
+    "checklistItemClickActionToggle": "Oznacz jako ukończone/niekompletne",
+    "checklistItemClickActionEdit": "Edytuj element listy"
   },
   "admin": {
     "title": "Admin",
@@ -1349,7 +1354,7 @@
     "noteWillBeRestoredAsUnencrypted": "Treść zostanie przywrócona jako niezaszyfrowana",
     "youWillBeAbleToEditAfterDecryption": "Będziesz mógł edytować treść po odszyfrowaniu",
     "publicKeyRequired": "Publiczny klucz jest wymagany. Nie masz żadnych przechowywanych kluczy.",
-    "keyRequired": "{keyType} klucz jest wymagany",
+    "keyRequired": "{keyType} jest wymagany",
     "privateKeyRequiredForSigning": "Prywatny klucz jest wymagany do podpisywania",
     "passphraseRequiredForSigning": "Hasło jest wymagane do podpisywania",
     "signatureVerified": "Podpis zweryfikowany.",
@@ -1406,7 +1411,8 @@
     "invalidPrivateKeyFormat": "Nieprawidłowy format klucza prywatnego. Musi być ASCII‑armoured PGP.",
     "keysImportedSuccessfully": "Klucze pomyślnie zaimportowane",
     "failedToImportKeys": "Nie udało się importować kluczy",
-    "created": "Szyfrowanie utworzone"
+    "created": "Szyfrowanie utworzone",
+    "notePlaceholder": "Jestem symbolem zastępczym, ponieważ nie można zaszyfrować pustej notatki."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Te opcje mają zastosowanie tylko w bieżącej sesji przeglądarki. Aby zapisać ustawienia na stałe, sprawdź swoje",
@@ -1563,7 +1569,8 @@
     "encryption": "Szyfrowanie",
     "sso": "SSO",
     "translations": "Tłumaczenia",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Łatki"
   },
   "notFound": {
     "title": "Strona nie znaleziona",

@@ -62,7 +62,7 @@ export const MobileHeader = ({
     <div className={mobileHeaderClasses}>
       <a href="/" className="flex items-center gap-3">
         <div className="relative">
-          <DynamicLogo className="h-10 w-10" size="32x32" />
+          <DynamicLogo className="h-10 w-10" />
           <ConnectionIndicator
             borderColor={scrollPos < 150 ? "border-background" : "border-muted"}
           />

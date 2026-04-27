@@ -54,4 +54,8 @@ export interface NoteEditorViewModel {
     method: string,
     decryptedContent: string
   ) => void;
+  cachePassphrase: (passphrase: string, method: string) => void;
+  clearPassphraseCache: () => void;
+  getCachedPassphrase: () => string | null;
+  getCachedMethod: () => string | null;
 }

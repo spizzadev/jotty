@@ -23,6 +23,7 @@ import {
   DisableRichEditor,
   MarkdownTheme,
   DefaultChecklistFilter,
+  ChecklistItemClickAction,
   DefaultNoteFilter,
   QuickCreateNotes,
   HideConnectionIndicator,
@@ -64,6 +65,7 @@ const getSettingsFromUser = (user: SanitisedUser | null): Partial<SanitisedUser>
   disableRichEditor: user?.disableRichEditor || "disable",
   markdownTheme: user?.markdownTheme || "prism",
   defaultChecklistFilter: user?.defaultChecklistFilter || "all",
+  checklistItemClickAction: user?.checklistItemClickAction || "toggle",
   defaultNoteFilter: user?.defaultNoteFilter || "all",
   quickCreateNotes: user?.quickCreateNotes || "disable",
   quickCreateNotesCategory: user?.quickCreateNotesCategory || "",
@@ -159,6 +161,7 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
     "enableRecurrence",
     "showCompletedSuggestions",
     "defaultChecklistFilter",
+    "checklistItemClickAction",
   ]);
 
   const validateAndSave = async <T extends Record<string, any>>(
@@ -303,6 +306,11 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
     { id: "last-visited", name: t('settings.lastVisitedPage') },
     { id: Modes.CHECKLISTS, name: t('checklists.title') },
     { id: Modes.NOTES, name: t('notes.title') },
+  ];
+
+  const checklistItemClickActionOptions = [
+    { id: "toggle", name: t('settings.checklistItemClickActionToggle') },
+    { id: "edit", name: t('settings.checklistItemClickActionEdit') },
   ];
 
   const defaultChecklistFilterOptions = [
@@ -829,6 +837,7 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
                   "enableRecurrence",
                   "showCompletedSuggestions",
                   "defaultChecklistFilter",
+                  "checklistItemClickAction",
                 ],
                 checklistSettingsSchema,
                 "Checklists"
@@ -901,6 +910,27 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
           )}
           <p className="text-md lg:text-sm text-muted-foreground">
             {t('settings.chooseDefaultChecklistFilter')}
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="checklist-item-click-action">
+            {t('settings.checklistItemClickAction')}
+          </Label>
+          <Dropdown
+            value={currentSettings.checklistItemClickAction || "toggle"}
+            onChange={(value) =>
+              handleSettingChange(
+                "checklistItemClickAction",
+                value as ChecklistItemClickAction
+              )
+            }
+            options={checklistItemClickActionOptions}
+            placeholder={t('settings.selectChecklistItemClickAction')}
+            className="w-full"
+          />
+          <p className="text-md lg:text-sm text-muted-foreground">
+            {t('settings.checklistItemClickActionDescription')}
           </p>
         </div>
       </FormWrapper>

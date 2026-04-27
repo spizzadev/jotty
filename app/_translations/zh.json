@@ -856,7 +856,12 @@
     "codeBlockChoice": "选择代码块样式",
     "themedCodeBlock": "主题代码块",
     "defaultCodeBlock": "Codepen（默认）",
-    "codeBlockChoiceDescription": "在类似 codepen 的默认代码块样式或主题代码块样式之间进行选择。"
+    "codeBlockChoiceDescription": "在类似 codepen 的默认代码块样式或主题代码块样式之间进行选择。",
+    "checklistItemClickAction": "核对清单项单击操作",
+    "selectChecklistItemClickAction": "选择清单项目单击操作",
+    "checklistItemClickActionDescription": "选择单击任务文本时会发生的情况。 \n“标记为完成”切换复选框（默认）； \n“编辑任务名称”打开任务进行内联编辑 - 您仍然需要单击复选框本身来完成它。",
+    "checklistItemClickActionToggle": "标记为完整/不完整",
+    "checklistItemClickActionEdit": "编辑列表项"
   },
   "admin": {
     "title": "管理",
@@ -1431,7 +1436,8 @@
     "invalidPrivateKeyFormat": "无效的私钥格式。必须是 ASCII-armored PGP 密钥。",
     "keysImportedSuccessfully": "密钥导入成功",
     "failedToImportKeys": "导入密钥失败",
-    "created": "加密已创建"
+    "created": "加密已创建",
+    "notePlaceholder": "我是一个占位符，因为你无法加密空笔记。"
   },
   "settingsModal": {
     "sessionOnlyPrefix": "这些选项仅适用于当前浏览器会话。如需永久设置，请检查您的",
@@ -1588,7 +1594,8 @@
     "encryption": "加密",
     "sso": "SSO",
     "translations": "翻译",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "补丁"
   },
   "notFound": {
     "title": "页面未找到",

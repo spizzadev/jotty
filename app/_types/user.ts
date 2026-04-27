@@ -34,6 +34,7 @@ export type DefaultNoteFilter = "all" | "recent" | "pinned";
 export type QuickCreateNotes = "enable" | "disable";
 export type HideConnectionIndicator = "enable" | "disable";
 export type CodeBlockStyle = "default" | "themed";
+export type ChecklistItemClickAction = "toggle" | "edit";
 
 export interface User {
   username: string;
@@ -63,6 +64,7 @@ export interface User {
   markdownTheme?: MarkdownTheme;
   encryptionSettings?: EncryptionSettings;
   defaultChecklistFilter?: DefaultChecklistFilter;
+  checklistItemClickAction?: ChecklistItemClickAction;
   defaultNoteFilter?: DefaultNoteFilter;
   quickCreateNotes?: QuickCreateNotes;
   quickCreateNotesCategory?: string;

@@ -175,9 +175,8 @@ export const NoteEditorContent = ({
         <>
           <ReadingProgressBar />
           <div
-            className={`px-6 pt-6 pb-24 ${
-              compactMode ? "max-w-[900px] mx-auto" : ""
-            }`}
+            className={`px-6 pt-6 pb-4 ${compactMode ? "max-w-[900px] mx-auto" : ""
+              }`}
           >
             <UnifiedMarkdownRenderer
               content={encrypted ? editorContent : noteContent || ""}

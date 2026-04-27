@@ -94,7 +94,6 @@ export const SidebarWrapper = ({
                 <div className="relative">
                   <DynamicLogo
                     className="h-10 w-10 lg:h-8 lg:w-8"
-                    size="32x32"
                   />
                   <ConnectionIndicator borderColor="border-background" />
                 </div>

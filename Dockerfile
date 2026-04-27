@@ -27,7 +27,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN apk add --no-cache su-exec git grep sed
+RUN apk add --no-cache su-exec git grep sed tzdata
 
 RUN if ! getent group 1000 > /dev/null 2>&1; then \
         addgroup --system --gid 1000 appgroup; \
@@ -50,6 +50,10 @@ COPY --from=builder --chown=1000:1000 /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
 COPY --from=builder /app/howto ./howto
+
+COPY --from=builder /app/scripts/apply-patches.js ./scripts/apply-patches.js
+COPY --from=builder /app/patches ./patches
+RUN mkdir -p /app/user_patches && chown -R 1000:1000 /app/scripts /app/patches /app/user_patches
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

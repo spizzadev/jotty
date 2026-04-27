@@ -831,7 +831,12 @@
     "codeBlockChoice": "Choisissez le style de bloc de code",
     "themedCodeBlock": "Bloc de code thématique",
     "defaultCodeBlock": "Codepen (par défaut)",
-    "codeBlockChoiceDescription": "Choisissez entre le style de bloc de code par défaut de type codepen ou un style de bloc de code thématique."
+    "codeBlockChoiceDescription": "Choisissez entre le style de bloc de code par défaut de type codepen ou un style de bloc de code thématique.",
+    "checklistItemClickAction": "Action de clic sur un élément de la liste de contrôle",
+    "selectChecklistItemClickAction": "Sélectionnez l'élément de la liste de contrôle, cliquez sur l'action",
+    "checklistItemClickActionDescription": "Choisissez ce qui se passe lorsque vous cliquez sur le texte d'une tâche. \n« Marquer comme terminé » coche la case (par défaut) ; \n« Modifier le nom de la tâche » ouvre la tâche pour une modification en ligne ; vous devrez toujours cliquer sur la case à cocher elle-même pour la terminer.",
+    "checklistItemClickActionToggle": "Marquer comme complet/incomplet",
+    "checklistItemClickActionEdit": "Modifier un élément de liste"
   },
   "admin": {
     "title": "Admin",
@@ -1349,7 +1354,7 @@
     "noteWillBeRestoredAsUnencrypted": "Le contenu de la note sera restauré en clair (non chiffré)",
     "youWillBeAbleToEditAfterDecryption": "Vous pourrez modifier la note après déchiffrement",
     "publicKeyRequired": "La clé publique est requise. Vous n’avez aucune clé stockée.",
-    "keyRequired": "La clé {keyType} est requise",
+    "keyRequired": "{keyType} est requise",
     "privateKeyRequiredForSigning": "La clé privée est requise pour la signature",
     "passphraseRequiredForSigning": "La phrase de passe est requise pour la signature",
     "signatureVerified": "Signature vérifiée.",
@@ -1406,7 +1411,8 @@
     "invalidPrivateKeyFormat": "Format de clé privée invalide. Doit être une clé PGP ASCII armored.",
     "keysImportedSuccessfully": "Clés importées avec succès",
     "failedToImportKeys": "Échec de l’import des clés",
-    "created": "Chiffrement créé"
+    "created": "Chiffrement créé",
+    "notePlaceholder": "Je suis un espace réservé car vous ne pouvez pas chiffrer une note vide."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Ces options ne s’appliquent qu’à la session du navigateur actuelle. Pour des paramètres permanents, veuillez consulter vos",
@@ -1559,7 +1565,8 @@
     "encryption": "Chiffrement",
     "sso": "SSO",
     "translations": "Traductions",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Correctifs"
   },
   "notFound": {
     "title": "Page non trouvée",

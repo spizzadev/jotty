@@ -42,7 +42,7 @@ export const VisualEditor = ({
   }, [editor, onTextSelection]);
   return (
     <div
-      className="flex-1 overflow-y-auto jotty-scrollable-content max-h-[95vh]"
+      className="flex-1 overflow-y-auto jotty-scrollable-content min-h-0"
       onDragOver={(e) => {
         e.preventDefault();
         e.stopPropagation();

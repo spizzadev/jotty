@@ -831,7 +831,12 @@
     "codeBlockChoice": "Elija el estilo del bloque de código",
     "themedCodeBlock": "Bloque de código temático",
     "defaultCodeBlock": "Codepen (predeterminado)",
-    "codeBlockChoiceDescription": "Elija entre el estilo de bloque de código predeterminado similar a un codepen o un estilo de bloque de código temático."
+    "codeBlockChoiceDescription": "Elija entre el estilo de bloque de código predeterminado similar a un codepen o un estilo de bloque de código temático.",
+    "checklistItemClickAction": "Acción de hacer clic en un elemento de la lista de verificación",
+    "selectChecklistItemClickAction": "Seleccionar elemento de la lista de verificación hacer clic en acción",
+    "checklistItemClickActionDescription": "Elija qué sucede cuando hace clic en el texto de una tarea. \n\"Marcar como completo\" activa la casilla de verificación (predeterminada); \n\"Editar nombre de la tarea\" abre la tarea para su edición en línea; aún deberá hacer clic en la casilla de verificación para completarla.",
+    "checklistItemClickActionToggle": "Marcar como completo/incompleto",
+    "checklistItemClickActionEdit": "Editar elemento de la lista"
   },
   "admin": {
     "title": "Administrador",
@@ -1349,7 +1354,7 @@
     "noteWillBeRestoredAsUnencrypted": "El contenido de la nota se restaurará sin encriptar",
     "youWillBeAbleToEditAfterDecryption": "Podrá editar el contenido de la nota después de la desencriptación",
     "publicKeyRequired": "Se requiere clave pública. No tiene claves almacenadas.",
-    "keyRequired": "Se requiere clave {keyType}",
+    "keyRequired": "Se requiere {keyType}",
     "privateKeyRequiredForSigning": "Se requiere clave privada para firmar",
     "passphraseRequiredForSigning": "Se requiere frase de contraseña para firmar",
     "signatureVerified": "Firma verificada.",
@@ -1407,7 +1412,8 @@
     "keysImportedSuccessfully": "Claves importadas exitosamente",
     "failedToImportKeys": "Error al importar claves",
     "created": "Cifrado creado",
-    "decrypted": "Descifrado"
+    "decrypted": "Descifrado",
+    "notePlaceholder": "Soy un marcador de posición porque no puedes cifrar una nota vacía."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Estas opciones solo se aplican a la sesión actual del navegador. Para configuraciones permanentes, por favor revise sus",
@@ -1560,7 +1566,8 @@
     "encryption": "Encriptación",
     "sso": "SSO",
     "translations": "Traducciones",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Parches"
   },
   "notFound": {
     "title": "Página no encontrada",

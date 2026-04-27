@@ -11,7 +11,8 @@ import {
   MinusSignIcon,
 } from "hugeicons-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslations } from "next-intl";
 
 interface CompactTableToolbarProps {
@@ -29,6 +30,11 @@ export const CompactTableToolbar = ({
 }: CompactTableToolbarProps) => {
   const t = useTranslations();
   const toolbarRef = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isVisible || !targetElement) return;
@@ -53,7 +59,7 @@ export const CompactTableToolbar = ({
     };
   }, [isVisible, targetElement]);
 
-  if (!isVisible) {
+  if (!isVisible || !mounted) {
     return null;
   }
 
@@ -113,7 +119,7 @@ export const CompactTableToolbar = ({
     },
   ];
 
-  return (
+  return createPortal(
     <div
       ref={toolbarRef}
       data-overlay
@@ -143,6 +149,7 @@ export const CompactTableToolbar = ({
           </Button>
         ))}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };

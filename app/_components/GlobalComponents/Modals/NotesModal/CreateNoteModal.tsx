@@ -10,7 +10,12 @@ import { Modes } from "@/app/_types/enums";
 import { createCategory } from "@/app/_server/actions/category";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { Input } from "@/app/_components/GlobalComponents/FormElements/Input";
+import { Toggle } from "@/app/_components/GlobalComponents/FormElements/Toggle";
+import { PGPEncryptionModal } from "@/app/_components/GlobalComponents/Modals/EncryptionModals/PGPEncryptionModal";
+import { XChaChaEncryptionModal } from "@/app/_components/GlobalComponents/Modals/EncryptionModals/XChaChaEncryptionModal";
 import { useTranslations } from "next-intl";
+
+const ENCRYPTION_PLACEHOLDER_CONTENT = "Note placeholder";
 
 interface CreateNoteModalProps {
   onClose: () => void;
@@ -32,40 +37,68 @@ export const CreateNoteModal = ({
   const [newCategory, setNewCategory] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [showNewCategory, setShowNewCategory] = useState(false);
+  const [encryptOnCreate, setEncryptOnCreate] = useState(false);
+  const [showEncryptionModal, setShowEncryptionModal] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
+
+  const encryptionMethod = user?.encryptionSettings?.method || "xchacha";
 
   useEffect(() => {
     titleInputRef.current?.focus();
   }, []);
 
+  const _resolveCategoryPath = async (): Promise<string> => {
+    if (showNewCategory && newCategory.trim()) {
+      const newCatTrimmed = newCategory.trim();
+      const categoryFormData = new FormData();
+      categoryFormData.append("name", newCatTrimmed);
+      categoryFormData.append("mode", Modes.NOTES);
+      if (category) {
+        categoryFormData.append("parent", category);
+      }
+      await createCategory(categoryFormData);
+      return category ? `${category}/${newCatTrimmed}` : newCatTrimmed;
+    }
+    return category;
+  };
+
+  const _finalizeCreate = async (rawContent: string, isEncrypted = false) => {
+    const finalCategoryPath = await _resolveCategoryPath();
+    const formData = new FormData();
+    formData.append("title", title.trim());
+    formData.append("category", finalCategoryPath);
+    formData.append("rawContent", rawContent);
+    const result = await createNote(formData);
+    if (result.success) {
+      const doc = result.data && isEncrypted
+        ? { ...result.data, encrypted: true }
+        : result.data;
+      onCreated(doc);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
+    if (encryptOnCreate) {
+      setShowEncryptionModal(true);
+      return;
+    }
+
     setIsCreating(true);
     try {
-      let finalCategoryPath = category;
-      if (showNewCategory && newCategory.trim()) {
-        const newCatTrimmed = newCategory.trim();
-        const categoryFormData = new FormData();
-        categoryFormData.append("name", newCatTrimmed);
-        categoryFormData.append("mode", Modes.NOTES);
-        if (category) {
-          categoryFormData.append("parent", category);
-        }
-        await createCategory(categoryFormData);
-        finalCategoryPath = category
-          ? `${category}/${newCatTrimmed}`
-          : newCatTrimmed;
-      }
+      await _finalizeCreate("");
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
-      const formData = new FormData();
-      formData.append("title", title.trim());
-      formData.append("category", finalCategoryPath);
-      formData.append("content", "");
-      const result = await createNote(formData);
-
-      if (result.success) onCreated(result.data);
+  const handleEncryptionSuccess = async (encryptedContent: string) => {
+    setShowEncryptionModal(false);
+    setIsCreating(true);
+    try {
+      await _finalizeCreate(encryptedContent, true);
     } finally {
       setIsCreating(false);
     }
@@ -104,6 +137,18 @@ export const CreateNoteModal = ({
           disabled={isCreating}
         />
 
+        <div className="flex items-center justify-between gap-3">
+          <label htmlFor="encryptOnCreate" className="text-sm text-foreground cursor-pointer">
+            {t('encryption.encryptNote')}
+          </label>
+          <Toggle
+            id="encryptOnCreate"
+            checked={encryptOnCreate}
+            onCheckedChange={setEncryptOnCreate}
+            disabled={isCreating}
+          />
+        </div>
+
         <div className="flex gap-3 pt-4">
           <Button
             type="button"
@@ -120,6 +165,25 @@ export const CreateNoteModal = ({
           </Button>
         </div>
       </form>
+
+      {showEncryptionModal && encryptionMethod === "pgp" && (
+        <PGPEncryptionModal
+          isOpen={showEncryptionModal}
+          onClose={() => setShowEncryptionModal(false)}
+          mode="encrypt"
+          noteContent={ENCRYPTION_PLACEHOLDER_CONTENT}
+          onSuccess={handleEncryptionSuccess}
+        />
+      )}
+      {showEncryptionModal && encryptionMethod === "xchacha" && (
+        <XChaChaEncryptionModal
+          isOpen={showEncryptionModal}
+          onClose={() => setShowEncryptionModal(false)}
+          mode="encrypt"
+          noteContent={ENCRYPTION_PLACEHOLDER_CONTENT}
+          onSuccess={handleEncryptionSuccess}
+        />
+      )}
     </Modal>
   );
 };
