@@ -120,9 +120,9 @@ export const uploadUserAvatar = async (formData: FormData) => {
     const buffer = Buffer.from(await file.arrayBuffer());
     await fs.writeFile(filePath, buffer);
 
-    const fileUrl = `/api/image/${user.username}/${encodeURIComponent(
-      fileName
-    )}`;
+    const fileUrl = `/api/image/${encodeURIComponent(
+      user.username
+    )}/${encodeURIComponent(fileName)}`;
 
     return {
       success: true,
@@ -205,7 +205,7 @@ export const uploadFile = async (formData: FormData) => {
         : fileType === "video"
         ? "api/video"
         : "api/file"
-    }/${user.username}/${encodeURIComponent(fileName)}`;
+    }/${encodeURIComponent(user.username)}/${encodeURIComponent(fileName)}`;
 
     return {
       success: true,
@@ -263,7 +263,9 @@ export const getFiles = async () => {
           allFiles.push({
             fileName: file,
             name: file,
-            url: `/${dirInfo.api}/${user.username}/${encodeURIComponent(file)}`,
+            url: `/${dirInfo.api}/${encodeURIComponent(
+              user.username
+            )}/${encodeURIComponent(file)}`,
             type: _getFileType(mimeType),
             mimeType,
             size: stats.size,
