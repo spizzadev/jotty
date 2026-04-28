@@ -55,3 +55,21 @@ environment:
 ```
 
 </details>
+
+<details>
+<summary><code>freebsd_20260427.js</code> — FreeBSD compatibility (stub <code>@swc/core</code>, force webpack)</summary>
+
+FreeBSD has no prebuilt native binary for `@swc/core` and no published WASM fallback, so any module that imports it (next-intl, @serwist/turbopack) crashes at require time. Turbopack is also unavailable for the same reason. This patch:
+
+1. Stubs `node_modules/@swc/core/binding.js` (hoisted + nested copies) so imports succeed. Stub methods only throw when actually called — which never happens in this project.
+2. Patches `next/dist/lib/bundler.js` `parseBundlerArgs()` to force the webpack bundler, so Next never tries to load Turbopack.
+
+- **Gated on:** `JOTTY_FREEBSD` env var. Without it, the patch is a strict no-op — nothing under `node_modules` is read or modified.
+- **Default:** disabled (Linux/macOS/Windows users should leave it unset).
+
+```yaml
+environment:
+  - JOTTY_FREEBSD=1
+```
+
+</details>
