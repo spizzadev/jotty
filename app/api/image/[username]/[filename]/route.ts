@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs/promises";
 import path from "path";
-import { getCurrentUser, canAccessAllContent } from "@/app/_server/actions/users";
+import {
+  getCurrentUser,
+  canAccessAllContent,
+} from "@/app/_server/actions/users";
 import { NOTES_FOLDER } from "@/app/_consts/notes";
 import { withCacheControl } from "@/app/_middleware/caching";
 import { isEnvEnabled } from "@/app/_utils/env-utils";
 import { hasSharedContentFrom } from "@/app/_server/actions/sharing";
+import { resolvePath } from "@/app/_utils/path-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -24,30 +28,40 @@ export const GET = withCacheControl(async function GET(
     const { username } = params;
     const filename = decodeURIComponent(params.filename);
 
-    if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
+    if (
+      filename.includes("..") ||
+      filename.includes("/") ||
+      filename.includes("\\")
+    ) {
       return new NextResponse("Invalid filename", { status: 400 });
     }
 
     if (user && username !== user.username) {
       const hasAdminAccess = await canAccessAllContent();
-      const hasSharedAccess = await hasSharedContentFrom(username, user.username);
+      const hasSharedAccess = await hasSharedContentFrom(
+        username,
+        user.username,
+      );
 
       if (!hasAdminAccess && !hasSharedAccess) {
         return new NextResponse("Forbidden", { status: 403 });
       }
     }
 
-    const filePath = path.join(
+    const baseDir = path.resolve(
       process.cwd(),
       "data",
       NOTES_FOLDER,
       username,
       "images",
-      filename,
     );
+    const resolved = resolvePath(baseDir, filename);
+    if (!resolved.ok) {
+      return new NextResponse("Invalid filename", { status: 400 });
+    }
 
     try {
-      const fileBuffer = await fs.readFile(filePath);
+      const fileBuffer = await fs.readFile(resolved.absolutePath);
       const ext = path.extname(filename).toLowerCase();
 
       let contentType = "image/jpeg";
@@ -68,7 +82,7 @@ export const GET = withCacheControl(async function GET(
           contentType = "image/jpeg";
       }
 
-      return new NextResponse(fileBuffer as any, {
+      return new NextResponse(fileBuffer, {
         headers: {
           "Content-Type": contentType,
         },

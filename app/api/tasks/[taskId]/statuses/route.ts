@@ -5,12 +5,15 @@ import { listToMarkdown } from "@/app/_utils/checklist-utils";
 import { serverWriteFile } from "@/app/_server/actions/file";
 import path from "path";
 import { KanbanStatus } from "@/app/_types";
-
-const CHECKLISTS_FOLDER = "checklists";
+import { isKanbanType } from "@/app/_types/enums";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest, props: { params: Promise<{ taskId: string }> }) {
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ taskId: string }> },
+) {
   const params = await props.params;
   return withApiAuth(request, async (user) => {
     try {
@@ -19,10 +22,10 @@ export async function GET(request: NextRequest, props: { params: Promise<{ taskI
         return NextResponse.json({ error: "Task not found" }, { status: 404 });
       }
 
-      if (task.type !== "task") {
+      if (!isKanbanType(task.type)) {
         return NextResponse.json(
           { error: "Not a task checklist" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -37,13 +40,16 @@ export async function GET(request: NextRequest, props: { params: Promise<{ taskI
       console.error("API Error:", error);
       return NextResponse.json(
         { error: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });
 }
 
-export async function POST(request: NextRequest, props: { params: Promise<{ taskId: string }> }) {
+export async function POST(
+  request: NextRequest,
+  props: { params: Promise<{ taskId: string }> },
+) {
   const params = await props.params;
   return withApiAuth(request, async (user) => {
     try {
@@ -53,7 +59,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ task
       if (!id || !label) {
         return NextResponse.json(
           { error: "Status id and label are required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -62,10 +68,10 @@ export async function POST(request: NextRequest, props: { params: Promise<{ task
         return NextResponse.json({ error: "Task not found" }, { status: 404 });
       }
 
-      if (task.type !== "task") {
+      if (task.type !== "kanban" && task.type !== "task") {
         return NextResponse.json(
           { error: "Not a task checklist" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -78,7 +84,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ task
       if (currentStatuses.some((s) => s.id === id)) {
         return NextResponse.json(
           { error: "Status with this id already exists" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -102,12 +108,12 @@ export async function POST(request: NextRequest, props: { params: Promise<{ task
         process.cwd(),
         "data",
         CHECKLISTS_FOLDER,
-        task.owner!
+        task.owner!,
       );
       const filePath = path.join(
         ownerDir,
         task.category || "Uncategorized",
-        `${task.id}.md`
+        `${task.id}.md`,
       );
 
       await serverWriteFile(filePath, listToMarkdown(updatedTask as any));
@@ -117,7 +123,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ task
       console.error("API Error:", error);
       return NextResponse.json(
         { error: "Internal server error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   });

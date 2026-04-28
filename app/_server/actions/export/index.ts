@@ -9,9 +9,13 @@ import { DATA_DIR, USERS_FILE, EXPORT_TEMP_DIR } from "@/app/_consts/files";
 import { getAllLists } from "@/app/_server/actions/checklist";
 import { getAllNotes } from "@/app/_server/actions/note";
 import { readJsonFile, ensureDir } from "@/app/_server/actions/file";
-import { getCurrentUser, canAccessAllContent } from "@/app/_server/actions/users";
+import {
+  getCurrentUser,
+  canAccessAllContent,
+} from "@/app/_server/actions/users";
 import { User } from "@/app/_types";
-import { Modes } from "@/app/_types/enums";
+import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
+import { NOTES_FOLDER } from "@/app/_consts/notes";
 
 let exportProgress: ExportProgress = {
   progress: 0,
@@ -30,7 +34,7 @@ const zipDirectory = async (
   sourceDir: string,
   outPath: string,
   updateProgress: (progress: number, message: string) => void,
-  excludeTempExports: boolean = false
+  excludeTempExports: boolean = false,
 ): Promise<void> => {
   await ensureDir(path.dirname(outPath));
   const archive = archiver("zip", { zlib: { level: 9 } });
@@ -56,7 +60,7 @@ const zipDirectory = async (
         totalBytes > 0 ? Math.round((transferredBytes / totalBytes) * 100) : 0;
       updateProgress(
         currentProgress,
-        `Zipping files: ${transferredBytes}/${totalBytes} bytes`
+        `Zipping files: ${transferredBytes}/${totalBytes} bytes`,
       );
     });
 
@@ -87,12 +91,12 @@ export const exportAllChecklistsNotes = async (): Promise<ExportResult> => {
     const tempExportPath = path.join(
       process.cwd(),
       EXPORT_TEMP_DIR,
-      `all_checklists_notes_${Date.now()}.zip`
+      `all_checklists_notes_${Date.now()}.zip`,
     );
     const tempContentDir = path.join(
       process.cwd(),
       EXPORT_TEMP_DIR,
-      `content_${Date.now()}`
+      `content_${Date.now()}`,
     );
     await ensureDir(tempContentDir);
 
@@ -106,30 +110,30 @@ export const exportAllChecklistsNotes = async (): Promise<ExportResult> => {
     for (const list of allListsResult.data!) {
       const userDir = path.join(
         tempContentDir,
-        Modes.CHECKLISTS,
+        CHECKLISTS_FOLDER,
         list.owner || "unknown_user",
-        list.category || "Uncategorized"
+        list.category || "Uncategorized",
       );
       await ensureDir(userDir);
       await fsp.writeFile(
         path.join(userDir, `${list.id}.json`),
         JSON.stringify(list, null, 2),
-        "utf-8"
+        "utf-8",
       );
     }
 
     for (const note of allNotesResult.data!) {
       const userDir = path.join(
         tempContentDir,
-        Modes.NOTES,
+        NOTES_FOLDER,
         note.owner || "unknown_user",
-        note.category || "Uncategorized"
+        note.category || "Uncategorized",
       );
       await ensureDir(userDir);
       await fsp.writeFile(
         path.join(userDir, `${note.id}.json`),
         JSON.stringify(note, null, 2),
-        "utf-8"
+        "utf-8",
       );
     }
 
@@ -153,7 +157,7 @@ export const exportAllChecklistsNotes = async (): Promise<ExportResult> => {
 };
 
 export const exportUserChecklistsNotes = async (
-  username: string
+  username: string,
 ): Promise<ExportResult> => {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
@@ -163,24 +167,27 @@ export const exportUserChecklistsNotes = async (
   if (username !== currentUser.username) {
     const hasAccess = await canAccessAllContent();
     if (!hasAccess) {
-      return { success: false, error: "Forbidden: You can only export your own data" };
+      return {
+        success: false,
+        error: "Forbidden: You can only export your own data",
+      };
     }
   }
 
   updateProgress(
     0,
-    `Preparing ${username}'s checklists and notes for export...`
+    `Preparing ${username}'s checklists and notes for export...`,
   );
   try {
     const tempExportPath = path.join(
       process.cwd(),
       EXPORT_TEMP_DIR,
-      `${username}_content_${Date.now()}.zip`
+      `${username}_content_${Date.now()}.zip`,
     );
     const tempUserContentDir = path.join(
       process.cwd(),
       EXPORT_TEMP_DIR,
-      `user_content_${username}_${Date.now()}`
+      `user_content_${username}_${Date.now()}`,
     );
     await ensureDir(tempUserContentDir);
 
@@ -192,37 +199,37 @@ export const exportUserChecklistsNotes = async (
     }
 
     const userLists = allListsResult.data!.filter(
-      (list) => list.owner === username
+      (list) => list.owner === username,
     );
     const userNotes = allNotesResult.data!.filter(
-      (note) => note.owner === username
+      (note) => note.owner === username,
     );
 
     for (const list of userLists) {
       const userDir = path.join(
         tempUserContentDir,
-        Modes.CHECKLISTS,
-        list.category || "Uncategorized"
+        CHECKLISTS_FOLDER,
+        list.category || "Uncategorized",
       );
       await ensureDir(userDir);
       await fsp.writeFile(
         path.join(userDir, `${list.id}.json`),
         JSON.stringify(list, null, 2),
-        "utf-8"
+        "utf-8",
       );
     }
 
     for (const note of userNotes) {
       const userDir = path.join(
         tempUserContentDir,
-        Modes.NOTES,
-        note.category || "Uncategorized"
+        NOTES_FOLDER,
+        note.category || "Uncategorized",
       );
       await ensureDir(userDir);
       await fsp.writeFile(
         path.join(userDir, `${note.id}.json`),
         JSON.stringify(note, null, 2),
-        "utf-8"
+        "utf-8",
       );
     }
 
@@ -260,12 +267,12 @@ export const exportAllUsersData = async (): Promise<ExportResult> => {
     const tempExportPath = path.join(
       process.cwd(),
       EXPORT_TEMP_DIR,
-      `all_users_data_${Date.now()}.zip`
+      `all_users_data_${Date.now()}.zip`,
     );
     const tempUserDir = path.join(
       process.cwd(),
       EXPORT_TEMP_DIR,
-      `users_data_${Date.now()}`
+      `users_data_${Date.now()}`,
     );
     await ensureDir(tempUserDir);
 
@@ -273,7 +280,7 @@ export const exportAllUsersData = async (): Promise<ExportResult> => {
     await fsp.writeFile(
       path.join(tempUserDir, "users.json"),
       JSON.stringify(users, null, 2),
-      "utf-8"
+      "utf-8",
     );
 
     updateProgress(50, "Compressing all user data...");
@@ -310,7 +317,7 @@ export const exportWholeDataFolder = async (): Promise<ExportResult> => {
     const tempExportPath = path.join(
       process.cwd(),
       EXPORT_TEMP_DIR,
-      `whole_data_folder_${Date.now()}.zip`
+      `whole_data_folder_${Date.now()}.zip`,
     );
 
     await ensureDir(path.join(process.cwd(), EXPORT_TEMP_DIR));

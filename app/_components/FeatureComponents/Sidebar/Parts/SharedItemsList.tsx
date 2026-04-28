@@ -8,13 +8,14 @@ import {
   UserMultipleIcon,
   File02Icon,
   CheckmarkSquare04Icon,
+  TaskDaily01Icon,
 } from "hugeicons-react";
 import { cn, buildCategoryPath } from "@/app/_utils/global-utils";
 import { AppMode, Checklist, Note } from "@/app/_types";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { capitalize } from "lodash";
 import { UserAvatar } from "@/app/_components/GlobalComponents/User/UserAvatar";
-import { ItemTypes, Modes } from "@/app/_types/enums";
+import { isKanbanType, ItemTypes, Modes } from "@/app/_types/enums";
 import { useNavigationGuard } from "@/app/_providers/NavigationGuardProvider";
 import { useRouter } from "next/navigation";
 
@@ -50,24 +51,29 @@ export const SharedItemsList = ({
   }
 
   const modeItems =
-    mode === "checklists" ? userSharedItems.checklists : userSharedItems.notes;
+    mode === Modes.CHECKLISTS
+      ? userSharedItems.checklists
+      : userSharedItems.notes;
 
   if (modeItems.length === 0) {
     return null;
   }
 
-  const fullItems = mode === "checklists" ? checklists : notes;
+  const fullItems = mode === Modes.CHECKLISTS ? checklists : notes;
 
-  const groupedBySharer = modeItems.reduce((acc, item) => {
-    const sharer = item.sharer || "Unknown";
-    if (!acc[sharer]) {
-      acc[sharer] = [];
-    }
-    if (item.id) {
-      acc[sharer].push(item as SharedItemEntry);
-    }
-    return acc;
-  }, {} as Record<string, SharedItemEntry[]>);
+  const groupedBySharer = modeItems.reduce(
+    (acc, item) => {
+      const sharer = item.sharer || "Unknown";
+      if (!acc[sharer]) {
+        acc[sharer] = [];
+      }
+      if (item.id) {
+        acc[sharer].push(item as SharedItemEntry);
+      }
+      return acc;
+    },
+    {} as Record<string, SharedItemEntry[]>,
+  );
 
   const toggleUserCollapsed = (sharer: string) => {
     setCollapsedUsers((prev) => {
@@ -82,7 +88,7 @@ export const SharedItemsList = ({
   };
 
   const getItemHref = (item: Checklist | Note) => {
-    return `/${mode === Modes.NOTES ? ItemTypes.NOTE : ItemTypes.CHECKLIST}/${buildCategoryPath(item.category || 'Uncategorized', item.id)}`;
+    return `/${mode === Modes.NOTES ? ItemTypes.NOTE : ItemTypes.CHECKLIST}/${buildCategoryPath(item.category || "Uncategorized", item.id)}`;
   };
 
   const handleItemClick = (e: React.MouseEvent, item: Checklist | Note) => {
@@ -104,7 +110,7 @@ export const SharedItemsList = ({
           onClick={onToggleCollapsed}
           className={cn(
             "flex items-center gap-2 py-2 pr-2 text-md lg:text-sm rounded-jotty transition-colors w-full text-left",
-            "hover:bg-muted/50 cursor-pointer"
+            "hover:bg-muted/50 cursor-pointer",
           )}
         >
           {collapsed ? (
@@ -133,7 +139,7 @@ export const SharedItemsList = ({
                   onClick={() => toggleUserCollapsed(sharer)}
                   className={cn(
                     "flex items-center gap-2 py-2 pr-2 text-md lg:text-sm rounded-jotty transition-colors w-full text-left",
-                    "hover:bg-muted/50 cursor-pointer"
+                    "hover:bg-muted/50 cursor-pointer",
                   )}
                 >
                   {isUserCollapsed ? (
@@ -155,11 +161,13 @@ export const SharedItemsList = ({
                     {sharerItems.map((sharedItem) => {
                       const fullItem = fullItems.find(
                         (item) =>
-                          (item.uuid === sharedItem.uuid || item.id === sharedItem.id) &&
-                          item.isShared
+                          (item.uuid === sharedItem.uuid ||
+                            item.id === sharedItem.id) &&
+                          item.isShared,
                       ) as (Checklist | Note) | undefined;
 
-                      if (!fullItem || !fullItem.id || !fullItem.title) return null;
+                      if (!fullItem || !fullItem.id || !fullItem.title)
+                        return null;
 
                       const isSelected = isItemSelected(fullItem);
 
@@ -174,11 +182,16 @@ export const SharedItemsList = ({
                             "flex items-center gap-2 py-2 px-3 text-md lg:text-sm rounded-jotty transition-colors w-full text-left",
                             isSelected
                               ? "bg-primary/60 text-primary-foreground"
-                              : "hover:bg-muted/50 text-foreground"
+                              : "hover:bg-muted/50 text-foreground",
                           )}
                         >
-                          {mode === "checklists" ? (
-                            <CheckmarkSquare04Icon className="h-4 w-4" />
+                          {mode === Modes.CHECKLISTS ? (
+                            "type" in fullItem &&
+                            isKanbanType(fullItem.type) ? (
+                              <TaskDaily01Icon className="h-4 w-4" />
+                            ) : (
+                              <CheckmarkSquare04Icon className="h-4 w-4" />
+                            )
                           ) : (
                             <File02Icon className="h-4 w-4" />
                           )}

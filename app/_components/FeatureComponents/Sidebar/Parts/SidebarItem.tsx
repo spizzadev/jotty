@@ -20,7 +20,7 @@ import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { cn, buildCategoryPath } from "@/app/_utils/global-utils";
 import { DropdownMenu } from "@/app/_components/GlobalComponents/Dropdowns/DropdownMenu";
 import { AppMode, Checklist, Note } from "@/app/_types";
-import { ItemTypes, Modes } from "@/app/_types/enums";
+import { isKanbanType, ItemTypes, Modes } from "@/app/_types/enums";
 import { togglePin } from "@/app/_server/actions/dashboard";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -224,7 +224,7 @@ export const SidebarItem = ({
           />
         ) : (
           <>
-            {"type" in item && item.type === "task" ? (
+            {"type" in item && isKanbanType(item.type) ? (
               <TaskDaily01Icon
                 className={cn(
                   "h-5 w-5 lg:h-4 lg:w-4 text-foreground flex-shrink-0",

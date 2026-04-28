@@ -6,9 +6,14 @@ const withNextIntl = createNextIntlPlugin("./i18n.ts");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: "standalone",
-  serverExternalPackages: ["ws"],
+  serverExternalPackages: ["ws", "libsodium-wrappers-sumo"],
   serverActions: {
     bodySizeLimit: "100mb",
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "100mb",
+    },
   },
   images: {
     unoptimized: true,

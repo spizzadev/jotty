@@ -27,7 +27,7 @@
 services:
   jotty:
     environment:
-      - SSO_MODE=oidc
+      - AUTH_MODE=oidc
       - OIDC_ISSUER=https://YOUR_SSO_HOST/issuer/path
       - OIDC_CLIENT_ID=your_client_id
       - APP_URL=https://your-jotty-domain.com # if not set defaults to http://localhost:<port>
@@ -131,7 +131,7 @@ For enhanced security in production environments, you can store OIDC credentials
 services:
   jotty:
     environment:
-      - SSO_MODE=oidc
+      - AUTH_MODE=oidc
       - OIDC_ISSUER=https://YOUR_SSO_HOST/issuer/path
       - OIDC_CLIENT_ID_FILE=/run/secrets/oidc_client_id
       - OIDC_CLIENT_SECRET_FILE=/run/secrets/oidc_client_secret

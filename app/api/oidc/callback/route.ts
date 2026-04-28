@@ -3,9 +3,9 @@ import crypto from "crypto";
 import fs from "fs/promises";
 import path from "path";
 import { getEnvOrFile } from "@/app/_server/actions/file";
-import { CHECKLISTS_FOLDER } from "@/app/_consts/checklists";
-import { NOTES_FOLDER } from "@/app/_consts/notes";
 import { lock, unlock } from "proper-lockfile";
+import { getAuthMode } from "@/app/_utils/env-utils";
+import { ensureUser } from "@/app/_server/actions/users";
 import { jwtVerify, createRemoteJWKSet, decodeJwt } from "jose";
 import { createSession } from "@/app/_server/actions/session";
 import {
@@ -14,7 +14,7 @@ import {
 } from "@/app/_server/actions/file";
 import { USERS_FILE } from "@/app/_consts/files";
 import { logAudit } from "@/app/_server/actions/log";
-import { isEnvEnabled, isDebugFlag } from "@/app/_utils/env-utils";
+import { isDebugFlag, isSecureEnv, getSessionCookieName } from "@/app/_utils/env-utils";
 
 const debugProxy = isDebugFlag("proxy");
 
@@ -49,89 +49,11 @@ function checkClaims(
   return isAllowed;
 }
 
-async function ensureUser(username: string, isAdmin: boolean) {
-  const usersFile = path.join(process.cwd(), "data", "users", "users.json");
-  await fs.mkdir(path.dirname(usersFile), { recursive: true });
-
-  await lock(usersFile);
-  try {
-    let users: any[] = [];
-    try {
-      const content = await fs.readFile(usersFile, "utf-8");
-      if (content) {
-        users = JSON.parse(content);
-      }
-    } catch {}
-
-    if (users.length === 0) {
-      users.push({
-        username,
-        passwordHash: "",
-        isAdmin: true,
-        isSuperAdmin: true,
-        createdAt: new Date().toISOString(),
-      });
-      if (debugProxy) {
-        console.log(
-          "SSO CALLBACK - Created first user as super admin:",
-          username,
-        );
-      }
-    } else {
-      const existing = users.find((u) => u.username === username);
-      if (!existing) {
-        users.push({
-          username,
-          passwordHash: "",
-          isAdmin,
-          createdAt: new Date().toISOString(),
-        });
-        if (debugProxy) {
-          console.log("SSO CALLBACK - Created new user:", {
-            username,
-            isAdmin,
-          });
-        }
-      } else {
-        const wasAdmin = existing.isAdmin;
-        if (isAdmin && !existing.isAdmin) {
-          existing.isAdmin = true;
-          if (debugProxy) {
-            console.log("SSO CALLBACK - Updated existing user to admin:", {
-              username,
-              wasAdmin,
-              nowAdmin: true,
-            });
-          }
-        } else if (debugProxy) {
-          console.log("SSO CALLBACK - User already exists:", {
-            username,
-            currentIsAdmin: existing.isAdmin,
-            requestedAdmin: isAdmin,
-          });
-        }
-      }
-    }
-    await fs.writeFile(usersFile, JSON.stringify(users, null, 2));
-  } finally {
-    await unlock(usersFile);
-  }
-
-  const checklistDir = path.join(
-    process.cwd(),
-    "data",
-    CHECKLISTS_FOLDER,
-    username,
-  );
-  const notesDir = path.join(process.cwd(), "data", NOTES_FOLDER, username);
-  await fs.mkdir(checklistDir, { recursive: true });
-  await fs.mkdir(notesDir, { recursive: true });
-}
 
 export async function GET(request: NextRequest) {
   const appUrl = process.env.APP_URL || request.nextUrl.origin;
 
-  if (process.env.SSO_MODE !== "oidc") {
+  if (getAuthMode() !== "oidc") {
     return NextResponse.redirect(`${appUrl}/auth/login`);
   }
 
@@ -429,15 +351,10 @@ export async function GET(request: NextRequest) {
   await ensureUser(username, isAdmin);
 
   const sessionId = base64UrlEncode(crypto.randomBytes(32));
-  const cookieName =
-    process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-      ? "__Host-session"
-      : "session";
   const response = NextResponse.redirect(`${appUrl}/`);
-  response.cookies.set(cookieName, sessionId, {
+  response.cookies.set(getSessionCookieName(), sessionId, {
     httpOnly: true,
-    secure:
-      process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS),
+    secure: isSecureEnv(),
     sameSite: "lax",
     path: "/",
     maxAge: 30 * 24 * 60 * 60,

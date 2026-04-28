@@ -59,6 +59,7 @@ export async function DELETE(request: NextRequest, props: { params: Promise<{ li
 
       const formData = new FormData();
       formData.append("id", list.id);
+      if (list.uuid) formData.append("uuid", list.uuid);
       formData.append("category", list.category || "Uncategorized");
       formData.append("apiUser", JSON.stringify(user));
 

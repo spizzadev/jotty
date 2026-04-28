@@ -9,6 +9,7 @@ import {
   extractYamlMetadata,
   updateYamlMetadata,
 } from "@/app/_utils/yaml-metadata-utils";
+import { Modes } from "@/app/_types/enums";
 
 const findMarkdownFiles = async (dirPath: string): Promise<string[]> => {
   const markdownFiles: string[] = [];
@@ -39,7 +40,7 @@ const findMarkdownFiles = async (dirPath: string): Promise<string[]> => {
 
 const processDirectory = async (
   dirPath: string,
-  changes: string[]
+  changes: string[],
 ): Promise<{ processed: number; updated: number }> => {
   try {
     await fs.access(dirPath);
@@ -72,7 +73,7 @@ const processDirectory = async (
         const updatedContent = updateYamlMetadata(
           content,
           { tags: mergedTags },
-          true
+          true,
         );
         await fs.writeFile(filePath, updatedContent, "utf-8");
         updated++;
@@ -107,8 +108,8 @@ export const updateTagsFromContent = async (): Promise<
     }
     changes.push("Data backup completed successfully");
 
-    const notesDir = join(process.cwd(), "data", "notes");
-    const checklistsDir = join(process.cwd(), "data", "checklists");
+    const notesDir = join(process.cwd(), "data", Modes.NOTES);
+    const checklistsDir = join(process.cwd(), "data", Modes.CHECKLISTS);
 
     const notesResult = await processDirectory(notesDir, changes);
     const checklistsResult = await processDirectory(checklistsDir, changes);

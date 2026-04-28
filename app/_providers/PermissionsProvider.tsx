@@ -5,6 +5,7 @@ import { Checklist, Note } from "@/app/_types";
 import { getPermissions } from "@/app/_utils/sharing-utils";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { encodeCategoryPath } from "@/app/_utils/global-utils";
+import { Modes } from "../_types/enums";
 
 const permissionsCache = new Map<
   string,
@@ -41,7 +42,7 @@ export const PermissionsProvider = ({
       false;
 
     if (item.isShared) {
-      const itemType = "items" in item ? "checklists" : "notes";
+      const itemType = "items" in item ? Modes.CHECKLISTS : Modes.NOTES;
       const permissions = getPermissions(
         globalSharing,
         user?.username || "",
@@ -76,7 +77,7 @@ export const PermissionsProvider = ({
       return cached.permissions;
     }
 
-    const itemType = "items" in item ? "checklists" : "notes";
+    const itemType = "items" in item ? Modes.CHECKLISTS : Modes.NOTES;
     const permissions = getPermissions(
       globalSharing,
       user?.username || "",

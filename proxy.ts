@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { isEnvEnabled, isDebugFlag } from "./app/_utils/env-utils";
+import { isDebugFlag, getSessionCookieName } from "./app/_utils/env-utils";
 
 const debugProxy = isDebugFlag("proxy");
 
@@ -59,11 +59,7 @@ export const proxy = async (request: NextRequest) => {
     return NextResponse.next();
   }
 
-  const cookieName =
-    process.env.NODE_ENV === "production" && isEnvEnabled(process.env.HTTPS)
-      ? "__Host-session"
-      : "session";
-  const sessionId = request.cookies.get(cookieName)?.value;
+  const sessionId = request.cookies.get(getSessionCookieName())?.value;
 
   if (debugProxy) {
     console.log(
@@ -106,7 +102,7 @@ export const proxy = async (request: NextRequest) => {
 
     if (!valid) {
       const redirectResponse = NextResponse.redirect(loginUrl);
-      redirectResponse.cookies.delete(cookieName);
+      redirectResponse.cookies.delete(getSessionCookieName());
 
       if (debugProxy) {
         console.log("MIDDLEWARE - session is not ok");

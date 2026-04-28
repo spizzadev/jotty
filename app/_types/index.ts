@@ -2,6 +2,8 @@ export type { ItemType, Result, SharingPermissions } from "./core";
 
 export type {
   ChecklistType,
+  KanbanPriority,
+  KanbanReminder,
   TimeEntry,
   RecurrenceRule,
   StatusChange,
@@ -98,3 +100,5 @@ export interface ProjectTimeEntry {
   end?: string;
   durationMin?: number;
 }
+
+export type { AppNotification, AppNotificationData, NotificationType } from "./notifications";
