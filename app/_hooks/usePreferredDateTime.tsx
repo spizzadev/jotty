@@ -12,9 +12,17 @@ const _convertJapaneseAMPM = (dateString: string) => {
 };
 
 export const usePreferredDateTime = () => {
-  const { user } = useAppMode();
-  const preferredDateFormat = user?.preferredDateFormat || "dd/mm/yyyy";
-  const preferredTimeFormat = user?.preferredTimeFormat || "12-hours";
+  const { user, appSettings } = useAppMode();
+  const userDateFormat = user?.preferredDateFormat;
+  const userTimeFormat = user?.preferredTimeFormat;
+  const preferredDateFormat =
+    !userDateFormat || userDateFormat === "system"
+      ? appSettings?.defaultDateFormat || "dd/mm/yyyy"
+      : userDateFormat;
+  const preferredTimeFormat =
+    !userTimeFormat || userTimeFormat === "system"
+      ? appSettings?.defaultTimeFormat || "12-hours"
+      : userTimeFormat;
 
   /**
    * @fccview here... listen.. if you got here and noticed this know that...

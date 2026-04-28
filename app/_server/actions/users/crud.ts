@@ -201,8 +201,8 @@ export const createUser = async (
       isAdmin,
       createdAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
-      preferredDateFormat: "dd/mm/yyyy",
-      preferredTimeFormat: "12-hours",
+      preferredDateFormat: "system",
+      preferredTimeFormat: "system",
       handedness: "right-handed",
     };
 

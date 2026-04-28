@@ -176,7 +176,14 @@ export const NoteEditorHeader = ({
     }
   };
 
-  const handleViewDecryption = (decryptedContent: string) => {
+  const handleViewDecryption = (
+    decryptedContent: string,
+    passphrase?: string,
+    method?: string
+  ) => {
+    if (passphrase && method) {
+      viewModel.cachePassphrase(passphrase, method);
+    }
     viewModel.handleEditorContentChange(decryptedContent, true, false);
     setShowEncryptionModal(false);
   };
@@ -199,6 +206,9 @@ export const NoteEditorHeader = ({
   ) => {
     const saveParam = method === "pgp" ? decryptedContent : passphrase;
     if (saveParam || method === "pgp") {
+      if (method === "xchacha" && passphrase) {
+        viewModel.cachePassphrase(passphrase, method);
+      }
       handleSave(false, saveParam);
       setShowEncryptionModal(false);
     }
@@ -386,8 +396,13 @@ export const NoteEditorHeader = ({
                   size="sm"
                   onClick={() => {
                     if (isEditingEncrypted) {
-                      setEncryptionModalMode("save");
-                      setShowEncryptionModal(true);
+                      const cached = viewModel.getCachedPassphrase();
+                      if (cached) {
+                        handleSave(false, cached);
+                      } else {
+                        setEncryptionModalMode("save");
+                        setShowEncryptionModal(true);
+                      }
                     } else {
                       handleSave();
                     }
@@ -487,8 +502,15 @@ export const NoteEditorHeader = ({
                       size="icon"
                       onClick={() => {
                         if (note?.encrypted) {
-                          setEncryptionModalMode("edit");
-                          setShowEncryptionModal(true);
+                          const cached = viewModel.getCachedPassphrase();
+                          const cachedMethod = viewModel.getCachedMethod();
+                          const alreadyDecrypted = !isEncrypted(viewModel.editorContent || "");
+                          if (cached && cachedMethod && alreadyDecrypted) {
+                            viewModel.handleEditEncrypted(cached, cachedMethod, viewModel.editorContent);
+                          } else {
+                            setEncryptionModalMode("edit");
+                            setShowEncryptionModal(true);
+                          }
                         } else {
                           handleEdit();
                         }

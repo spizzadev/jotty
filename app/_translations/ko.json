@@ -856,7 +856,13 @@
     "codeBlockChoice": "코드 블록 스타일을 선택하세요",
     "themedCodeBlock": "테마 코드블록",
     "defaultCodeBlock": "코드펜(기본값)",
-    "codeBlockChoiceDescription": "codepen과 유사한 기본 코드 블록 스타일 또는 테마 코드 블록 스타일 중에서 선택하세요."
+    "codeBlockChoiceDescription": "codepen과 유사한 기본 코드 블록 스타일 또는 테마 코드 블록 스타일 중에서 선택하세요.",
+    "checklistItemClickAction": "체크리스트 항목 클릭 동작",
+    "selectChecklistItemClickAction": "체크리스트 항목 선택 클릭 동작",
+    "checklistItemClickActionDescription": "작업 텍스트를 클릭하면 어떻게 되는지 선택하세요. \n\"완료로 표시\"는 확인란을 전환합니다(기본값). \n\"작업 이름 편집\"은 인라인 편집을 위한 작업을 엽니다. 완료하려면 확인란 자체를 클릭해야 합니다.",
+    "checklistItemClickActionToggle": "완료/미완료로 표시",
+    "checklistItemClickActionEdit": "목록 항목 편집",
+    "useSystemDefault": "시스템 기본값 사용"
   },
   "admin": {
     "title": "관리자",
@@ -1041,7 +1047,11 @@
     "updatingTags": "업데이트 중...",
     "updateTagsTitle": "노트에서 해시태그를 검색하고 프론트매터를 업데이트합니다",
     "tagsUpdated": "{processed}개 파일 처리, {updated}개에 새 태그 반영",
-    "failedToUpdateTags": "태그 업데이트에 실패했습니다"
+    "failedToUpdateTags": "태그 업데이트에 실패했습니다",
+    "defaultDateFormat": "기본 날짜 형식",
+    "defaultDateFormatDescription": "사용자의 날짜 형식 기본 설정이 \"시스템 기본값 사용\"으로 설정된 경우 사용됩니다.",
+    "defaultTimeFormatDescription": "사용자의 시간 형식 기본 설정이 \"시스템 기본값 사용\"으로 설정된 경우 사용됩니다.",
+    "defaultTimeFormat": "기본 시간 형식"
   },
   "errors": {
     "notFound": "찾을 수 없음",
@@ -1374,7 +1384,7 @@
     "noteWillBeRestoredAsUnencrypted": "노트 내용이 암호화되지 않은 상태로 복원됩니다",
     "youWillBeAbleToEditAfterDecryption": "복호화 후 노트 내용을 편집할 수 있습니다",
     "publicKeyRequired": "공개 키가 필요합니다. 저장된 키가 없습니다.",
-    "keyRequired": "{keyType} 키가 필요합니다",
+    "keyRequired": "{keyType}가 필요합니다",
     "privateKeyRequiredForSigning": "서명을 위해 개인 키가 필요합니다",
     "passphraseRequiredForSigning": "서명을 위해 암호가 필요합니다",
     "signatureVerified": "서명이 확인되었습니다.",
@@ -1431,7 +1441,8 @@
     "invalidPrivateKeyFormat": "유효하지 않은 개인 키 형식입니다. ASCII 아머드 PGP 키여야 합니다.",
     "keysImportedSuccessfully": "키를 성공적으로 가져왔습니다",
     "failedToImportKeys": "키 가져오기에 실패했습니다",
-    "created": "암호화가 생성되었습니다"
+    "created": "암호화가 생성되었습니다",
+    "notePlaceholder": "빈 메모는 암호화할 수 없기 때문에 자리 표시자입니다."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "이 옵션은 현재 브라우저 세션에만 적용됩니다. 영구적인 설정은 다음에서 확인하세요:",
@@ -1588,7 +1599,8 @@
     "encryption": "암호화",
     "sso": "SSO",
     "translations": "번역",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "패치"
   },
   "notFound": {
     "title": "페이지를 찾을 수 없습니다",

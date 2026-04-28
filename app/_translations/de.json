@@ -831,7 +831,13 @@
     "codeBlockChoice": "Wählen Sie den Codeblockstil",
     "themedCodeBlock": "Themenbezogener Codeblock",
     "defaultCodeBlock": "Codepen (Standard)",
-    "codeBlockChoiceDescription": "Wählen Sie zwischen dem Codepen-ähnlichen Standard-Codeblockstil oder einem thematischen Codeblockstil."
+    "codeBlockChoiceDescription": "Wählen Sie zwischen dem Codepen-ähnlichen Standard-Codeblockstil oder einem thematischen Codeblockstil.",
+    "checklistItemClickAction": "Klickaktion für Checklistenelement",
+    "selectChecklistItemClickAction": "Klicken Sie auf die Aktion „Checklistenelement auswählen“.",
+    "checklistItemClickActionDescription": "Wählen Sie aus, was passiert, wenn Sie auf den Text einer Aufgabe klicken. \n„Als abgeschlossen markieren“ schaltet das Kontrollkästchen ein (Standard); \n„Aufgabennamen bearbeiten“ öffnet die Aufgabe zur Inline-Bearbeitung – Sie müssen noch das Kontrollkästchen selbst anklicken, um sie abzuschließen.",
+    "checklistItemClickActionToggle": "Als vollständig/unvollständig markieren",
+    "checklistItemClickActionEdit": "Listenelement bearbeiten",
+    "useSystemDefault": "Systemstandard verwenden"
   },
   "admin": {
     "title": "Administration",
@@ -1016,7 +1022,11 @@
     "disableHistory": "Verlauf deaktivieren",
     "disableHistoryWarning": "Das Deaktivieren des Verlaufs löscht dauerhaft alle gespeicherten Versionen für alle Nutzer. Dies kann nicht rückgängig gemacht werden.",
     "historyDisabled": "Der Notizverlauf wurde deaktiviert und alle Verlaufsdaten gelöscht.",
-    "failedToDisableHistory": "Verlauf konnte nicht deaktiviert werden"
+    "failedToDisableHistory": "Verlauf konnte nicht deaktiviert werden",
+    "defaultDateFormat": "Standarddatumsformat",
+    "defaultDateFormatDescription": "Wird verwendet, wenn die Datumsformateinstellung eines Benutzers auf „Systemstandard verwenden“ eingestellt ist.",
+    "defaultTimeFormatDescription": "Wird verwendet, wenn die Zeitformateinstellung eines Benutzers auf „Systemstandard verwenden“ eingestellt ist.",
+    "defaultTimeFormat": "Standardzeitformat"
   },
   "errors": {
     "notFound": "Nicht gefunden",
@@ -1349,7 +1359,7 @@
     "noteWillBeRestoredAsUnencrypted": "Der Inhalt der Notiz wird unverschlüsselt wiederhergestellt",
     "youWillBeAbleToEditAfterDecryption": "Du kannst die Notiz nach der Entschlüsselung bearbeiten",
     "publicKeyRequired": "Öffentlicher Schlüssel wird benötigt. Du hast keine gespeicherten Schlüssel.",
-    "keyRequired": "{keyType} Schlüssel wird benötigt",
+    "keyRequired": "{keyType} wird benötigt",
     "privateKeyRequiredForSigning": "Der private Schlüssel wird benötigt, um zu unterschreiben",
     "passphraseRequiredForSigning": "Das Passwort wird benötigt, um zu unterschreiben",
     "signatureVerified": "Signatur überprüft.",
@@ -1406,7 +1416,8 @@
     "invalidPrivateKeyFormat": "Ungültiges Format für einen privaten Schlüssel Muss ein in ASCII eingebetteter PGP Schlüssel sein.",
     "keysImportedSuccessfully": "Schlüssel erfolgreich importiert",
     "failedToImportKeys": "Schlüssel konnten nicht importiert werden",
-    "created": "Verschlüsselung eingerichtet"
+    "created": "Verschlüsselung eingerichtet",
+    "notePlaceholder": "Ich bin ein Platzhalter, weil man eine leere Notiz nicht verschlüsseln kann."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Diese Einstellungen wirken sich nur auf die aktuelle Browser-Sitzung aus. Für dauerhafte Einstellungen schau bitte in deine",
@@ -1560,7 +1571,8 @@
     "encryption": "Verschlüsselung",
     "sso": "SSO",
     "translations": "Übersetzungen",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patches"
   },
   "history": {
     "fetchError": "Der Verlauf konnte nicht geladen werden",

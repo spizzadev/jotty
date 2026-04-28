@@ -23,6 +23,7 @@ import {
   DisableRichEditor,
   MarkdownTheme,
   DefaultChecklistFilter,
+  ChecklistItemClickAction,
   DefaultNoteFilter,
   QuickCreateNotes,
   HideConnectionIndicator,
@@ -58,12 +59,13 @@ const getSettingsFromUser = (user: SanitisedUser | null): Partial<SanitisedUser>
   enableRecurrence: user?.enableRecurrence || "disable",
   showCompletedSuggestions: user?.showCompletedSuggestions || "enable",
   fileRenameMode: user?.fileRenameMode || "minimal",
-  preferredDateFormat: user?.preferredDateFormat || "dd/mm/yyyy",
-  preferredTimeFormat: user?.preferredTimeFormat || "12-hours",
+  preferredDateFormat: user?.preferredDateFormat || "system",
+  preferredTimeFormat: user?.preferredTimeFormat || "system",
   handedness: user?.handedness || "right-handed",
   disableRichEditor: user?.disableRichEditor || "disable",
   markdownTheme: user?.markdownTheme || "prism",
   defaultChecklistFilter: user?.defaultChecklistFilter || "all",
+  checklistItemClickAction: user?.checklistItemClickAction || "toggle",
   defaultNoteFilter: user?.defaultNoteFilter || "all",
   quickCreateNotes: user?.quickCreateNotes || "disable",
   quickCreateNotesCategory: user?.quickCreateNotesCategory || "",
@@ -159,6 +161,7 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
     "enableRecurrence",
     "showCompletedSuggestions",
     "defaultChecklistFilter",
+    "checklistItemClickAction",
   ]);
 
   const validateAndSave = async <T extends Record<string, any>>(
@@ -231,12 +234,14 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
   };
 
   const dateFormatOptions = [
+    { id: "system", name: t('settings.useSystemDefault') },
     { id: "dd/mm/yyyy", name: "DD/MM/YYYY" },
     { id: "mm/dd/yyyy", name: "MM/DD/YYYY" },
     { id: "yyyy/mm/dd", name: "YYYY/MM/DD" },
   ];
 
   const timeFormatOptions = [
+    { id: "system", name: t('settings.useSystemDefault') },
     { id: "12-hours", name: t('settings.hours12') },
     { id: "24-hours", name: t('settings.hours24') },
   ];
@@ -303,6 +308,11 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
     { id: "last-visited", name: t('settings.lastVisitedPage') },
     { id: Modes.CHECKLISTS, name: t('checklists.title') },
     { id: Modes.NOTES, name: t('notes.title') },
+  ];
+
+  const checklistItemClickActionOptions = [
+    { id: "toggle", name: t('settings.checklistItemClickActionToggle') },
+    { id: "edit", name: t('settings.checklistItemClickActionEdit') },
   ];
 
   const defaultChecklistFilterOptions = [
@@ -456,7 +466,7 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
           <div className="space-y-2">
             <Label htmlFor="preferred-date-format">{t('settings.preferredDateFormat')}</Label>
             <Dropdown
-              value={currentSettings.preferredDateFormat || "dd/mm/yyyy"}
+              value={currentSettings.preferredDateFormat || "system"}
               onChange={(value) =>
                 handleSettingChange(
                   "preferredDateFormat",
@@ -480,7 +490,7 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
           <div className="space-y-2">
             <Label htmlFor="preferred-time-format">{t('settings.preferredTimeFormat')}</Label>
             <Dropdown
-              value={currentSettings.preferredTimeFormat || "12-hours"}
+              value={currentSettings.preferredTimeFormat || "system"}
               onChange={(value) =>
                 handleSettingChange(
                   "preferredTimeFormat",
@@ -829,6 +839,7 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
                   "enableRecurrence",
                   "showCompletedSuggestions",
                   "defaultChecklistFilter",
+                  "checklistItemClickAction",
                 ],
                 checklistSettingsSchema,
                 "Checklists"
@@ -901,6 +912,27 @@ export const UserPreferencesTab = ({ noteCategories, localeOptions }: SettingsTa
           )}
           <p className="text-md lg:text-sm text-muted-foreground">
             {t('settings.chooseDefaultChecklistFilter')}
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="checklist-item-click-action">
+            {t('settings.checklistItemClickAction')}
+          </Label>
+          <Dropdown
+            value={currentSettings.checklistItemClickAction || "toggle"}
+            onChange={(value) =>
+              handleSettingChange(
+                "checklistItemClickAction",
+                value as ChecklistItemClickAction
+              )
+            }
+            options={checklistItemClickActionOptions}
+            placeholder={t('settings.selectChecklistItemClickAction')}
+            className="w-full"
+          />
+          <p className="text-md lg:text-sm text-muted-foreground">
+            {t('settings.checklistItemClickActionDescription')}
           </p>
         </div>
       </FormWrapper>

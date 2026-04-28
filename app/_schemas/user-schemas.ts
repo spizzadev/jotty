@@ -68,6 +68,9 @@ export const checklistSettingsSchema = z.object({
         "Default checklist filter must be 'all', 'completed', 'incomplete', 'pinned', 'kanban', or 'simple'",
     },
   ),
+  checklistItemClickAction: z.enum(["toggle", "edit"], {
+    message: "Checklist item click action must be either 'toggle' or 'edit'",
+  }),
 });
 
 export const fileSettingsSchema = z.object({
@@ -85,8 +88,13 @@ export const generalSettingsSchema = z.object({
   fileRenameMode: z.enum(["dash-case", "minimal", "none"], {
     message: "File rename mode must be 'dash-case', 'minimal', or 'none'",
   }),
-  preferredDateFormat: z.enum(["dd/mm/yyyy", "mm/dd/yyyy", "yyyy/mm/dd"]),
-  preferredTimeFormat: z.enum(["12-hours", "24-hours"]),
+  preferredDateFormat: z.enum([
+    "dd/mm/yyyy",
+    "mm/dd/yyyy",
+    "yyyy/mm/dd",
+    "system",
+  ]),
+  preferredTimeFormat: z.enum(["12-hours", "24-hours", "system"]),
   handedness: z
     .enum(["right-handed", "left-handed"], {
       message: "Handedness must be either 'right-handed' or 'left-handed'",

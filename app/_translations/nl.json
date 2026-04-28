@@ -831,7 +831,13 @@
     "codeBlockChoice": "Kies de codeblokstijl",
     "themedCodeBlock": "Thema-codeblok",
     "defaultCodeBlock": "Codepen (standaard)",
-    "codeBlockChoiceDescription": "Kies tussen de codepen-achtige standaardcodeblokstijl of een thematische codeblokstijl."
+    "codeBlockChoiceDescription": "Kies tussen de codepen-achtige standaardcodeblokstijl of een thematische codeblokstijl.",
+    "checklistItemClickAction": "Klikactie op checklistitem",
+    "selectChecklistItemClickAction": "Selecteer de klikactie voor het checklistitem",
+    "checklistItemClickActionDescription": "Kies wat er gebeurt als u op de tekst van een taak klikt. \n\"Markeren als voltooid\" schakelt het selectievakje in (standaard); \nMet 'Taaknaam bewerken' wordt de taak geopend voor inline bewerken. U moet nog steeds op het selectievakje zelf klikken om deze te voltooien.",
+    "checklistItemClickActionToggle": "Markeer als compleet/onvolledig",
+    "checklistItemClickActionEdit": "Lijstitem bewerken",
+    "useSystemDefault": "Gebruik systeemstandaard"
   },
   "admin": {
     "title": "Beheer",
@@ -1016,7 +1022,11 @@
     "disableHistory": "Geschiedenis uitschakelen",
     "disableHistoryWarning": "Het uitschakelen van de geschiedenis verwijdert permanent alle opgeslagen versies voor alle gebruikers. Dit kan niet ongedaan worden gemaakt.",
     "historyDisabled": "De notitiegeschiedenis is uitgeschakeld en alle geschiedenisgegevens zijn verwijderd.",
-    "failedToDisableHistory": "Geschiedenis uitschakelen mislukt"
+    "failedToDisableHistory": "Geschiedenis uitschakelen mislukt",
+    "defaultDateFormat": "Standaard datumnotatie",
+    "defaultDateFormatDescription": "Wordt gebruikt wanneer de datumnotatievoorkeur van een gebruiker is ingesteld op \"Gebruik systeemstandaard\".",
+    "defaultTimeFormatDescription": "Wordt gebruikt wanneer de tijdnotatievoorkeur van een gebruiker is ingesteld op \"Gebruik systeemstandaard\".",
+    "defaultTimeFormat": "Standaard tijdformaat"
   },
   "errors": {
     "notFound": "Niet gevonden",
@@ -1349,7 +1359,7 @@
     "noteWillBeRestoredAsUnencrypted": "Notitie-inhoud wordt hersteld als onversleuteld",
     "youWillBeAbleToEditAfterDecryption": "U kunt de notitie-inhoud bewerken na ontsleuteling",
     "publicKeyRequired": "Publieke sleutel is vereist. U heeft geen opgeslagen sleutels.",
-    "keyRequired": "{keyType} sleutel is vereist",
+    "keyRequired": "{keyType} is vereist",
     "privateKeyRequiredForSigning": "Privésleutel is vereist voor ondertekening",
     "passphraseRequiredForSigning": "Wachtwoordzin is vereist voor ondertekening",
     "signatureVerified": "Handtekening geverifieerd.",
@@ -1406,7 +1416,8 @@
     "invalidPrivateKeyFormat": "Ongeldig formaat privésleutel. Moet een ASCII-armored PGP-sleutel zijn.",
     "keysImportedSuccessfully": "Sleutels succesvol geëmporteerd",
     "failedToImportKeys": "Sleutels importeren mislukt",
-    "created": "Versleuteling aangemaakt"
+    "created": "Versleuteling aangemaakt",
+    "notePlaceholder": "Ik ben een tijdelijke aanduiding omdat je een lege notitie niet kunt coderen."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Deze opties zijn alleen van toepassing op de huidige browsersessie. Voor permanente instellingen raadpleeg uw",
@@ -1560,7 +1571,8 @@
     "encryption": "Versleuteling",
     "sso": "SSO",
     "translations": "Vertalingen",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patches"
   },
   "notFound": {
     "title": "Pagina niet gevonden",

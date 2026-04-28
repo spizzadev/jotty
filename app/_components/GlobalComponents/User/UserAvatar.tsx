@@ -47,8 +47,6 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   const backgroundColor = getDeterministicColor(username);
 
   useEffect(() => {
-    console.log("avatarUrl", avatar);
-
     if (
       (avatarUrl === undefined || avatarUrl === null) &&
       cachedAvatar === undefined
@@ -89,9 +87,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
         />
       ) : (
         <span
-          className={`${sizeClasses[size]}${
-            size === "xs" ? " !text-[8px]" : ""
-          } flex items-center justify-center`}
+          className={`${sizeClasses[size]}${size === "xs" ? " !text-[8px]" : ""
+            } flex items-center justify-center`}
         >
           {initials}
         </span>
