@@ -122,8 +122,6 @@ export const generateMfaSecret = async (): Promise<Result<{ secret: string; qrCo
         const encodedName = encodeURIComponent(username);
         const otpauthUrl = `otpauth://totp/${encodedIssuer}:${encodedName}?secret=${secret.base32}&issuer=${encodedIssuer}`;
 
-        console.log("Generated otpauth URL:", otpauthUrl);
-
         const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl, {
             errorCorrectionLevel: "H",
             width: 300,

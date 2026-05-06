@@ -469,7 +469,7 @@
     "checklistType": "Checklist Type",
     "simpleChecklist": "Simple Checklist",
     "taskProject": "Task Project",
-    "kanbanBoard": "Kanban Board",
+    "kanbanBoard": "Kanban",
     "basicTodoItems": "Basic todo items",
     "withTimeTracking": "With time tracking",
     "noDescription": "No description",
@@ -513,7 +513,7 @@
     "convert": "Convert",
     "convertToSimpleChecklist": "Convert to simple checklist",
     "convertToTaskProject": "Convert to task project",
-    "convertToKanbanBoard": "Convert to Kanban Board",
+    "convertToKanbanBoard": "Convert to Kanban",
     "pasteYourList": "Paste your list (one item per line)",
     "addItems": "Add {count} Items",
     "itemsWillBeAdded": "{count} items will be added",
@@ -797,6 +797,7 @@
     "seconds_plural": "{count} seconds",
     "hours12": "12 hours",
     "hours24": "24 hours",
+    "useSystemDefault": "Use system default",
     "markdownTableSyntax": "Markdown",
     "htmlTableSyntax": "HTML",
     "default": "Default",
@@ -856,7 +857,12 @@
     "codeBlockChoice": "Choose the code block style",
     "defaultCodeBlock": "Codepen (default)",
     "themedCodeBlock": "Themed codeblock",
-    "codeBlockChoiceDescription": "Choose between the codepen-like default code block style or a themed codeblock style."
+    "codeBlockChoiceDescription": "Choose between the codepen-like default code block style or a themed codeblock style.",
+    "checklistItemClickAction": "Checklist item click action",
+    "selectChecklistItemClickAction": "Select checklist item click action",
+    "checklistItemClickActionDescription": "Choose what happens when you click a task's text. \"Mark as complete\" toggles the checkbox  (default); \"Edit task name\" opens the task for inline editing — you'll still need to click the checkbox itself to complete it.",
+    "checklistItemClickActionToggle": "Mark as complete/incomplete",
+    "checklistItemClickActionEdit": "Edit list item"
   },
   "admin": {
     "title": "Admin",
@@ -904,6 +910,10 @@
     "parseContentPerformanceWarning": "Setting this to \"no\" will improve performance on large datasets but may impact readability - especially on filenames with non latin characters.",
     "hideLanguageSelector": "Hide Language Selector in Header",
     "hideLanguageSelectorDescription": "Show/hide language dropdown in header",
+    "defaultDateFormat": "Default Date Format",
+    "defaultDateFormatDescription": "Used when a user's date format preference is set to \"Use system default\".",
+    "defaultTimeFormat": "Default Time Format",
+    "defaultTimeFormatDescription": "Used when a user's time format preference is set to \"Use system default\".",
     "applicationIcons": "Application Icons",
     "saveChanges": "Save Changes",
     "unsavedChanges": "You have unsaved changes.",
@@ -1374,7 +1384,7 @@
     "noteWillBeRestoredAsUnencrypted": "Note content will be restored as unencrypted",
     "youWillBeAbleToEditAfterDecryption": "You will be able to edit the note content after decryption",
     "publicKeyRequired": "Public key is required. You don't have any stored keys.",
-    "keyRequired": "{keyType} key is required",
+    "keyRequired": "{keyType} is required",
     "privateKeyRequiredForSigning": "Private key is required for signing",
     "passphraseRequiredForSigning": "Passphrase is required for signing",
     "signatureVerified": "Signature verified.",
@@ -1431,7 +1441,8 @@
     "invalidPrivateKeyFormat": "Invalid private key format. Must be ASCII-armored PGP key.",
     "keysImportedSuccessfully": "Keys imported successfully",
     "failedToImportKeys": "Failed to import keys",
-    "created": "Encryption created"
+    "created": "Encryption created",
+    "notePlaceholder": "I am a placeholder because you can't encrypt an empty note."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "These options only apply to the current browser session. For permanent settings please check your",
@@ -1584,7 +1595,8 @@
     "encryption": "Encryption",
     "sso": "SSO",
     "translations": "Translations",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patches"
   },
   "notFound": {
     "title": "Page Not Found",

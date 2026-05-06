@@ -65,6 +65,7 @@ export const useNoteEditor = ({
   const notesDefaultMode = user?.notesDefaultMode || "view";
 
   const [isEditing, setIsEditing] = useState(() => {
+    if (note.encrypted) return false;
     const editor = searchParams?.get("editor");
 
     return notesDefaultMode === "edit" || editor === "true" ? true : false;
@@ -78,6 +79,36 @@ export const useNoteEditor = ({
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isEditingEncrypted, setIsEditingEncrypted] = useState(false);
   const [contentIsDirty, setContentIsDirty] = useState(false);
+  const decryptedPassphraseRef = useRef<string | null>(null);
+  const decryptedMethodRef = useRef<string | null>(null);
+
+  const cachePassphrase = useCallback((passphrase: string, method: string) => {
+    decryptedPassphraseRef.current = passphrase;
+    decryptedMethodRef.current = method;
+  }, []);
+
+  const clearPassphraseCache = useCallback(() => {
+    decryptedPassphraseRef.current = null;
+    decryptedMethodRef.current = null;
+  }, []);
+
+  const getCachedPassphrase = useCallback(() => decryptedPassphraseRef.current, []);
+  const getCachedMethod = useCallback(() => decryptedMethodRef.current, []);
+
+  useEffect(() => {
+    clearPassphraseCache();
+  }, [note?.uuid, clearPassphraseCache]);
+
+  useEffect(() => {
+    const _onVisibility = () => {
+      if (document.visibilityState === "hidden") clearPassphraseCache();
+    };
+    document.addEventListener("visibilitychange", _onVisibility);
+    return () => {
+      document.removeEventListener("visibilitychange", _onVisibility);
+      clearPassphraseCache();
+    };
+  }, [clearPassphraseCache]);
 
   const { autosaveNotes } = useSettings();
   const {
@@ -144,10 +175,13 @@ export const useNoteEditor = ({
 
   const handleSave = useCallback(
     async (autosaveNotes = false, passphrase?: string) => {
-      if (isEditingEncrypted && !passphrase) {
+      const effectivePassphrase =
+        passphrase ?? decryptedPassphraseRef.current ?? undefined;
+      if (isEditingEncrypted && !effectivePassphrase) {
         console.error("Cannot save encrypted note without passphrase");
         return;
       }
+      passphrase = effectivePassphrase;
 
       const useAutosave = autosaveNotes ? true : false;
       if (!useAutosave) {
@@ -381,11 +415,12 @@ export const useNoteEditor = ({
 
   const handleEditEncrypted = useCallback(
     (passphrase: string, method: string, decryptedContent: string) => {
+      cachePassphrase(passphrase, method);
       setIsEditingEncrypted(true);
       setEditorContent(decryptedContent);
       setIsEditing(true);
     },
-    [note.uuid, note.title],
+    [note.uuid, note.title, cachePassphrase]
   );
 
   const handlePrint = () => {
@@ -466,6 +501,7 @@ export const useNoteEditor = ({
     setEditorContent,
     isEditing,
     setIsEditing,
+    isEditMode: notesDefaultMode === "edit" || isEditing,
     status,
     hasUnsavedChanges,
     handleEdit,
@@ -485,6 +521,10 @@ export const useNoteEditor = ({
     setIsPrinting,
     isEditingEncrypted,
     handleEditEncrypted,
+    cachePassphrase,
+    clearPassphraseCache,
+    getCachedPassphrase,
+    getCachedMethod,
     showDeleteModal,
     closeDeleteModal: () => setShowDeleteModal(false),
     confirmDelete,

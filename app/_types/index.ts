@@ -38,6 +38,7 @@ export type {
   QuickCreateNotes,
   HideConnectionIndicator,
   CodeBlockStyle,
+  ChecklistItemClickAction,
 } from "./user";
 
 export type {

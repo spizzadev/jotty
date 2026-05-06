@@ -52,6 +52,8 @@ export const createNote = async (formData: FormData) => {
     const sanitizedContent = sanitizeMarkdown(rawContent);
     const { contentWithoutMetadata } = stripYaml(sanitizedContent);
     const content = contentWithoutMetadata;
+    const encryptionMethod = detectEncryptionMethod(content) || undefined;
+    const encrypted = isEncrypted(content);
 
     const currentUser = formUser || (await getCurrentUser());
 
@@ -85,6 +87,8 @@ export const createNote = async (formData: FormData) => {
       updatedAt: new Date().toISOString(),
       owner: currentUser.username,
       tags: extractedTags.length > 0 ? extractedTags : undefined,
+      encrypted: encrypted || undefined,
+      encryptionMethod,
     };
 
     await serverWriteFile(filePath, noteToMarkdown(newDoc));

@@ -10,6 +10,7 @@ import { TableOfContents } from "../TableOfContents";
 import { useSearchParams } from "next/navigation";
 import { usePermissions } from "@/app/_providers/PermissionsProvider";
 import { useNotesStore } from "@/app/_utils/notes-store";
+import { useAppMode } from "@/app/_providers/AppModeProvider";
 
 export interface NoteEditorProps {
   note: Note;
@@ -31,6 +32,12 @@ export const NoteEditor = ({
   const { showTOC, setShowTOC } = useNotesStore();
   const decryptModalRef = useRef<(() => void) | null>(null);
   const viewModalRef = useRef<(() => void) | null>(null);
+  const { user } = useAppMode();
+  const searchParams = useSearchParams();
+  const _isEditMode =
+    viewModel.isEditing ||
+    user?.notesDefaultMode === "edit" ||
+    searchParams?.get("editor") === "true";
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden bg-background h-full">
@@ -47,8 +54,8 @@ export const NoteEditor = ({
         onOpenViewModal={viewModalRef}
       />
 
-      <div className="flex h-full w-full relative">
-        <div className="flex-1 overflow-y-auto jotty-scrollable-content max-h-[95vh]">
+      <div className="flex flex-1 w-full relative min-h-0">
+        <div className="flex-1 overflow-y-auto jotty-scrollable-content min-h-0">
           <NoteEditorContent
             isEditing={viewModel.isEditing}
             noteContent={note.content}
@@ -67,11 +74,11 @@ export const NoteEditor = ({
           <div className="w-64 border-l border-border">
             <TableOfContents
               content={
-                viewModel.isEditing
+                _isEditMode
                   ? viewModel.derivedMarkdownContent
                   : note.content || ""
               }
-              isEditing={viewModel.isEditing}
+              isEditing={_isEditMode}
             />
           </div>
         )}

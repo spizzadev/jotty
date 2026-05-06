@@ -31,7 +31,7 @@ export async function GET(
       const accept = request.headers.get("accept") || "";
 
       if (accept.includes("text/calendar")) {
-        const ics = generateICS(board.items, board.title || "Kanban Board");
+        const ics = generateICS(board.items, board.title || "Kanban");
         return new NextResponse(ics, {
           headers: {
             "Content-Type": "text/calendar; charset=utf-8",

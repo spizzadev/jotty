@@ -831,7 +831,13 @@
     "codeBlockChoice": "Scegli lo stile del blocco di codice",
     "themedCodeBlock": "Blocco di codice a tema",
     "defaultCodeBlock": "Codepen (predefinito)",
-    "codeBlockChoiceDescription": "Scegli tra lo stile di blocco codice predefinito simile a codepen o uno stile di blocco codice a tema."
+    "codeBlockChoiceDescription": "Scegli tra lo stile di blocco codice predefinito simile a codepen o uno stile di blocco codice a tema.",
+    "checklistItemClickAction": "Azione clic sull'elemento dell'elenco di controllo",
+    "selectChecklistItemClickAction": "Selezionare l'azione clic sull'elemento dell'elenco di controllo",
+    "checklistItemClickActionDescription": "Scegli cosa succede quando fai clic sul testo di un'attività. \n\"Segna come completato\" attiva/disattiva la casella di controllo (impostazione predefinita); \n\"Modifica nome attività\" apre l'attività per la modifica in linea: dovrai comunque fare clic sulla casella di controllo stessa per completarla.",
+    "checklistItemClickActionToggle": "Contrassegna come completo/incompleto",
+    "checklistItemClickActionEdit": "Modifica elemento elenco",
+    "useSystemDefault": "Utilizza l'impostazione predefinita del sistema"
   },
   "admin": {
     "title": "Admin",
@@ -1016,7 +1022,11 @@
     "disableHistory": "Disattiva cronologia",
     "disableHistoryWarning": "La disattivazione elimina in modo permanente tutte le versioni salvate per tutti gli utenti. Operazione irreversibile.",
     "historyDisabled": "La cronologia delle note è stata disattivata e tutti i dati di cronologia sono stati eliminati.",
-    "failedToDisableHistory": "Impossibile disattivare la cronologia"
+    "failedToDisableHistory": "Impossibile disattivare la cronologia",
+    "defaultDateFormat": "Formato data predefinito",
+    "defaultDateFormatDescription": "Utilizzato quando la preferenza del formato data di un utente è impostata su \"Utilizza impostazione predefinita del sistema\".",
+    "defaultTimeFormatDescription": "Utilizzato quando la preferenza del formato dell'ora di un utente è impostata su \"Utilizza impostazione predefinita del sistema\".",
+    "defaultTimeFormat": "Formato ora predefinito"
   },
   "errors": {
     "notFound": "Non Trovato",
@@ -1349,7 +1359,7 @@
     "noteWillBeRestoredAsUnencrypted": "La nota verrà ripristinata come non criptata",
     "youWillBeAbleToEditAfterDecryption": "Potrai modificare il contenuto della nota dopo la decrittazione",
     "publicKeyRequired": "La chiave pubblica è richiesta. Non hai chiavi salvate.",
-    "keyRequired": "Chiave {keyType} richiesta",
+    "keyRequired": "{keyType} richiesta",
     "privateKeyRequiredForSigning": "La chiave privata è richiesta per la firma",
     "passphraseRequiredForSigning": "La passphrase è richiesta per la firma",
     "signatureVerified": "Firma verificata.",
@@ -1406,7 +1416,8 @@
     "invalidPrivateKeyFormat": "Formato chiave privata non valido. Deve essere una chiave PGP ASCII-armored.",
     "keysImportedSuccessfully": "Chiavi importate con successo",
     "failedToImportKeys": "Impossibile importare le chiavi",
-    "created": "Crittografia creata"
+    "created": "Crittografia creata",
+    "notePlaceholder": "Sono un segnaposto perché non puoi crittografare una nota vuota."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Queste opzioni si applicano solo alla sessione corrente. Per modifiche permanenti vai su",
@@ -1560,7 +1571,8 @@
     "encryption": "Crittografia",
     "sso": "SSO",
     "translations": "Traduzioni",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patch"
   },
   "notFound": {
     "title": "Pagina non trovata",

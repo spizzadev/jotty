@@ -856,7 +856,13 @@
     "selectConnectionIndicator": "Bağlantı göstergesi durumunu seçin",
     "showIndicator": "Göstergeyi göster",
     "hideIndicator": "Göstergeyi gizle",
-    "hideConnectionIndicator": "Logodaki bağlantı göstergesini gizle"
+    "hideConnectionIndicator": "Logodaki bağlantı göstergesini gizle",
+    "checklistItemClickAction": "Kontrol listesi öğesi tıklama eylemi",
+    "selectChecklistItemClickAction": "Kontrol listesi öğesini seçin tıklama eylemi",
+    "checklistItemClickActionDescription": "Bir görevin metnini tıklattığınızda ne olacağını seçin. \n\"Tamamlandı olarak işaretle\" onay kutusunu değiştirir (varsayılan); \n\"Görev adını düzenle\", görevi satır içi düzenleme için açar; bunu tamamlamak için yine de onay kutusunu tıklamanız gerekir.",
+    "checklistItemClickActionToggle": "Tamamlandı/tamamlanmadı olarak işaretle",
+    "checklistItemClickActionEdit": "Liste öğesini düzenle",
+    "useSystemDefault": "Sistem varsayılanını kullan"
   },
   "admin": {
     "title": "Yönetici",
@@ -1043,7 +1049,11 @@
     "updatingTags": "Güncelleniyor...",
     "updateTagsTitle": "Notları etiketler için tara ve metadata bilgilerini güncelle",
     "tagsUpdated": "{processed} dosya işlendi, {updated} dosya yeni etiketlerle güncellendi",
-    "failedToUpdateTags": "Etiketler güncellenemedi"
+    "failedToUpdateTags": "Etiketler güncellenemedi",
+    "defaultDateFormat": "Varsayılan Tarih Formatı",
+    "defaultDateFormatDescription": "Kullanıcının tarih biçimi tercihi \"Sistem varsayılanını kullan\" olarak ayarlandığında kullanılır.",
+    "defaultTimeFormatDescription": "Kullanıcının saat biçimi tercihi \"Sistem varsayılanını kullan\" olarak ayarlandığında kullanılır.",
+    "defaultTimeFormat": "Varsayılan Saat Formatı"
   },
   "errors": {
     "notFound": "Bulunamadı",
@@ -1376,7 +1386,7 @@
     "noteWillBeRestoredAsUnencrypted": "Not içeriği şifresiz olarak geri yüklenecektir",
     "youWillBeAbleToEditAfterDecryption": "Şifre çözüldükten sonra not içeriğini düzenleyebileceksiniz",
     "publicKeyRequired": "Genel anahtar gereklidir. Kayıtlı bir anahtarınız bulunmuyor.",
-    "keyRequired": "{keyType} anahtarı gereklidir",
+    "keyRequired": "{keyType} gereklidir",
     "privateKeyRequiredForSigning": "İmzalama için özel anahtar gereklidir",
     "passphraseRequiredForSigning": "İmzalama için parola gereklidir",
     "signatureVerified": "İmza doğrulandı.",
@@ -1433,7 +1443,8 @@
     "invalidPrivateKeyFormat": "Geçersiz özel anahtar formatı. ASCII-armored PGP anahtarı olmalıdır.",
     "keysImportedSuccessfully": "Anahtarlar başarıyla içe aktarıldı",
     "failedToImportKeys": "Anahtarlar içe aktarılamadı",
-    "created": "Şifreleme oluşturuldu"
+    "created": "Şifreleme oluşturuldu",
+    "notePlaceholder": "Ben yer tutucuyum çünkü boş bir notu şifreleyemezsiniz."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "Bu seçenekler yalnızca geçerli tarayıcı oturumu için geçerlidir. Kalıcı ayarlar için lütfen şurayı kontrol edin:",
@@ -1586,7 +1597,8 @@
     "encryption": "Şifreleme",
     "sso": "SSO (Tekli Giriş)",
     "translations": "Çeviriler",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Yamalar"
   },
   "notFound": {
     "title": "Sayfa Bulunamadı",

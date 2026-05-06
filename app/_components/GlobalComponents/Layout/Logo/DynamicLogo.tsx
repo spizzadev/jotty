@@ -8,26 +8,20 @@ import { useTranslations } from "next-intl";
 
 interface DynamicLogoProps {
   className?: string;
-  size?: "16x16" | "32x32" | "180x180";
   pathClassName?: string;
 }
 
 export const DynamicLogo = ({
   className = "h-8 w-8",
-  size = "32x32",
 }: DynamicLogoProps) => {
   const { isRwMarkable, appSettings } = useAppMode();
   const [imageError, setImageError] = useState(false);
   const t = useTranslations();
 
-  const iconKey =
-    size === "16x16"
-      ? "16x16Icon"
-      : size === "32x32"
-        ? "32x32Icon"
-        : "180x180Icon";
-
-  const customIcon = appSettings?.[iconKey];
+  const customIcon =
+    appSettings?.["180x180Icon"] ||
+    appSettings?.["32x32Icon"] ||
+    appSettings?.["16x16Icon"];
 
   if (customIcon && !imageError) {
     return (

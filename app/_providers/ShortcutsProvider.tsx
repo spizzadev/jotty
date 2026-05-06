@@ -236,7 +236,10 @@ export const ShortcutProvider = ({
                 newNote.category || "Uncategorized",
                 newNote.id
               );
-              router.push(`/note/${categoryPath}?editor=true`);
+              const url = newNote.encrypted
+                ? `/note/${categoryPath}`
+                : `/note/${categoryPath}?editor=true`;
+              router.push(url);
             }
             setShowCreateNoteModal(false);
             router.refresh();

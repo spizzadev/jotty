@@ -29,6 +29,8 @@ export const getSettings = async () => {
     maximumFileSize: MAX_FILE_SIZE,
     parseContent: "yes",
     adminContentAccess: "yes",
+    defaultDateFormat: "dd/mm/yyyy",
+    defaultTimeFormat: "12-hours",
     editor: {
       enableSlashCommands: true,
       enableBubbleMenu: true,
@@ -102,6 +104,8 @@ export const getAppSettings = async (): Promise<Result<AppSettings>> => {
           maximumFileSize: MAX_FILE_SIZE,
           adminContentAccess: "yes",
           hideLanguageSelector: "no",
+          defaultDateFormat: "dd/mm/yyyy",
+          defaultTimeFormat: "12-hours",
           editor: {
             enableSlashCommands: true,
             enableBubbleMenu: true,
@@ -115,6 +119,14 @@ export const getAppSettings = async (): Promise<Result<AppSettings>> => {
 
     if (!settings.adminContentAccess) {
       settings.adminContentAccess = "yes";
+    }
+
+    if (!settings.defaultDateFormat) {
+      settings.defaultDateFormat = "dd/mm/yyyy";
+    }
+
+    if (!settings.defaultTimeFormat) {
+      settings.defaultTimeFormat = "12-hours";
     }
 
     if (!settings.editor) {
@@ -182,6 +194,14 @@ export const updateAppSettings = async (
     const maxLogAgeDays = Number(formData.get("maxLogAgeDays")) || 0;
     const hideLanguageSelector =
       (formData.get("hideLanguageSelector") as "yes" | "no") || "no";
+    const defaultDateFormat =
+      (formData.get("defaultDateFormat") as
+        | "dd/mm/yyyy"
+        | "mm/dd/yyyy"
+        | "yyyy/mm/dd") || "dd/mm/yyyy";
+    const defaultTimeFormat =
+      (formData.get("defaultTimeFormat") as "12-hours" | "24-hours") ||
+      "12-hours";
 
     let editorSettings = {
       enableSlashCommands: true,
@@ -213,6 +233,8 @@ export const updateAppSettings = async (
       adminContentAccess: adminContentAccess,
       maxLogAgeDays: maxLogAgeDays,
       hideLanguageSelector: hideLanguageSelector,
+      defaultDateFormat: defaultDateFormat,
+      defaultTimeFormat: defaultTimeFormat,
       editor: editorSettings,
     };
 

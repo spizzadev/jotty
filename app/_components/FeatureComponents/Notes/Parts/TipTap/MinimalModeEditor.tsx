@@ -71,7 +71,7 @@ export const MinimalModeEditor = ({
       <>
         <ReadingProgressBar />
         <div
-          className={`px-6 pt-6 pb-12 ${compactMode ? "max-w-[900px] mx-auto" : ""
+          className={`px-6 pt-6 pb-4 ${compactMode ? "max-w-[900px] mx-auto" : ""
             }`}
         >
           <UnifiedMarkdownRenderer content={noteContent} />
@@ -129,10 +129,10 @@ export const MinimalModeEditor = ({
           showLineNumbers={showLineNumbers}
         />
       )}
-      <div className="flex-1 overflow-y-auto jotty-scrollable-content max-h-[95vh]">
+      <div className="flex-1 overflow-y-auto jotty-scrollable-content min-h-0">
         {showPreview ? (
           <div
-            className={`px-6 pt-6 pb-12 ${compactMode ? "max-w-[900px] mx-auto" : ""
+            className={`px-6 pt-6 pb-4 ${compactMode ? "max-w-[900px] mx-auto" : ""
               }`}
           >
             <UnifiedMarkdownRenderer content={markdownContent} />

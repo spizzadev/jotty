@@ -180,7 +180,7 @@ export const SyntaxHighlightedEditor = ({
 
   return (
     <div
-      className="flex-1 overflow-y-auto jotty-scrollable-content h-full max-h-[95vh]"
+      className="flex-1 overflow-y-auto jotty-scrollable-content min-h-0"
       onDragOver={(e) => {
         e.preventDefault();
         e.stopPropagation();

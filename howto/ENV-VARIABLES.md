@@ -37,6 +37,8 @@ OIDC_ADMIN_GROUPS=admins
 - `DEFAULT_LOCALE=en` Optional. Sets the default language for the application (e.g., on the login page) when no user is logged in or a user hasn't set a preference. Defaults to `en`.
 - `DISABLE_BRUTEFORCE_PROTECTION=yes` Optional. Disables brute force protection for local login authentication. By default, accounts are temporarily locked after 3 failed login attempts with exponential delays (10s, 30s, 60s, etc.). Set to `yes` to completely disable this security feature.
 - `ENABLE_PWA_ZOOM=yes` Optional. Enables zoomming on the PWA for accessibility reasons.
+- `JOTTY_BODY_SIZE_LIMIT=100mb` Optional. Maximum request body size accepted by Server Actions (uploads, drawio attachments, avatars, etc.). Defaults to `100mb`. Accepts `b`, `kb`, `mb`, `gb` (e.g. `50mb`, `2gb`). Applied at container start via the runtime patcher — see [Runtime Patches](./PATCHES.md).
+- `JOTTY_FREEBSD=1` Optional. **FreeBSD only.** Enables the FreeBSD compatibility patch which stubs `@swc/core` (no native or WASM binary is published for FreeBSD) and forces Next.js to use webpack instead of Turbopack. Has no effect on Linux/macOS/Windows — leave unset everywhere else. Applied at container start via the runtime patcher — see [Runtime Patches](./PATCHES.md).
 
 ## SSO Configuration (Optional)
 

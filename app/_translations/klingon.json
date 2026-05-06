@@ -856,7 +856,13 @@
     "codeBlockChoice": "Choose the code block style",
     "themedCodeBlock": "Themed codeblock",
     "defaultCodeBlock": "Codepen (default)",
-    "codeBlockChoiceDescription": "Choose between the codepen-like default code block style or a themed codeblock style."
+    "codeBlockChoiceDescription": "Choose between the codepen-like default code block style or a themed codeblock style.",
+    "checklistItemClickAction": "Checklist item click action",
+    "selectChecklistItemClickAction": "Select checklist item click action",
+    "checklistItemClickActionDescription": "Choose what happens when you click a task's text. \"Mark as complete\" toggles the checkbox  (default); \"Edit task name\" opens the task for inline editing — you'll still need to click the checkbox itself to complete it.",
+    "checklistItemClickActionToggle": "Mark as complete/incomplete",
+    "checklistItemClickActionEdit": "Edit list item",
+    "useSystemDefault": "Use system default"
   },
   "admin": {
     "title": "ra'wI'",
@@ -1041,7 +1047,11 @@
     "updatingTags": "choHlI'...",
     "updateTagsTitle": "meqmey yInej 'ej frontmatter yIchoH",
     "tagsUpdated": "{processed} teywI'mey, {updated} meqmey chu'",
-    "failedToUpdateTags": "meqmey choH Qapla'be'"
+    "failedToUpdateTags": "meqmey choH Qapla'be'",
+    "defaultDateFormat": "Default Date Format",
+    "defaultDateFormatDescription": "Used when a user's date format preference is set to \"Use system default\".",
+    "defaultTimeFormatDescription": "Used when a user's time format preference is set to \"Use system default\".",
+    "defaultTimeFormat": "Default Time Format"
   },
   "errors": {
     "notFound": "tu'be'lu'",
@@ -1374,7 +1384,7 @@
     "noteWillBeRestoredAsUnencrypted": "ghItlh peghHa' 'ej Pol",
     "youWillBeAbleToEditAfterDecryption": "bIpeghHa'DI' bIchoHlaH",
     "publicKeyRequired": "Hoch pegh mI' poQ.",
-    "keyRequired": "{keyType} pegh mI' poQ",
+    "keyRequired": "{keyType} poQ",
     "privateKeyRequiredForSigning": "So' pegh mI' poQ",
     "passphraseRequiredForSigning": "mu'pe' poQ",
     "signatureVerified": "ngu' Qapla'.",
@@ -1431,7 +1441,8 @@
     "invalidPrivateKeyFormat": "So' pegh mI' lughbe'.",
     "keysImportedSuccessfully": "pegh mI'mey HIj Qapla'",
     "failedToImportKeys": "pegh mI'mey HIj Qapla'be'",
-    "created": "pegh chen"
+    "created": "pegh chen",
+    "notePlaceholder": "I am a placeholder because you can't encrypt an empty note."
   },
   "settingsModal": {
     "sessionOnlyPrefix": "poHvam neH. bIPol DaneHchugh, ",
@@ -1588,7 +1599,8 @@
     "encryption": "pegh",
     "sso": "SSO",
     "translations": "Hol",
-    "unraid": "Unraid"
+    "unraid": "Unraid",
+    "patches": "Patches"
   },
   "notFound": {
     "title": "tu'be'lu'",

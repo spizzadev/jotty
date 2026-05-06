@@ -12,6 +12,7 @@ services:
       - ./data:/app/data:rw
       - ./config:/app/config:rw
       - ./cache:/app/.next/cache:rw
+      #- ./user_patches:/app/user_patches:ro
     restart: unless-stopped
     #platform: linux/arm64
     environment:
@@ -27,3 +28,4 @@ services:
       #- SSO_FALLBACK_LOCAL=yes
       #- OIDC_ADMIN_GROUPS=admins
       #- ENABLE_API_DOCS=true
+      #- JOTTY_BODY_SIZE_LIMIT=100mb
