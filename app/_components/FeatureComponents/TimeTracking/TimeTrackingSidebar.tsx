@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { Checklist } from "@/app/_types";
+import { isKanbanType } from "@/app/_types/enums";
 import { cn } from "@/app/_utils/global-utils";
 import { getTimeEntrySummary } from "@/app/_server/actions/time-entries";
 
@@ -12,7 +13,7 @@ export const TimeTrackingSidebar = () => {
   const searchParams = useSearchParams();
   const { checklists } = useAppMode();
 
-  const tasks = (checklists as Checklist[]).filter((c) => c.type === "task");
+  const tasks = (checklists as Checklist[]).filter((c) => isKanbanType(c.type));
   const activeCategory = searchParams?.get("category") ?? null;
   const activeTask = searchParams?.get("task") ?? null;
 

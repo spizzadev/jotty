@@ -81,7 +81,7 @@ export const EntryTable = ({
   tasks,
 }: EntryTableProps) => {
   const { formatDateString } = usePreferredDateTime();
-  const [filter, setFilter] = useState<FilterRange>("week");
+  const [filter, setFilter] = useState<FilterRange>("all");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editState, setEditState] = useState<EditState>({
     start: "",

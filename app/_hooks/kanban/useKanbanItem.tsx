@@ -12,9 +12,6 @@ import {
 import { ConfirmModal } from "@/app/_components/GlobalComponents/Modals/ConfirmationModals/ConfirmModal";
 import { useToast } from "@/app/_providers/ToastProvider";
 
-const TIMER_STORAGE_KEY = (checklistId: string, itemId: string) =>
-  `jotty-timer-${checklistId}-${itemId}`;
-
 interface UseKanbanItemProps {
   item: Item;
   checklist: Checklist;
@@ -32,64 +29,10 @@ export const useKanbanItem = ({
 }: UseKanbanItemProps) => {
   const t = useTranslations();
   const { showToast } = useToast();
-  const [isRunning, setIsRunning] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [startTime, setStartTime] = useState<Date | null>(null);
-  const [totalTime, setTotalTime] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(item.text);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const existingTime =
-      item.timeEntries?.reduce((total, entry) => {
-        if (entry.endTime) {
-          const start = new Date(entry.startTime).getTime();
-          const end = new Date(entry.endTime).getTime();
-          return total + (end - start);
-        }
-        return total;
-      }, 0) || 0;
-    setTotalTime(Math.floor(existingTime / 1000));
-  }, [item.timeEntries]);
-
-  useEffect(() => {
-    const storageKey = TIMER_STORAGE_KEY(checklistId, item.id);
-    try {
-      const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        const { startTime: storedStart, isRunning: storedRunning } = JSON.parse(stored);
-        if (storedRunning && storedStart) {
-          setStartTime(new Date(storedStart));
-          setIsRunning(true);
-          setCurrentTime(Math.floor((Date.now() - new Date(storedStart).getTime()) / 1000));
-        }
-      }
-    } catch {}
-  }, [checklistId, item.id]);
-
-  useEffect(() => {
-    const storageKey = TIMER_STORAGE_KEY(checklistId, item.id);
-    if (isRunning && startTime) {
-      localStorage.setItem(storageKey, JSON.stringify({
-        startTime: startTime.toISOString(),
-        isRunning: true,
-      }));
-    } else {
-      localStorage.removeItem(storageKey);
-    }
-  }, [isRunning, startTime, checklistId, item.id]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isRunning && startTime) {
-      interval = setInterval(() => {
-        setCurrentTime(Math.floor((Date.now() - startTime.getTime()) / 1000));
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isRunning, startTime]);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -97,82 +40,6 @@ export const useKanbanItem = ({
       inputRef.current.select();
     }
   }, [isEditing]);
-
-  const _saveTimerEntry = async (start: Date, end: Date) => {
-    const newTimeEntry = {
-      id: Date.now().toString(),
-      startTime: start.toISOString(),
-      endTime: end.toISOString(),
-      duration: Math.floor((end.getTime() - start.getTime()) / 1000),
-    };
-
-    const updatedTimeEntries = [...(item.timeEntries || []), newTimeEntry];
-    const formData = new FormData();
-    formData.append("listId", checklistId);
-    formData.append("itemId", item.id);
-    formData.append("timeEntries", JSON.stringify(updatedTimeEntries));
-    formData.append("category", category);
-    const result = await updateItemStatus(formData);
-
-    setTotalTime(
-      (prev) => prev + Math.floor((end.getTime() - start.getTime()) / 1000)
-    );
-
-    if (result.success && result.data) {
-      onUpdate(result.data as Checklist);
-    }
-
-    return result;
-  };
-
-  function handleTimerToggle() {
-    if (isRunning) {
-      setIsRunning(false);
-      if (startTime) {
-        const endTime = new Date();
-        _saveTimerEntry(startTime, endTime);
-      }
-      setStartTime(null);
-      setCurrentTime(0);
-    } else {
-      setIsRunning(true);
-      setStartTime(new Date());
-      setCurrentTime(0);
-    }
-  }
-
-  const handleAddManualTime = async (minutes: number) => {
-    const now = new Date();
-    const start = new Date(now.getTime() - minutes * 60000);
-    const newTimeEntry = {
-      id: Date.now().toString(),
-      startTime: start.toISOString(),
-      endTime: now.toISOString(),
-      duration: minutes * 60,
-    };
-    const formData = new FormData();
-    formData.append("listId", checklistId);
-    formData.append("itemId", item.id);
-    formData.append(
-      "timeEntries",
-      JSON.stringify([...(item.timeEntries || []), newTimeEntry])
-    );
-    formData.append("category", category);
-    const result = await updateItemStatus(formData);
-    if (result.success && result.data) {
-      onUpdate(result.data as Checklist);
-    }
-  };
-
-  const stopTimerOnDrag = async () => {
-    if (isRunning && startTime) {
-      const endTime = new Date();
-      await _saveTimerEntry(startTime, endTime);
-      setIsRunning(false);
-      setStartTime(null);
-      setCurrentTime(0);
-    }
-  };
 
   function handleEdit() {
     setIsEditing(true);
@@ -310,12 +177,6 @@ export const useKanbanItem = ({
   };
 
   return {
-    isRunning,
-    currentTime,
-    totalTime,
-    handleTimerToggle,
-    handleAddManualTime,
-    stopTimerOnDrag,
     isEditing,
     editText,
     setEditText,

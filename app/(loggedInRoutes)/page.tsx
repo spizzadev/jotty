@@ -6,7 +6,7 @@ import {
 } from "@/app/_server/actions/note";
 import { HomeClient } from "@/app/_components/FeatureComponents/Home/HomeClient";
 import { getCurrentUser } from "@/app/_server/actions/users";
-import { Modes } from "@/app/_types/enums";
+import { Modes, isKanbanType } from "@/app/_types/enums";
 import { Checklist, Note } from "../_types";
 import { sanitizeUserForClient } from "@/app/_utils/user-sanitize-utils";
 import { HOMEPAGE_ITEMS_LIMIT } from "@/app/_consts/files";
@@ -54,7 +54,7 @@ export default async function HomePage() {
 
   const tasks = (
     tasksResult.success && tasksResult.data ? tasksResult.data : []
-  ).filter((l) => l.type === "task");
+  ).filter((l) => isKanbanType(l.type));
 
   return (
     <HomeClient

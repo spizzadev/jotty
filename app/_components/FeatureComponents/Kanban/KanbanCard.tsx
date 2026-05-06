@@ -5,20 +5,17 @@ import { CSS } from "@dnd-kit/utilities";
 import { Item, Checklist, KanbanStatus } from "@/app/_types";
 import { cn } from "@/app/_utils/global-utils";
 import { Dropdown } from "@/app/_components/GlobalComponents/Dropdowns/Dropdown";
-import { useState, useEffect, memo, useMemo, useCallback } from "react";
+import { useState, memo, useMemo, useCallback } from "react";
 import { TaskStatus } from "@/app/_types/enums";
 import { KanbanCardDetail } from "./KanbanCardDetail";
 import { useAppMode } from "@/app/_providers/AppModeProvider";
 import { useKanbanItem } from "@/app/_hooks/kanban/useKanbanItem";
 import {
-  formatTimerTime,
   getStatusColor,
   getStatusIcon,
   getPriorityDotColor,
   getPriorityLabel,
 } from "@/app/_utils/kanban/index";
-import { TimeEntriesAccordion } from "./TimeEntriesAccordion";
-import { KanbanItemTimer } from "./KanbanItemTimer";
 import { KanbanItemContent } from "./KanbanItemContent";
 import { getRecurrenceDescription } from "@/app/_utils/recurrence-utils";
 import { usePermissions } from "@/app/_providers/PermissionsProvider";
@@ -27,8 +24,6 @@ import { CircleIcon, Notification03Icon, UserIcon } from "hugeicons-react";
 import { usePreferredDateTime } from "@/app/_hooks/usePreferredDateTime";
 import { useTranslations } from "next-intl";
 import { UserAvatar } from "../../GlobalComponents/User/UserAvatar";
-import { TimeEntriesModal } from "./TimeEntriesModal";
-
 interface KanbanCardProps {
   checklist: Checklist;
   item: Item;
@@ -55,8 +50,7 @@ const KanbanCardComponent = ({
   const t = useTranslations();
   const { usersPublicData } = useAppMode();
   const { permissions } = usePermissions();
-  const { formatDateString, formatDateTimeString, formatTimeString } =
-    usePreferredDateTime();
+  const { formatDateString, formatDateTimeString } = usePreferredDateTime();
 
   const getUserAvatarUrl = useCallback(
     (username: string) => {
@@ -71,7 +65,6 @@ const KanbanCardComponent = ({
   );
 
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showTimeEntriesModal, setShowTimeEntriesModal] = useState(false);
 
   const kanbanItemHook = useKanbanItem({
     checklist,
@@ -111,19 +104,6 @@ const KanbanCardComponent = ({
 
   return (
     <>
-      {showTimeEntriesModal && item.timeEntries && (
-        <TimeEntriesModal
-          isOpen={showTimeEntriesModal}
-          onClose={() => setShowTimeEntriesModal(false)}
-          timeEntries={item.timeEntries}
-          checklistId={checklist.uuid || checklistId}
-          itemId={item.id}
-          category={category}
-          onUpdate={onUpdate}
-          usersPublicData={usersPublicData}
-        />
-      )}
-
       {showDetailModal && (
         <KanbanCardDetail
           checklist={checklist}
@@ -217,30 +197,6 @@ const KanbanCardComponent = ({
               )}
             </div>
 
-            <KanbanItemTimer
-              totalTime={kanbanItemHook.totalTime}
-              currentTime={kanbanItemHook.currentTime}
-              isRunning={kanbanItemHook.isRunning}
-              formatTimerTime={formatTimerTime}
-              onTimerToggle={kanbanItemHook.handleTimerToggle}
-              onAddManualTime={kanbanItemHook.handleAddManualTime}
-            />
-
-            {item.timeEntries && item.timeEntries.length > 0 && (
-              <div onPointerDown={(e) => e.stopPropagation()}>
-                <TimeEntriesAccordion
-                  timeEntries={item.timeEntries}
-                  totalTime={
-                    kanbanItemHook.totalTime + kanbanItemHook.currentTime
-                  }
-                  formatTimerTime={formatTimerTime}
-                  usersPublicData={usersPublicData}
-                  formatDateString={formatDateString}
-                  formatTimeString={formatTimeString}
-                  onOpenTimeEntries={() => setShowTimeEntriesModal(true)}
-                />
-              </div>
-            )}
 
 
             {item.recurrence && (
