@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { withApiAuth } from "@/app/_utils/api-utils";
 import {
   stopTimeEntry,
-  stopCategoryEntry,
   updateTimeEntry,
-  updateCategoryEntry,
   deleteTimeEntry,
-  deleteCategoryEntry,
 } from "@/app/_server/actions/time-entries";
 
 export const dynamic = "force-dynamic";
@@ -19,19 +16,17 @@ export async function PATCH(
     try {
       const { entryId } = await params;
       const body = await request.json();
-      const { taskId, category, action, description, start, end } = body;
+      const { taskId, action, description, start, end } = body;
 
-      if (!taskId && !category) {
+      if (!taskId) {
         return NextResponse.json(
-          { error: "taskId or category is required" },
+          { error: "taskId is required" },
           { status: 400 },
         );
       }
 
       if (action === "stop") {
-        const result = taskId
-          ? await stopTimeEntry(taskId, entryId, user.username)
-          : await stopCategoryEntry(category, entryId, user.username);
+        const result = await stopTimeEntry(taskId, entryId, user.username);
         if (!result.success) {
           return NextResponse.json({ error: result.error }, { status: 400 });
         }
@@ -44,14 +39,12 @@ export async function PATCH(
         end !== undefined
       ) {
         const updates = { description, start, end };
-        const result = taskId
-          ? await updateTimeEntry(taskId, entryId, updates, user.username)
-          : await updateCategoryEntry(
-              category,
-              entryId,
-              updates,
-              user.username,
-            );
+        const result = await updateTimeEntry(
+          taskId,
+          entryId,
+          updates,
+          user.username,
+        );
         if (!result.success) {
           return NextResponse.json({ error: result.error }, { status: 400 });
         }
@@ -83,18 +76,15 @@ export async function DELETE(
       const { entryId } = await params;
       const { searchParams } = new URL(request.url);
       const taskId = searchParams.get("taskId");
-      const category = searchParams.get("category");
 
-      if (!taskId && !category) {
+      if (!taskId) {
         return NextResponse.json(
-          { error: "taskId or category is required" },
+          { error: "taskId is required" },
           { status: 400 },
         );
       }
 
-      const result = taskId
-        ? await deleteTimeEntry(taskId, entryId, user.username)
-        : await deleteCategoryEntry(category!, entryId, user.username);
+      const result = await deleteTimeEntry(taskId, entryId, user.username);
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 400 });
       }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Modal } from "@/app/_components/GlobalComponents/Modals/Modal";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
-import { Item, Checklist, KanbanPriority } from "@/app/_types";
+import { Item, Checklist } from "@/app/_types";
 import {
   createSubItem,
   updateItem,
@@ -11,15 +11,11 @@ import {
   bulkToggleItems,
   updateItemStatus,
 } from "@/app/_server/actions/checklist-item";
-import { createNotificationForUser } from "@/app/_server/actions/notifications";
-import { getUsersWithAccess } from "@/app/_server/actions/sharing";
-import { getUsers } from "@/app/_server/actions/users";
 import { FloppyDiskIcon, MultiplicationSignIcon, ArrowDown01Icon, ArrowRight01Icon } from "hugeicons-react";
 import { convertMarkdownToHtml } from "@/app/_utils/markdown-utils";
 import { usePermissions } from "@/app/_providers/PermissionsProvider";
 import { usePreferredDateTime } from "@/app/_hooks/usePreferredDateTime";
 import { useTranslations } from "next-intl";
-import { KanbanPriorityLevel } from "@/app/_types/enums";
 import { KanbanCardDetailProperties } from "./KanbanCardDetailProperties";
 import { KanbanCardDetailSubtasks } from "./KanbanCardDetailSubtasks";
 
@@ -84,52 +80,6 @@ export const KanbanCardDetail = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(initialItem.text);
   const [editDescription, setEditDescription] = useState(_unsanitizeDescription(initialItem.description || ""));
-  const [scoreInput, setScoreInput] = useState(initialItem.score?.toString() || "");
-  const [reminderInput, setReminderInput] = useState(initialItem.reminder?.datetime || "");
-  const [targetDateInput, setTargetDateInput] = useState(initialItem.targetDate || "");
-  const [priorityInput, setPriorityInput] = useState<KanbanPriority>(initialItem.priority || KanbanPriorityLevel.NONE);
-  const [assigneeInput, setAssigneeInput] = useState(initialItem.assignee || "");
-  const [estimatedTimeInput, setEstimatedTimeInput] = useState(initialItem.estimatedTime?.toString() || "");
-  const [availableUsers, setAvailableUsers] = useState<{ username: string; avatarUrl?: string }[]>([]);
-  const [boardIsShared, setBoardIsShared] = useState(false);
-
-  useEffect(() => {
-    setItem(initialItem);
-    setEditText(initialItem.text);
-    setEditDescription(_unsanitizeDescription(initialItem.description || ""));
-    setScoreInput(initialItem.score?.toString() || "");
-    setReminderInput(initialItem.reminder?.datetime || "");
-    setTargetDateInput(initialItem.targetDate || "");
-    setPriorityInput(initialItem.priority || KanbanPriorityLevel.NONE);
-    setAssigneeInput(initialItem.assignee || "");
-    setEstimatedTimeInput(initialItem.estimatedTime?.toString() || "");
-  }, [initialItem]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const _loadUsers = async () => {
-      const sharedWithUsers = await getUsersWithAccess(checklistId, checklist.uuid);
-      if (sharedWithUsers.length === 0) {
-        setBoardIsShared(false);
-        return;
-      }
-      setBoardIsShared(true);
-      const allUsers = await getUsers();
-      const allowedUsernames = new Set(sharedWithUsers);
-      if (checklist.owner) allowedUsernames.add(checklist.owner);
-      const userMap = new Map<string, { username: string; avatarUrl?: string }>();
-      allUsers
-        .filter((u: { username: string }) => allowedUsernames.has(u.username))
-        .forEach((u: { username: string; avatarUrl?: string }) => {
-          userMap.set(u.username, { username: u.username, avatarUrl: u.avatarUrl });
-        });
-      allowedUsernames.forEach((username) => {
-        if (!userMap.has(username)) userMap.set(username, { username });
-      });
-      setAvailableUsers(Array.from(userMap.values()));
-    };
-    _loadUsers();
-  }, [isOpen, checklistId, checklist.uuid, checklist.owner]);
 
   const descriptionHtml = useMemo(() => {
     const noDescText = `<p class="text-muted-foreground text-sm opacity-50">${t("checklists.noDescription")}</p>`;
@@ -294,34 +244,6 @@ export const KanbanCardDetail = ({
     }
   };
 
-  const handlePriorityChange = async (priority: KanbanPriority) => {
-    setPriorityInput(priority);
-    await _saveField({ priority });
-  };
-
-  const handleScoreSave = async () => {
-    const score = parseInt(scoreInput);
-    if (isNaN(score)) return;
-    await _saveField({ score: score.toString() });
-  };
-
-  const handleReminderSave = async () => {
-    await _saveField({
-      reminder: reminderInput ? JSON.stringify({ datetime: new Date(reminderInput).toISOString() }) : "",
-    });
-  };
-
-  const handleTargetDateChange = async (value: string) => {
-    setTargetDateInput(value);
-    await _saveField({ targetDate: value ? new Date(value).toISOString() : "" });
-  };
-
-  const handleEstimatedTimeSave = async () => {
-    const hours = parseFloat(estimatedTimeInput);
-    if (isNaN(hours)) return;
-    await _saveField({ estimatedTime: hours.toString() });
-  };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -439,46 +361,6 @@ export const KanbanCardDetail = ({
         <div className="lg:w-80 lg:flex-shrink-0 lg:border-l lg:border-border lg:pl-6 lg:min-h-0 lg:overflow-y-auto">
           <KanbanCardDetailProperties
             item={item}
-            priorityInput={priorityInput}
-            scoreInput={scoreInput}
-            assigneeInput={assigneeInput}
-            reminderInput={reminderInput}
-            targetDateInput={targetDateInput}
-            estimatedTimeInput={estimatedTimeInput}
-            availableUsers={availableUsers}
-            canEdit={!!permissions?.canEdit}
-            isShared={boardIsShared}
-            toLocalDateTimeValue={_toLocalDateTimeValue}
-            toLocalDateValue={_toLocalDateValue}
-            onPriorityChange={handlePriorityChange}
-            onScoreChange={setScoreInput}
-            onScoreSave={handleScoreSave}
-            onAssigneeChange={async (v) => {
-              setAssigneeInput(v);
-              await _saveField({ assignee: v });
-              if (v) {
-                await createNotificationForUser(v, {
-                  type: "assignment",
-                  title: t("notifications.assignmentTitle"),
-                  message: t("notifications.assignmentMessage", { task: item.text, board: checklist.title }),
-                  data: {
-                    itemId: checklist.uuid || checklistId,
-                    itemType: "checklist",
-                    taskId: item.id,
-                  },
-                });
-              }
-            }}
-            onReminderChange={async (v) => {
-              setReminderInput(v);
-              await _saveField({
-                reminder: v ? JSON.stringify({ datetime: new Date(v).toISOString() }) : "",
-              });
-            }}
-            onReminderSave={handleReminderSave}
-            onTargetDateChange={handleTargetDateChange}
-            onEstimatedTimeChange={setEstimatedTimeInput}
-            onEstimatedTimeSave={handleEstimatedTimeSave}
             formatDateTimeString={formatDateTimeString}
           />
         </div>

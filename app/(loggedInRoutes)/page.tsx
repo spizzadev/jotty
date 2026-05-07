@@ -6,7 +6,7 @@ import {
 } from "@/app/_server/actions/note";
 import { HomeClient } from "@/app/_components/FeatureComponents/Home/HomeClient";
 import { getCurrentUser } from "@/app/_server/actions/users";
-import { Modes, isKanbanType } from "@/app/_types/enums";
+import { Modes } from "@/app/_types/enums";
 import { Checklist, Note } from "../_types";
 import { sanitizeUserForClient } from "@/app/_utils/user-sanitize-utils";
 import { HOMEPAGE_ITEMS_LIMIT } from "@/app/_consts/files";
@@ -24,7 +24,6 @@ export default async function HomePage() {
     notesResult,
     categoriesResult,
     notesCategoriesResult,
-    tasksResult,
   ] = await Promise.all([
     getUserChecklists({
       limit: HOMEPAGE_ITEMS_LIMIT,
@@ -36,7 +35,6 @@ export default async function HomePage() {
     }),
     getCategories(Modes.CHECKLISTS),
     getCategories(Modes.NOTES),
-    getUserChecklists(),
   ]);
 
   const lists = listsResult.success && listsResult.data ? listsResult.data : [];
@@ -52,17 +50,12 @@ export default async function HomePage() {
       ? notesCategoriesResult.data
       : [];
 
-  const tasks = (
-    tasksResult.success && tasksResult.data ? tasksResult.data : []
-  ).filter((l) => isKanbanType(l.type));
-
   return (
     <HomeClient
       initialLists={lists as Checklist[]}
       initialCategories={categories}
       initialDocs={notes as Note[]}
       initialDocsCategories={notesCategories}
-      initialTasks={tasks as Checklist[]}
       user={sanitisedUser}
     />
   );

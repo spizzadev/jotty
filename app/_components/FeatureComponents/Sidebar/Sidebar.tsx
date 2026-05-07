@@ -12,7 +12,6 @@ import { CategoryList } from "./Parts/CategoryList";
 import { SharedItemsList } from "./Parts/SharedItemsList";
 import { TagsList } from "./Parts/TagsList";
 import { SidebarActions } from "./Parts/SidebarActions";
-import { TimeTrackingSidebar } from "@/app/_components/FeatureComponents/TimeTracking/TimeTrackingSidebar";
 import { ArrowDown01Icon, ArrowRight01Icon } from "hugeicons-react";
 import { Modes } from "@/app/_types/enums";
 import { SidebarProps, useSidebar } from "@/app/_hooks/useSidebar";
@@ -88,9 +87,8 @@ export const Sidebar = (props: SidebarProps) => {
     }
   }, [sidebarMode]);
 
-  const isTimeTracking = sidebarMode === Modes.TIME_TRACKING;
   const currentItems =
-    sidebarMode === Modes.TAGS || isTimeTracking
+    sidebarMode === Modes.TAGS
       ? []
       : sidebarMode === Modes.CHECKLISTS
         ? checklists
@@ -104,7 +102,7 @@ export const Sidebar = (props: SidebarProps) => {
         isOpen={isOpen}
         onClose={onClose}
         title={
-          sidebarMode !== Modes.TAGS && !isTimeTracking ? (
+          sidebarMode !== Modes.TAGS ? (
             <button
               onClick={() =>
                 sidebar.setCategoriesSectionCollapsed(
@@ -129,7 +127,7 @@ export const Sidebar = (props: SidebarProps) => {
           />
         }
         headerActions={
-          sidebarMode !== Modes.TAGS && !isTimeTracking ? (
+          sidebarMode !== Modes.TAGS ? (
             <button
               onClick={sidebar.handleToggleAllCategories}
               className="jotty-sidebar-categories-toggle-all text-sm lg:text-xs font-medium text-primary hover:underline focus:outline-none"
@@ -141,7 +139,7 @@ export const Sidebar = (props: SidebarProps) => {
           ) : null
         }
         footer={
-          sidebarMode !== Modes.TAGS && !isTimeTracking ? (
+          sidebarMode !== Modes.TAGS ? (
             <SidebarActions
               mode={sidebar.mode}
               onOpenCreateModal={onOpenCreateModal}
@@ -150,9 +148,7 @@ export const Sidebar = (props: SidebarProps) => {
           ) : null
         }
       >
-        {isTimeTracking ? (
-          <TimeTrackingSidebar />
-        ) : sidebarMode === Modes.TAGS ? (
+        {sidebarMode === Modes.TAGS ? (
           <div className="space-y-4">
             <TagsList
               collapsed={false}

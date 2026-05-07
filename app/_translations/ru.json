@@ -625,7 +625,8 @@
     "session": "сессия",
     "sessions": "сессии",
     "startTime": "Начало",
-    "endTime": "Конец"
+    "endTime": "Конец",
+    "timeTracking": "Учёт времени"
   },
   "profile": {
     "userProfile": "Пользователь",

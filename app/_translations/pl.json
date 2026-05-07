@@ -600,7 +600,8 @@
     "session": "sesja",
     "sessions": "sesje",
     "startTime": "Początek",
-    "endTime": "Koniec"
+    "endTime": "Koniec",
+    "timeTracking": "Śledzenie czasu"
   },
   "profile": {
     "userProfile": "Użytkownik",

@@ -4,9 +4,7 @@ import {
   getTimeEntries,
   getAllTimeEntries,
   startTimeEntry,
-  startCategoryEntry,
   addManualEntry,
-  addManualCategoryEntry,
 } from "@/app/_server/actions/time-entries";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +23,6 @@ export async function GET(request: NextRequest) {
         return NextResponse.json(result.data);
       }
 
-      // No taskId — return all entries globally
       const result = await getAllTimeEntries(user.username);
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 500 });
@@ -49,36 +46,19 @@ export async function POST(request: NextRequest) {
   return withApiAuth(request, async (user) => {
     try {
       const body = await request.json();
-      const { taskId, category, description = "", durationMin, dateStr } = body;
+      const { taskId, description = "", durationMin, dateStr } = body;
 
-      if (!taskId && !category) {
+      if (!taskId) {
         return NextResponse.json(
-          { error: "taskId or category is required" },
+          { error: "taskId is required" },
           { status: 400 },
         );
       }
 
-      // Manual entry (durationMin provided)
       if (durationMin !== undefined) {
         const date = dateStr || new Date().toISOString().split("T")[0];
-        if (taskId) {
-          const result = await addManualEntry(
-            taskId,
-            description,
-            date,
-            durationMin,
-            user.username,
-          );
-          if (!result.success) {
-            return NextResponse.json({ error: result.error }, { status: 400 });
-          }
-          return NextResponse.json(
-            { success: true, data: result.data },
-            { status: 201 },
-          );
-        }
-        const result = await addManualCategoryEntry(
-          category,
+        const result = await addManualEntry(
+          taskId,
           description,
           date,
           durationMin,
@@ -93,23 +73,7 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Start timer
-      if (taskId) {
-        const result = await startTimeEntry(taskId, description, user.username);
-        if (!result.success) {
-          return NextResponse.json({ error: result.error }, { status: 400 });
-        }
-        return NextResponse.json(
-          { success: true, data: result.data },
-          { status: 201 },
-        );
-      }
-
-      const result = await startCategoryEntry(
-        category,
-        description,
-        user.username,
-      );
+      const result = await startTimeEntry(taskId, description, user.username);
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 400 });
       }

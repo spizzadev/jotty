@@ -4,7 +4,6 @@ import {
   CheckmarkSquare04Icon,
   File02Icon,
   GridIcon,
-  TimeQuarterIcon,
 } from "hugeicons-react";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { cn } from "@/app/_utils/global-utils";
@@ -43,11 +42,6 @@ export const SidebarNavigation = ({
       id: Modes.NOTES,
       label: t("notes.title"),
       icon: File02Icon,
-    },
-    {
-      id: Modes.TIME_TRACKING,
-      label: "Tracking",
-      icon: TimeQuarterIcon,
     },
   ];
 

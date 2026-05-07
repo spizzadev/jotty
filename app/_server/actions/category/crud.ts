@@ -92,6 +92,50 @@ export const deleteCategory = async (formData: FormData) => {
     }
 
     const categoryDir = path.join(userDir, categoryPath);
+
+    if (mode === Modes.CHECKLISTS) {
+      try {
+        const username = await getUsername();
+        if (username) {
+          const { deleteTimeEntriesForTask } = await import(
+            "@/app/_server/actions/time-entries"
+          );
+          const { extractYamlMetadata } = await import(
+            "@/app/_utils/yaml-metadata-utils"
+          );
+          const { serverReadFile } = await import(
+            "@/app/_server/actions/file"
+          );
+          const mdFiles: string[] = [];
+          const walk = async (dir: string) => {
+            let entries: import("fs").Dirent[] = [];
+            try {
+              entries = await fs.readdir(dir, { withFileTypes: true });
+            } catch {}
+            for (const entry of entries) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) {
+                await walk(full);
+              } else if (entry.name.endsWith(".md")) {
+                mdFiles.push(full);
+              }
+            }
+          };
+          await walk(categoryDir);
+          for (const mdFile of mdFiles) {
+            try {
+              const content = await serverReadFile(mdFile);
+              const { metadata } = extractYamlMetadata(content);
+              const uuid = (metadata as { uuid?: string }).uuid;
+              if (uuid) {
+                await deleteTimeEntriesForTask(username, uuid);
+              }
+            } catch {}
+          }
+        }
+      } catch {}
+    }
+
     await serverDeleteDir(categoryDir);
 
     await logAudit({

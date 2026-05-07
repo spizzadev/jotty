@@ -625,7 +625,8 @@
     "session": "세션",
     "sessions": "세션",
     "startTime": "시작",
-    "endTime": "종료"
+    "endTime": "종료",
+    "timeTracking": "시간 추적"
   },
   "profile": {
     "userProfile": "사용자",

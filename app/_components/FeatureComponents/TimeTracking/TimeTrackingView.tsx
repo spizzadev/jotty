@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { Checklist, ProjectTimeEntry, SanitisedUser } from "@/app/_types";
+import { Checklist, ProjectTimeEntry } from "@/app/_types";
 import {
   getTimeEntries,
   getAllTimeEntries,
-  getEntriesForTasks,
   getBillingSettings,
   saveBillingSettings,
   updateTimeEntry,
-  updateCategoryEntry,
   BillingSettings,
 } from "@/app/_server/actions/time-entries";
 import { TimerControl } from "./TimerControl";
@@ -21,13 +19,12 @@ import { BillingSettingsPanel } from "./BillingSettingsPanel";
 
 interface TimeTrackingViewProps {
   initialTasks: Checklist[];
-  user: SanitisedUser | null;
+  forceTaskId?: string;
 }
 
-export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
+export const TimeTrackingView = ({ initialTasks, forceTaskId }: TimeTrackingViewProps) => {
   const searchParams = useSearchParams();
-  const taskParam = searchParams?.get("task") ?? null;
-  const categoryParam = searchParams?.get("category") ?? null;
+  const taskParam = forceTaskId ?? (searchParams?.get("task") ?? null);
 
   const selectedTask = taskParam
     ? (initialTasks.find((t) => (t.uuid || t.id) === taskParam) ?? null)
@@ -76,25 +73,7 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
       if (billingResult.success) {
         setBilling(billingResult.data);
       }
-    } else if (categoryParam) {
-      const taskIds = initialTasks
-        .filter((t) => t.category === categoryParam)
-        .map((t) => t.uuid || t.id);
-      const billingKey = `_cat_${categoryParam}`;
-      const [result, billingResult] = await Promise.all([
-        getEntriesForTasks(taskIds, categoryParam),
-        getBillingSettings(billingKey),
-      ]);
-      if (result.success && result.data) {
-        setEntries(result.data.entries);
-        setTotalMin(result.data.totalMin);
-        setRunningEntry(result.data.runningEntry);
-      }
-      if (billingResult.success) {
-        setBilling(billingResult.data);
-      }
     } else {
-      // Global view
       const result = await getAllTimeEntries();
       if (result.success && result.data) {
         setEntries(result.data.entries);
@@ -104,7 +83,7 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
     }
 
     setLoading(false);
-  }, [taskParam, categoryParam]);
+  }, [taskParam]);
 
   useEffect(() => {
     loadEntries();
@@ -137,14 +116,14 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
   };
 
   const handleUpdate = async (updated: ProjectTimeEntry) => {
+    const taskId = updated.taskId ?? taskParam;
+    if (!taskId) return;
     const updates = {
       description: updated.description,
       start: updated.start,
       end: updated.end,
     };
-    const result = updated.taskId
-      ? await updateTimeEntry(updated.taskId, updated.id, updates)
-      : await updateCategoryEntry(updated.category ?? "", updated.id, updates);
+    const result = await updateTimeEntry(taskId, updated.id, updates);
     if (result.success && result.data) {
       const prev = entries.find((e) => e.id === updated.id);
       setEntries((es) =>
@@ -157,57 +136,44 @@ export const TimeTrackingView = ({ initialTasks }: TimeTrackingViewProps) => {
   };
 
   const handleBillingSave = async (settings: BillingSettings) => {
-    const key = taskParam ?? (categoryParam ? `_cat_${categoryParam}` : null);
-    if (!key) return;
-    const result = await saveBillingSettings(key, settings);
+    if (!taskParam) return;
+    const result = await saveBillingSettings(taskParam, settings);
     if (result.success) {
       setBilling(settings);
     }
   };
 
-  // Heading
-  const heading = taskParam
-    ? (selectedTask?.title ?? "Task")
-    : categoryParam
-      ? categoryParam
-      : "All Entries";
-
-  // Is global view (no selection)
-  const isGlobal = !taskParam && !categoryParam;
-
-  // Show timer when a specific task or category is selected
-  const showTimer = !isGlobal;
-
-  // For EntryTable: show project column only in global or category view
-  const showProjectCol = !taskParam;
+  const heading = taskParam ? (selectedTask?.title ?? "Task") : "All Entries";
+  const isGlobal = !taskParam;
+  const showProjectCol = isGlobal;
 
   return (
-    <div className="w-full px-4 py-6 h-full overflow-y-auto jotty-scrollable-content">
-      <div className="flex flex-col gap-6 max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold">{heading}</h1>
-
-        {(taskParam || categoryParam) && (
-          <BillingSettingsPanel
-            initialSettings={billing}
-            onSave={handleBillingSave}
-          />
+    <div className="w-full px-4 py-3 h-full overflow-y-auto jotty-scrollable-content">
+      <div className="flex flex-col gap-4">
+        {taskParam && (
+          <div className="flex flex-col sm:flex-row gap-4 items-start">
+            <div className="flex-1 min-w-0">
+              <TimerControl
+                taskId={taskParam}
+                runningEntry={runningEntry}
+                onStart={handleStart}
+                onStop={handleStop}
+              />
+            </div>
+            <div className="sm:w-72 flex-shrink-0 w-full">
+              <BillingSettingsPanel
+                initialSettings={billing}
+                onSave={handleBillingSave}
+              />
+            </div>
+          </div>
         )}
 
-        {showTimer && (
-          <>
-            <TimerControl
-              taskId={taskParam ?? undefined}
-              category={categoryParam ?? undefined}
-              runningEntry={runningEntry}
-              onStart={handleStart}
-              onStop={handleStop}
-            />
-            <ManualEntryForm
-              taskId={taskParam ?? undefined}
-              category={categoryParam ?? undefined}
-              onAdd={handleManualAdd}
-            />
-          </>
+        {taskParam && (
+          <ManualEntryForm
+            taskId={taskParam}
+            onAdd={handleManualAdd}
+          />
         )}
 
         {loading ? (

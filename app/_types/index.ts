@@ -95,7 +95,6 @@ export type { GetNotesOptions, GetChecklistsOptions } from "./options";
 export interface ProjectTimeEntry {
   id: string;
   taskId?: string;
-  category?: string;
   description: string;
   start: string;
   end?: string;

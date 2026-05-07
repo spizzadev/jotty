@@ -31,12 +31,11 @@ import { usePermissions } from "@/app/_providers/PermissionsProvider";
 import {
   Settings01Icon,
   Archive02Icon,
-  Calendar03Icon,
+  TimeQuarterIcon,
   TaskDaily01Icon,
   Search01Icon,
 } from "hugeicons-react";
-import { CalendarView } from "./CalendarView";
-import { KanbanCardDetail } from "./KanbanCardDetail";
+import { TimeTrackingView } from "@/app/_components/FeatureComponents/TimeTracking/TimeTrackingView";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { updateChecklistStatuses } from "@/app/_server/actions/checklist";
 import { unarchiveItem } from "@/app/_server/actions/checklist-item";
@@ -53,13 +52,9 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
   const [isClient, setIsClient] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [showArchivedModal, setShowArchivedModal] = useState(false);
-  const [viewMode, setViewMode] = useState<"board" | "calendar">("board");
+  const [viewMode, setViewMode] = useState<"board" | "tracking">("board");
   const [searchQuery, setSearchQuery] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("");
   const [assigneeFilter, setAssigneeFilter] = useState("");
-  const [calendarSelectedItem, setCalendarSelectedItem] = useState<
-    import("@/app/_types").Item | null
-  >(null);
   const { linkIndex, notes, checklists, appSettings, allSharedItems } =
     useAppMode();
   const encodedCategory = encodeCategoryPath(
@@ -156,7 +151,7 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
     [handleItemStatusUpdate],
   );
 
-  const _hasFilters = searchQuery || priorityFilter || assigneeFilter;
+  const _hasFilters = searchQuery || assigneeFilter;
 
   const _filterItems = useCallback(
     (items: import("@/app/_types").Item[]) => {
@@ -167,12 +162,11 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
           !item.text.toLowerCase().includes(searchQuery.toLowerCase())
         )
           return false;
-        if (priorityFilter && item.priority !== priorityFilter) return false;
         if (assigneeFilter && item.assignee !== assigneeFilter) return false;
         return true;
       });
     },
-    [searchQuery, priorityFilter, assigneeFilter, _hasFilters],
+    [searchQuery, assigneeFilter, _hasFilters],
   );
 
   const _uniqueAssignees = useMemo(() => {
@@ -308,17 +302,43 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
             <span className="truncate">{t("kanban.title")}</span>
           </Button>
           <Button
-            variant={viewMode === "calendar" ? "default" : "ghost"}
+            variant={viewMode === "tracking" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setViewMode("calendar")}
+            onClick={() => setViewMode("tracking")}
             className="text-xs sm:text-md lg:text-xs h-7"
           >
-            <Calendar03Icon className="h-3 w-3 mr-1 shrink-0" />
-            <span className="truncate">{t("kanban.calendar")}</span>
+            <TimeQuarterIcon className="h-3 w-3 mr-1 shrink-0" />
+            <span className="truncate">{t("kanban.timeTracking")}</span>
           </Button>
         </div>
-        <div className="flex flex-wrap gap-2 justify-end min-w-0 flex-1">
-          {permissions?.canEdit && viewMode === "board" && (
+        {viewMode !== "tracking" && (
+          <div className="relative min-w-[120px] max-w-xs flex-1">
+            <Search01Icon className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("kanban.searchPlaceholder")}
+              className="w-full pl-7 pr-2 py-1.5 text-xs bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
+            />
+          </div>
+        )}
+        <div className="flex flex-wrap gap-2 justify-end min-w-0 shrink-0">
+          {isShared && _uniqueAssignees.length > 0 && viewMode !== "tracking" && (
+            <select
+              value={assigneeFilter}
+              onChange={(e) => setAssigneeFilter(e.target.value)}
+              className="px-2 py-1.5 text-xs bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
+            >
+              <option value="">{t("kanban.allAssignees")}</option>
+              {_uniqueAssignees.map((assignee) => (
+                <option key={assignee} value={assignee}>
+                  {assignee}
+                </option>
+              ))}
+            </select>
+          )}
+          {permissions?.canEdit && viewMode !== "tracking" && (
             <Button
               variant="outline"
               size="sm"
@@ -332,7 +352,7 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
               </span>
             </Button>
           )}
-          {viewMode === "board" && (
+          {viewMode !== "tracking" && (
             <Button
               variant="outline"
               size="sm"
@@ -348,53 +368,12 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
           )}
         </div>
       </div>
-      {viewMode === "board" && (
-        <div className="flex flex-wrap gap-2 items-center px-2 sm:px-4 pb-2">
-          <div className="relative flex-1 min-w-[150px] max-w-xs">
-            <Search01Icon className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t("kanban.searchPlaceholder")}
-              className="w-full pl-7 pr-2 py-1.5 text-xs bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
-            />
-          </div>
-          <select
-            value={priorityFilter}
-            onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-2 py-1.5 text-xs bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
-          >
-            <option value="">{t("kanban.allPriorities")}</option>
-            <option value="critical">{t("kanban.critical")}</option>
-            <option value="high">{t("kanban.high")}</option>
-            <option value="medium">{t("kanban.medium")}</option>
-            <option value="low">{t("kanban.low")}</option>
-          </select>
-          {isShared && _uniqueAssignees.length > 0 && (
-            <select
-              value={assigneeFilter}
-              onChange={(e) => setAssigneeFilter(e.target.value)}
-              className="px-2 py-1.5 text-xs bg-background border border-input rounded-jotty focus:outline-none focus:border-ring"
-            >
-              <option value="">{t("kanban.allAssignees")}</option>
-              {_uniqueAssignees.map((assignee) => (
-                <option key={assignee} value={assignee}>
-                  {assignee}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
-      )}
       <div className="flex-1 min-w-0 w-full max-w-full overflow-auto pb-[8.5em]">
-        {viewMode === "calendar" ? (
-          <div className="p-4">
-            <CalendarView
-              checklist={localChecklist}
-              onItemClick={(item) => setCalendarSelectedItem(item)}
-            />
-          </div>
+        {viewMode === "tracking" ? (
+          <TimeTrackingView
+            initialTasks={[localChecklist]}
+            forceTaskId={localChecklist.uuid || localChecklist.id}
+          />
         ) : isClient ? (
           <DndContext
             sensors={sensors}
@@ -431,18 +410,6 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
             )}
         </div>
       </div>
-
-      {calendarSelectedItem && (
-        <KanbanCardDetail
-          checklist={localChecklist}
-          item={calendarSelectedItem}
-          isOpen={!!calendarSelectedItem}
-          onClose={() => setCalendarSelectedItem(null)}
-          onUpdate={handleItemUpdate}
-          checklistId={localChecklist.id}
-          category={localChecklist.category || "Uncategorized"}
-        />
-      )}
 
       {showBulkPasteModal && (
         <BulkPasteModal

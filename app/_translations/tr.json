@@ -625,7 +625,8 @@
     "session": "oturum",
     "sessions": "oturum",
     "startTime": "Başlangıç",
-    "endTime": "Bitiş"
+    "endTime": "Bitiş",
+    "timeTracking": "Zaman Takibi"
   },
   "profile": {
     "userProfile": "Kullanıcı Profili",

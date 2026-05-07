@@ -625,7 +625,8 @@
     "session": "session",
     "sessions": "sessions",
     "startTime": "Start",
-    "endTime": "End"
+    "endTime": "End",
+    "timeTracking": "Time Tracking"
   },
   "profile": {
     "userProfile": "User",

@@ -625,7 +625,8 @@
     "session": "记录",
     "sessions": "记录",
     "startTime": "开始",
-    "endTime": "结束"
+    "endTime": "结束",
+    "timeTracking": "时间追踪"
   },
   "profile": {
     "userProfile": "用户",

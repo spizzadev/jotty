@@ -391,6 +391,13 @@ export const deleteList = async (formData: FormData) => {
     await serverDeleteFile(filePath);
 
     try {
+      const { deleteTimeEntriesForTask } = await import(
+        "@/app/_server/actions/time-entries"
+      );
+      await deleteTimeEntriesForTask(ownerUsername, list.uuid || list.id);
+    } catch {}
+
+    try {
       await removeItemFromIndex(list.owner!, ItemTypes.CHECKLIST, list.uuid!);
     } catch (error) {
       console.warn(

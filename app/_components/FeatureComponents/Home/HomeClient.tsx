@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { ChecklistHome } from "@/app/_components/FeatureComponents/Home/Parts/ChecklistHome";
 import { NotesHome } from "@/app/_components/FeatureComponents/Home/Parts/NotesHome";
-import { TimeTrackingView } from "@/app/_components/FeatureComponents/TimeTracking/TimeTrackingView";
 import { TagsHome } from "@/app/_components/FeatureComponents/Home/Parts/TagsHome";
 import { Layout } from "@/app/_components/GlobalComponents/Layout/Layout";
 import { Checklist, Category, Note, SanitisedUser } from "@/app/_types";
@@ -18,7 +17,6 @@ interface HomeClientProps {
   initialCategories: Category[];
   initialDocs: Note[];
   initialDocsCategories: Category[];
-  initialTasks: Checklist[];
   user: SanitisedUser | null;
 }
 
@@ -27,7 +25,6 @@ export const HomeClient = ({
   initialCategories,
   initialDocs,
   initialDocsCategories,
-  initialTasks,
   user,
 }: HomeClientProps) => {
   const router = useRouter();
@@ -94,10 +91,6 @@ export const HomeClient = ({
             router.push(`/note/${categoryPath}`);
           }}
         />
-      )}
-
-      {mode === Modes.TIME_TRACKING && (
-        <TimeTrackingView initialTasks={initialTasks} user={user} />
       )}
 
       {mode === Modes.TAGS && (

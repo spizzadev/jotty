@@ -2,16 +2,12 @@
 
 import { useState } from "react";
 import { ProjectTimeEntry } from "@/app/_types";
-import {
-  addManualEntry,
-  addManualCategoryEntry,
-} from "@/app/_server/actions/time-entries";
+import { addManualEntry } from "@/app/_server/actions/time-entries";
 import { Button } from "@/app/_components/GlobalComponents/Buttons/Button";
 import { LocalizedDateTimeInput } from "./LocalizedDateTimeInput";
 
 interface ManualEntryFormProps {
-  taskId?: string;
-  category?: string;
+  taskId: string;
   onAdd: (entry: ProjectTimeEntry) => void;
 }
 
@@ -34,7 +30,6 @@ function defaultEnd(): string {
 
 export const ManualEntryForm = ({
   taskId,
-  category,
   onAdd,
 }: ManualEntryFormProps) => {
   const [expanded, setExpanded] = useState(false);
@@ -63,25 +58,15 @@ export const ManualEntryForm = ({
 
     setError(null);
     setSaving(true);
-    const result = taskId
-      ? await addManualEntry(
-          taskId,
-          description.trim(),
-          dateStr,
-          durationMin,
-          undefined,
-          startIso,
-          endIso,
-        )
-      : await addManualCategoryEntry(
-          category ?? "",
-          description.trim(),
-          dateStr,
-          durationMin,
-          undefined,
-          startIso,
-          endIso,
-        );
+    const result = await addManualEntry(
+      taskId,
+      description.trim(),
+      dateStr,
+      durationMin,
+      undefined,
+      startIso,
+      endIso,
+    );
     setSaving(false);
 
     if (result.success && result.data) {

@@ -600,7 +600,8 @@
     "session": "sessie",
     "sessions": "sessies",
     "startTime": "Start",
-    "endTime": "Einde"
+    "endTime": "Einde",
+    "timeTracking": "Tijdregistratie"
   },
   "profile": {
     "userProfile": "Gebruiker",

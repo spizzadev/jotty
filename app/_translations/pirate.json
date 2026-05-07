@@ -625,7 +625,8 @@
     "session": "watch",
     "sessions": "watches",
     "startTime": "Start o’ bell",
-    "endTime": "End o’ bell"
+    "endTime": "End o’ bell",
+    "timeTracking": "Hourglass"
   },
   "profile": {
     "userProfile": "Deckhand",

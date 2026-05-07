@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Checklist, ProjectTimeEntry } from "@/app/_types";
-import {
-  deleteTimeEntry,
-  deleteCategoryEntry,
-} from "@/app/_server/actions/time-entries";
+import { deleteTimeEntry } from "@/app/_server/actions/time-entries";
 import { exportEntriesToCsv } from "./exportCsv";
 import { usePreferredDateTime } from "@/app/_hooks/usePreferredDateTime";
 import { LocalizedDateTimeInput } from "./LocalizedDateTimeInput";
@@ -99,9 +96,8 @@ export const EntryTable = ({
   }, [completedEntries.length, filter, entries]);
 
   const handleDelete = async (entry: ProjectTimeEntry) => {
-    const result = entry.taskId
-      ? await deleteTimeEntry(entry.taskId, entry.id)
-      : await deleteCategoryEntry(entry.category ?? "", entry.id);
+    if (!entry.taskId) return;
+    const result = await deleteTimeEntry(entry.taskId, entry.id);
     if (result.success) {
       onDelete(entry.id);
     }
@@ -151,7 +147,6 @@ export const EntryTable = ({
   const colCount = 3 + (showProjectCol ? 1 : 0) + (showAmount ? 1 : 0) + 1;
 
   const resolveLabel = (entry: ProjectTimeEntry): string => {
-    if (entry.category && !entry.taskId) return entry.category;
     if (entry.taskId && tasks) {
       const task = tasks.find((t) => (t.uuid || t.id) === entry.taskId);
       return task?.title ?? entry.taskId;
