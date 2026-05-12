@@ -23,6 +23,8 @@ const getBillingFilePath = (username: string) =>
 export interface BillingSettings {
   hourlyRate: number;
   currency: string;
+  weeklyTargetHours?: number;
+  weeklyTargetStartDate?: string;
 }
 
 export interface TimeEntrySummary {

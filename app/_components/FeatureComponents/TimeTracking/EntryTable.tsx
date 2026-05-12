@@ -7,7 +7,7 @@ import { exportEntriesToCsv } from "./exportCsv";
 import { usePreferredDateTime } from "@/app/_hooks/usePreferredDateTime";
 import { LocalizedDateTimeInput } from "./LocalizedDateTimeInput";
 
-type FilterRange = "week" | "month" | "all";
+type FilterRange = "week" | "month" | "year" | "all";
 
 interface EditState {
   start: string;
@@ -63,6 +63,9 @@ function isInRange(iso: string, range: FilterRange): boolean {
       date.getMonth() === now.getMonth() &&
       date.getFullYear() === now.getFullYear()
     );
+  }
+  if (range === "year") {
+    return date.getFullYear() === now.getFullYear();
   }
   return true;
 }
@@ -179,7 +182,7 @@ export const EntryTable = ({
             ↓ CSV
           </button>
           <div className="flex gap-1">
-            {(["week", "month", "all"] as FilterRange[]).map((r) => (
+            {(["week", "month", "year", "all"] as FilterRange[]).map((r) => (
               <button
                 key={r}
                 onClick={() => setFilter(r)}
@@ -193,7 +196,9 @@ export const EntryTable = ({
                   ? "This Week"
                   : r === "month"
                     ? "This Month"
-                    : "All"}
+                    : r === "year"
+                      ? "This Year"
+                      : "All"}
               </button>
             ))}
           </div>

@@ -257,6 +257,17 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
     setIsClient(true);
   }, []);
 
+  useEffect(() => {
+    const key = `kanban-view-${localChecklist.uuid || localChecklist.id}`;
+    const saved = localStorage.getItem(key);
+    if (saved === "board" || saved === "tracking") setViewMode(saved);
+  }, [localChecklist.uuid, localChecklist.id]);
+
+  const handleViewModeChange = (mode: "board" | "tracking") => {
+    localStorage.setItem(`kanban-view-${localChecklist.uuid || localChecklist.id}`, mode);
+    setViewMode(mode);
+  };
+
   const referencingItems = useMemo(() => {
     return getReferences(
       linkIndex,
@@ -295,7 +306,7 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
           <Button
             variant={viewMode === "board" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setViewMode("board")}
+            onClick={() => handleViewModeChange("board")}
             className="text-xs sm:text-md lg:text-xs h-7"
           >
             <TaskDaily01Icon className="h-3 w-3 mr-1 shrink-0" />
@@ -304,7 +315,7 @@ export const Kanban = ({ checklist, onUpdate }: KanbanBoardProps) => {
           <Button
             variant={viewMode === "tracking" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setViewMode("tracking")}
+            onClick={() => handleViewModeChange("tracking")}
             className="text-xs sm:text-md lg:text-xs h-7"
           >
             <TimeQuarterIcon className="h-3 w-3 mr-1 shrink-0" />

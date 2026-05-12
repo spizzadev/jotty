@@ -16,6 +16,7 @@ import { ManualEntryForm } from "./ManualEntryForm";
 import { EntryTable } from "./EntryTable";
 import { SummaryRow } from "./SummaryRow";
 import { BillingSettingsPanel } from "./BillingSettingsPanel";
+import { WeeklyTargetPanel } from "./WeeklyTargetPanel";
 
 interface TimeTrackingViewProps {
   initialTasks: Checklist[];
@@ -137,10 +138,16 @@ export const TimeTrackingView = ({ initialTasks, forceTaskId }: TimeTrackingView
 
   const handleBillingSave = async (settings: BillingSettings) => {
     if (!taskParam) return;
-    const result = await saveBillingSettings(taskParam, settings);
-    if (result.success) {
-      setBilling(settings);
-    }
+    const merged = { ...(billing ?? { hourlyRate: 0, currency: "EUR" }), ...settings };
+    const result = await saveBillingSettings(taskParam, merged);
+    if (result.success) setBilling(merged);
+  };
+
+  const handleWeeklyTargetSave = async (target: { weeklyTargetHours: number; weeklyTargetStartDate: string }) => {
+    if (!taskParam) return;
+    const merged = { ...(billing ?? { hourlyRate: 0, currency: "EUR" }), ...target };
+    const result = await saveBillingSettings(taskParam, merged);
+    if (result.success) setBilling(merged);
   };
 
   const heading = taskParam ? (selectedTask?.title ?? "Task") : "All Entries";
@@ -160,10 +167,15 @@ export const TimeTrackingView = ({ initialTasks, forceTaskId }: TimeTrackingView
                 onStop={handleStop}
               />
             </div>
-            <div className="sm:w-72 flex-shrink-0 w-full">
+            <div className="sm:w-72 flex-shrink-0 w-full flex flex-col gap-3">
               <BillingSettingsPanel
                 initialSettings={billing}
                 onSave={handleBillingSave}
+              />
+              <WeeklyTargetPanel
+                billing={billing}
+                entries={entries}
+                onSave={handleWeeklyTargetSave}
               />
             </div>
           </div>
