@@ -4,10 +4,8 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-CA"); // YYYY-MM-DD
 }
 
-function formatDuration(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return h > 0 ? `${h}:${String(m).padStart(2, "0")}` : `0:${String(m).padStart(2, "0")}`;
+function durationDays(minutes: number): string {
+  return (minutes / 60 / 24).toFixed(10);
 }
 
 export function exportEntriesToCsv(
@@ -18,14 +16,14 @@ export function exportEntriesToCsv(
 ): void {
   const completedEntries = entries.filter((e) => e.durationMin !== undefined);
 
-  const headers = ["Date", "Description", "Duration (h:mm)", ...(hourlyRate ? [`Amount (${currency})`] : [])];
+  const headers = ["Date", "Description", "Duration (d)", ...(hourlyRate ? [`Amount (${currency})`] : [])];
 
   const rows = completedEntries.map((entry) => {
     const amount = hourlyRate ? ((entry.durationMin! / 60) * hourlyRate).toFixed(2) : null;
     return [
       formatDate(entry.start),
       `"${entry.description.replace(/"/g, '""')}"`,
-      formatDuration(entry.durationMin!),
+      durationDays(entry.durationMin!),
       ...(amount ? [amount] : []),
     ].join(",");
   });
@@ -35,7 +33,7 @@ export function exportEntriesToCsv(
   const totalsRow = [
     "TOTAL",
     "",
-    formatDuration(totalMin),
+    durationDays(totalMin),
     ...(totalAmount ? [totalAmount] : []),
   ].join(",");
 

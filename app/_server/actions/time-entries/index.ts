@@ -25,6 +25,7 @@ export interface BillingSettings {
   currency: string;
   weeklyTargetHours?: number;
   weeklyTargetStartDate?: string;
+  vacationHoursPerYear?: number;
 }
 
 export interface TimeEntrySummary {

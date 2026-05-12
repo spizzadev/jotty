@@ -15,8 +15,7 @@ import { TimerControl } from "./TimerControl";
 import { ManualEntryForm } from "./ManualEntryForm";
 import { EntryTable } from "./EntryTable";
 import { SummaryRow } from "./SummaryRow";
-import { BillingSettingsPanel } from "./BillingSettingsPanel";
-import { WeeklyTargetPanel } from "./WeeklyTargetPanel";
+import { TrackingSettingsPanel } from "./WeeklyTargetPanel";
 
 interface TimeTrackingViewProps {
   initialTasks: Checklist[];
@@ -33,21 +32,12 @@ export const TimeTrackingView = ({ initialTasks, forceTaskId }: TimeTrackingView
 
   const [entries, setEntries] = useState<ProjectTimeEntry[]>([]);
   const [totalMin, setTotalMin] = useState(0);
-  const [billing, setBilling] = useState<BillingSettings | undefined>(
-    undefined,
-  );
-  const [runningEntry, setRunningEntry] = useState<
-    ProjectTimeEntry | undefined
-  >(undefined);
+  const [billing, setBilling] = useState<BillingSettings | undefined>(undefined);
+  const [runningEntry, setRunningEntry] = useState<ProjectTimeEntry | undefined>(undefined);
   const [loading, setLoading] = useState(false);
-  const [filteredEntries, setFilteredEntries] = useState<ProjectTimeEntry[]>(
-    [],
-  );
+  const [filteredEntries, setFilteredEntries] = useState<ProjectTimeEntry[]>([]);
 
-  const filteredMin = filteredEntries.reduce(
-    (sum, e) => sum + (e.durationMin ?? 0),
-    0,
-  );
+  const filteredMin = filteredEntries.reduce((sum, e) => sum + (e.durationMin ?? 0), 0);
   const filteredAmount =
     billing?.hourlyRate && filteredMin > 0
       ? (filteredMin / 60) * billing.hourlyRate
@@ -136,16 +126,9 @@ export const TimeTrackingView = ({ initialTasks, forceTaskId }: TimeTrackingView
     }
   };
 
-  const handleBillingSave = async (settings: BillingSettings) => {
+  const handleSettingsSave = async (settings: BillingSettings) => {
     if (!taskParam) return;
     const merged = { ...(billing ?? { hourlyRate: 0, currency: "EUR" }), ...settings };
-    const result = await saveBillingSettings(taskParam, merged);
-    if (result.success) setBilling(merged);
-  };
-
-  const handleWeeklyTargetSave = async (target: { weeklyTargetHours: number; weeklyTargetStartDate: string }) => {
-    if (!taskParam) return;
-    const merged = { ...(billing ?? { hourlyRate: 0, currency: "EUR" }), ...target };
     const result = await saveBillingSettings(taskParam, merged);
     if (result.success) setBilling(merged);
   };
@@ -158,27 +141,20 @@ export const TimeTrackingView = ({ initialTasks, forceTaskId }: TimeTrackingView
     <div className="w-full px-4 py-3 h-full overflow-y-auto jotty-scrollable-content">
       <div className="flex flex-col gap-4">
         {taskParam && (
-          <div className="flex flex-col sm:flex-row gap-4 items-start">
-            <div className="flex-1 min-w-0">
-              <TimerControl
-                taskId={taskParam}
-                runningEntry={runningEntry}
-                onStart={handleStart}
-                onStop={handleStop}
-              />
-            </div>
-            <div className="sm:w-72 flex-shrink-0 w-full flex flex-col gap-3">
-              <BillingSettingsPanel
-                initialSettings={billing}
-                onSave={handleBillingSave}
-              />
-              <WeeklyTargetPanel
-                billing={billing}
-                entries={entries}
-                onSave={handleWeeklyTargetSave}
-              />
-            </div>
-          </div>
+          <TimerControl
+            taskId={taskParam}
+            runningEntry={runningEntry}
+            onStart={handleStart}
+            onStop={handleStop}
+          />
+        )}
+
+        {taskParam && (
+          <TrackingSettingsPanel
+            billing={billing}
+            entries={entries}
+            onSave={handleSettingsSave}
+          />
         )}
 
         {taskParam && (
