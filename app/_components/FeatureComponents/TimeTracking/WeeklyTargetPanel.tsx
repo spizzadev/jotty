@@ -68,6 +68,36 @@ function getISOWeekStart(date: Date): Date {
   return d;
 }
 
+function findActiveWeek(
+  entries: ProjectTimeEntry[],
+  targetHours: number,
+  startDateStr: string,
+  vacationHoursPerYear: number,
+): { weekStart: Date; weekDoneMin: number; effectiveWeeklyMin: number } {
+  const startDate = new Date(startDateStr + "T00:00:00");
+  const currentWeekStart = getISOWeekStart(new Date());
+
+  // FIFO fill-up: all hours since startDate advance the pointer regardless of when logged
+  const totalDoneMin = entries
+    .filter((e) => e.durationMin && new Date(e.start) >= startDate)
+    .reduce((s, e) => s + e.durationMin!, 0);
+
+  // Effective weekly target after spreading vacation across all weeks
+  const effectiveWeeklyMin = Math.max(
+    Math.round(((targetHours * 52 - vacationHoursPerYear) / 52) * 60),
+    1,
+  );
+
+  const weeksCompleted = Math.floor(totalDoneMin / effectiveWeeklyMin);
+  const weekDoneMin = totalDoneMin - weeksCompleted * effectiveWeeklyMin;
+
+  const startWeek = getISOWeekStart(startDate);
+  let weekStart = new Date(startWeek.getTime() + weeksCompleted * 7 * 24 * 60 * 60 * 1000);
+  if (weekStart > currentWeekStart) weekStart = currentWeekStart;
+
+  return { weekStart, weekDoneMin, effectiveWeeklyMin };
+}
+
 function computeProgress(
   entries: ProjectTimeEntry[],
   targetHours: number,
@@ -78,12 +108,7 @@ function computeProgress(
   const now = new Date();
   if (isNaN(startDate.getTime()) || now < startDate) return null;
 
-  const thisWeekStart = getISOWeekStart(now);
-  const thisWeekEnd = new Date(thisWeekStart.getTime() + 7 * 24 * 60 * 60 * 1000);
-
-  const thisWeekMin = entries
-    .filter((e) => e.durationMin && new Date(e.start) >= thisWeekStart && new Date(e.start) < thisWeekEnd)
-    .reduce((s, e) => s + e.durationMin!, 0);
+  const { weekStart: thisWeekStart, weekDoneMin: thisWeekMin, effectiveWeeklyMin } = findActiveWeek(entries, targetHours, startDateStr, vacationHoursPerYear);
 
   // Hard Jan 1 boundary so Dec 29-31 entries stay in last year
   const yearStart = new Date(now.getFullYear(), 0, 1);
@@ -115,10 +140,10 @@ function computeProgress(
   const totalExpectedMin = thisYearExpected + carryOverMin;
 
   return {
-    kw: weekLabel(now),
+    kw: weekLabel(thisWeekStart),
     thisWeekMin,
-    thisWeekTargetMin: targetHours * 60,
-    thisWeekPct: Math.min(100, Math.round((thisWeekMin / (targetHours * 60)) * 100)),
+    thisWeekTargetMin: effectiveWeeklyMin,
+    thisWeekPct: Math.min(100, Math.round((thisWeekMin / effectiveWeeklyMin) * 100)),
     totalDoneMin,
     totalExpectedMin,
     deltaMin: totalDoneMin - totalExpectedMin,
@@ -227,7 +252,7 @@ export const TrackingSettingsPanel = ({ billing, entries, onSave }: TrackingSett
                 progress.deltaMin >= 0 ? "text-green-500" : "text-destructive"
               }`}
             >
-              {progress.deltaMin >= 0 ? "+" : "−"}{formatH(Math.abs(progress.deltaMin))}
+              {progress.deltaMin >= 0 ? `+${formatH(progress.deltaMin)}` : `${formatH(Math.abs(progress.deltaMin))} behind`}
             </p>
             <div className="border-t border-border/30 pt-1 space-y-0.5">
               <p className="text-xs text-muted-foreground">

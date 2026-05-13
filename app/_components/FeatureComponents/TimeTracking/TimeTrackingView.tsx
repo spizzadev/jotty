@@ -126,6 +126,11 @@ export const TimeTrackingView = ({ initialTasks, forceTaskId }: TimeTrackingView
     }
   };
 
+  const handleRunningUpdate = (updated: ProjectTimeEntry) => {
+    setRunningEntry(updated);
+    setEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+  };
+
   const handleSettingsSave = async (settings: BillingSettings) => {
     if (!taskParam) return;
     const merged = { ...(billing ?? { hourlyRate: 0, currency: "EUR" }), ...settings };
@@ -146,6 +151,7 @@ export const TimeTrackingView = ({ initialTasks, forceTaskId }: TimeTrackingView
             runningEntry={runningEntry}
             onStart={handleStart}
             onStop={handleStop}
+            onUpdate={handleRunningUpdate}
           />
         )}
 

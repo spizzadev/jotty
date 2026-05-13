@@ -14,7 +14,9 @@ export function exportEntriesToCsv(
   hourlyRate?: number,
   currency = "EUR",
 ): void {
-  const completedEntries = entries.filter((e) => e.durationMin !== undefined);
+  const completedEntries = entries
+    .filter((e) => e.durationMin !== undefined)
+    .sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
 
   const headers = ["Date", "Description", "Duration (d)", ...(hourlyRate ? [`Amount (${currency})`] : [])];
 

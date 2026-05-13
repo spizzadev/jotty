@@ -90,9 +90,9 @@ export const EntryTable = ({
   });
   const [saving, setSaving] = useState(false);
 
-  const completedEntries = entries.filter(
-    (e) => e.durationMin !== undefined && isInRange(e.start, filter),
-  );
+  const completedEntries = entries
+    .filter((e) => e.durationMin !== undefined && isInRange(e.start, filter))
+    .sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
 
   useEffect(() => {
     onFilteredChange?.(completedEntries);
