@@ -123,16 +123,8 @@ export const QuickNav = ({
 
         <div className="contents lg:hidden">
           {(user?.landingPage === Modes.NOTES
-            ? ([
-                Modes.NOTES,
-                Modes.CHECKLISTS,
-                Modes.TIME_TRACKING,
-              ] as AppMode[])
-            : ([
-                Modes.CHECKLISTS,
-                Modes.NOTES,
-                Modes.TIME_TRACKING,
-              ] as AppMode[])
+            ? ([Modes.NOTES, Modes.CHECKLISTS] as AppMode[])
+            : ([Modes.CHECKLISTS, Modes.NOTES] as AppMode[])
           ).map((modeOption) => (
             <NavigationGlobalIcon
               key={modeOption}

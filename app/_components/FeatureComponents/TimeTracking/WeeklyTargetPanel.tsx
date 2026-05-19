@@ -110,34 +110,16 @@ function computeProgress(
 
   const { weekStart: thisWeekStart, weekDoneMin: thisWeekMin, effectiveWeeklyMin } = findActiveWeek(entries, targetHours, startDateStr, vacationHoursPerYear);
 
-  // Hard Jan 1 boundary so Dec 29-31 entries stay in last year
-  const yearStart = new Date(now.getFullYear(), 0, 1);
-  yearStart.setHours(0, 0, 0, 0);
-  const periodStart = startDate > yearStart ? startDate : yearStart;
-
+  // All-time totals from startDate — same basis as the FIFO KW card for consistency
   const totalDoneMin = entries
-    .filter((e) => e.durationMin && new Date(e.start) >= periodStart)
+    .filter((e) => e.durationMin && new Date(e.start) >= startDate)
     .reduce((s, e) => s + e.durationMin!, 0);
 
-  const daysElapsed = (now.getTime() - periodStart.getTime()) / 86400000;
-  const vacationDeductionMin = Math.round((daysElapsed / 365) * vacationHoursPerYear * 60);
-  const thisYearExpected = Math.max(0, Math.round((daysElapsed / 7) * targetHours * 60) - vacationDeductionMin);
-
-  let carryOverMin = 0;
-  if (startDate < yearStart) {
-    const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
-    lastYearStart.setHours(0, 0, 0, 0);
-    const lyEffStart = startDate > lastYearStart ? startDate : lastYearStart;
-    const lyDone = entries
-      .filter((e) => e.durationMin && new Date(e.start) >= lyEffStart && new Date(e.start) < yearStart)
-      .reduce((s, e) => s + e.durationMin!, 0);
-    const lyDays = (yearStart.getTime() - lyEffStart.getTime()) / 86400000;
-    const lyVacationDeduction = Math.round((lyDays / 365) * vacationHoursPerYear * 60);
-    const lyExpected = Math.max(0, Math.round((lyDays / 7) * targetHours * 60) - lyVacationDeduction);
-    carryOverMin = lyExpected - lyDone;
-  }
-
-  const totalExpectedMin = thisYearExpected + carryOverMin;
+  const totalDaysElapsed = (now.getTime() - startDate.getTime()) / 86400000;
+  const vacationDeductionMin = Math.round((totalDaysElapsed / 365) * vacationHoursPerYear * 60);
+  const totalExpectedMin = Math.max(0,
+    Math.round((totalDaysElapsed / 7) * targetHours * 60) - vacationDeductionMin
+  );
 
   return {
     kw: weekLabel(thisWeekStart),
@@ -147,8 +129,7 @@ function computeProgress(
     totalDoneMin,
     totalExpectedMin,
     deltaMin: totalDoneMin - totalExpectedMin,
-    overallYear: now.getFullYear(),
-    carryOverMin,
+    startYear: startDate.getFullYear(),
   };
 }
 
@@ -246,7 +227,7 @@ export const TrackingSettingsPanel = ({ billing, entries, onSave }: TrackingSett
           </div>
 
           <div className="rounded-md bg-muted/40 px-3 py-2.5 space-y-1.5">
-            <p className="text-xs text-muted-foreground">{progress.overallYear}</p>
+            <p className="text-xs text-muted-foreground">since {progress.startYear}</p>
             <p
               className={`text-base font-semibold leading-tight ${
                 progress.deltaMin >= 0 ? "text-green-500" : "text-destructive"
@@ -259,13 +240,8 @@ export const TrackingSettingsPanel = ({ billing, entries, onSave }: TrackingSett
                 {formatH(progress.totalDoneMin)} done
               </p>
               <p className="text-xs text-muted-foreground">
-                {formatH(progress.totalExpectedMin - progress.carryOverMin)} exp. {progress.overallYear}
+                {formatH(progress.totalExpectedMin)} expected
               </p>
-              {progress.carryOverMin !== 0 && (
-                <p className="text-xs text-muted-foreground/60">
-                  {progress.carryOverMin > 0 ? "+" : "−"}{formatH(Math.abs(progress.carryOverMin))} from {progress.overallYear - 1}
-                </p>
-              )}
             </div>
           </div>
         </div>
